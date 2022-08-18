@@ -1,12 +1,11 @@
 import { invoke } from "@tauri-apps/api/tauri";
 
-interface ProjectDirs {
-    data_dir: string;
-    config_dir: string;
+function appDataDir(): Promise<string> {
+    return invoke("app_data_dir");
 }
 
-function getProjectDirs(): Promise<ProjectDirs> {
-    return invoke("get_project_dirs");
+function pathExists(path: string): Promise<boolean> {
+    return invoke("path_exists", { path: path });
 }
 
-export { getProjectDirs };
+export { appDataDir, pathExists };

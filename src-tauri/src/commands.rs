@@ -1,21 +1,13 @@
 use std::path::PathBuf;
 
-use directories_next::ProjectDirs;
-use serde::Serialize;
+use tauri::AppHandle;
 
-#[derive(Serialize)]
-pub struct ProjectDirsSerializble {
-    data_dir: PathBuf,
-    config_dir: PathBuf,
+#[tauri::command]
+pub fn app_data_dir(app_handle: AppHandle) -> Option<PathBuf> {
+    tauri::api::path::data_dir().map(|dir| dir.join(&app_handle.config().tauri.bundle.identifier))
 }
 
 #[tauri::command]
-pub fn get_project_dirs() -> ProjectDirsSerializble {
-    let dirs = ProjectDirs::from("com", "snorkysnark", "Moon Quote")
-        .expect("Cannot find ProjectDirs paths");
-
-    ProjectDirsSerializble {
-        data_dir: dirs.data_dir().into(),
-        config_dir: dirs.config_dir().into(),
-    }
+pub fn path_exists(path: PathBuf) -> bool {
+    path.exists()
 }

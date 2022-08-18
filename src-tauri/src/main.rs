@@ -7,7 +7,10 @@ mod commands;
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![commands::get_project_dirs])
+        .invoke_handler(tauri::generate_handler![
+            commands::app_data_dir,
+            commands::path_exists
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
