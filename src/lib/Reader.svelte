@@ -1,17 +1,23 @@
 <script lang="ts">
     import * as fs from "@tauri-apps/api/fs";
-    import ePub from "epubjs";
+    import ePub, { Book, Rendition } from "epubjs";
 
     export let bookPath: string;
+
+    let book: Book;
     let viewContainer: HTMLElement;
+    let rendition: Rendition;
 
-    async function loadBook(viewContainer: HTMLElement, path: string) {
-        if (!viewContainer) return;
-
+    async function loadBook(path: string) {
         const file = await fs.readBinaryFile(path);
-        const book = ePub(file.buffer);
+        book = ePub(file.buffer);
+    }
+    $: loadBook(bookPath);
 
-        const rendition = book.renderTo(viewContainer, {
+    function renderBook(container: HTMLElement, book: Book) {
+        if (rendition) rendition.destroy();
+
+        rendition = book.renderTo(container, {
             height: "100%",
             width: "100%",
             flow: "scrolled-doc",
@@ -19,7 +25,7 @@
         });
         rendition.display(10);
     }
-    $: loadBook(viewContainer, bookPath);
+    $: if (viewContainer && book) renderBook(viewContainer, book);
 </script>
 
 <div id="reader" bind:this={viewContainer} />
