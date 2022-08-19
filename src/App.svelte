@@ -11,10 +11,29 @@
             on:openBook={(event) => (currentBookPath = event.detail)}
         />
     {:else}
-        <button on:click={() => (currentBookPath = null)}>Back</button>
-        <Reader bookPath={currentBookPath} />
+        <div class="readerView">
+            <button class="readerButton" on:click={() => (currentBookPath = null)}>Back</button>
+            <div class="readerContainer">
+                <Reader bookPath={currentBookPath} />
+            </div>
+        </div>
     {/if}
 </main>
 
 <style>
+    .readerView {
+         display: flex;
+         flex-flow: column;
+         height: calc(100vh - 4rem);
+    }
+
+    .readerButton {
+        flex: 0 1 auto;
+        align-self: center;
+    }
+
+    .readerContainer {
+        flex: 1 1 auto;
+        min-height: 0;
+    }
 </style>
