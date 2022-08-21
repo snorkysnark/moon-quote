@@ -23,6 +23,7 @@
             flow: "scrolled-doc",
             allowScriptedContent: true,
         });
+
         rendition.display(10);
     }
     $: if (viewContainer && book) renderBook(viewContainer, book);
