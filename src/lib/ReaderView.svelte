@@ -3,35 +3,35 @@
     import Reader from "./Reader.svelte";
 
     export let bookPath: string;
+    let tocEnabled = false;
 
     const dispatch = createEventDispatcher<{ goBack: void }>();
 </script>
 
 <div class="container">
-    <div class="leftView">
-        <div class="topPanel">
-            <button on:click={() => dispatch("goBack")}>&lt-</button>
-            <span>Library</span>
-        </div>
+    <div class="topPanel">
+        <button on:click={() => dispatch("goBack")}>&lt-</button>
+        <span>Library</span>
+    </div>
+    <div class="mainView">
         <div class="readerView">
             <button class="navButton">&lt</button>
-            <div class="readerSpace">
-                <div class="readerPage">
-                    <Reader {bookPath} />
-                </div>
+            <div class="readerPage">
+                <Reader {bookPath} />
             </div>
             <button class="navButton">&gt</button>
         </div>
+        {#if tocEnabled}
+            <div class="toc" />
+        {/if}
+        <div class="sidePanel">
+            <button on:click={() => (tocEnabled = !tocEnabled)}>TOC</button>
+        </div>
     </div>
-    <div class="rightPanel"></div>
 </div>
 
 <style>
     .container {
-        display: flex;
-    }
-
-    .leftView {
         display: flex;
         flex-flow: column;
         width: 100%;
@@ -42,28 +42,44 @@
         background-color: orange;
     }
 
-    .readerView {
+    .mainView {
         flex: 1 1 auto;
         min-height: 0;
         display: flex;
     }
 
-    .readerSpace {
+    .sidePanel {
+        width: 50px;
+    }
+
+    .toc {
+        min-width: 500px;
+        background-color: lightblue;
+    }
+
+    .readerView {
         flex: 1 1 auto;
-        min-height: 0;
-        background-color: #E8E8E8;
+        height: 100%;
         display: flex;
-        justify-content: center;
+    }
+
+    .navButton {
+        flex: 1 1 auto;
+        border: 0;
+        border-radius: 0;
+        background-color: #e8e8e8;
+        margin: 0;
+        color: #b8b8b8;
+        font-size: 50px;
+        user-select: none;
+        cursor: pointer;
     }
 
     .readerPage {
+        z-index: 1;
         background-color: white;
         width: 800px;
         height: 100%;
         box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-    }
-
-    .rightPanel {
-        min-width: 500px;
     }
 </style>
