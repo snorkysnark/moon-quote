@@ -6,12 +6,10 @@
 </script>
 
 <script lang="ts">
-    import * as fs from "@tauri-apps/api/fs";
-    import ePub, { Book, Rendition } from "epubjs";
+    import type { Book, Rendition } from "epubjs";
 
-    export let bookPath: string;
+    export let book: Book;
 
-    let book: Book;
     let viewContainer: HTMLElement;
     let rendition: Rendition;
 
@@ -35,12 +33,6 @@
         }
     }
 
-    async function loadBook(path: string) {
-        const file = await fs.readBinaryFile(path);
-        book = ePub(file.buffer);
-    }
-    $: loadBook(bookPath);
-
     function renderBook(container: HTMLElement, book: Book) {
         if (rendition) rendition.destroy();
 
@@ -53,7 +45,7 @@
         rendition.on("keyup", onKeyUp);
         rendition.display(0);
     }
-    $: if (viewContainer && book) renderBook(viewContainer, book);
+    $: if (viewContainer) renderBook(viewContainer, book);
 </script>
 
 <svelte:window on:keyup={onKeyUp} />

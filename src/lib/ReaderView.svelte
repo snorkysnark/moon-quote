@@ -1,12 +1,25 @@
 <script lang="ts">
+    import type { Book } from "epubjs";
     import { createEventDispatcher } from "svelte";
+    import * as fs from "@tauri-apps/api/fs";
+    import ePub from "epubjs";
     import Reader, { type ReaderController } from "./Reader.svelte";
 
-    export let bookPath: string;
     let tocEnabled = false;
     let readerController: ReaderController;
-
     const dispatch = createEventDispatcher<{ goBack: void }>();
+
+    export let bookPath: string;
+
+    let bookPromise: Promise<Book>;
+    async function loadBook(path: string) {
+        const file = await fs.readBinaryFile(path);
+        const book = ePub(file.buffer);
+
+        await book.ready;
+        return book;
+    }
+    $: bookPromise = loadBook(bookPath);
 </script>
 
 <div class="container">
@@ -16,14 +29,22 @@
     </div>
     <div class="mainView">
         <div class="readerView">
-            <button class="navButton" on:click={() => readerController.prev()}
-                >&lt</button
+            <button
+                class="navButton"
+                disabled={!readerController}
+                on:click={() => readerController.prev()}>&lt</button
             >
             <div class="readerPage">
-                <Reader {bookPath} bind:controller={readerController} />
+                {#await bookPromise}
+                    <p>Loading...</p>
+                {:then book}
+                    <Reader {book} bind:controller={readerController} />
+                {/await}
             </div>
-            <button class="navButton" on:click={() => readerController.next()}
-                >&gt</button
+            <button
+                class="navButton"
+                disabled={!readerController}
+                on:click={() => readerController.next()}>&gt</button
             >
         </div>
         {#if tocEnabled}
