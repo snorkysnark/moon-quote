@@ -1,3 +1,10 @@
+<script lang="ts" context="module">
+    export interface ReaderController {
+        next: () => Promise<void>;
+        prev: () => Promise<void>;
+    }
+</script>
+
 <script lang="ts">
     import * as fs from "@tauri-apps/api/fs";
     import ePub, { Book, Rendition } from "epubjs";
@@ -7,6 +14,15 @@
     let book: Book;
     let viewContainer: HTMLElement;
     let rendition: Rendition;
+
+    export const controller: ReaderController = {
+        next: async () => {
+            if (rendition) await rendition.next();
+        },
+        prev: async () => {
+            if (rendition) await rendition.prev();
+        },
+    };
 
     async function loadBook(path: string) {
         const file = await fs.readBinaryFile(path);
@@ -24,7 +40,7 @@
             allowScriptedContent: true,
         });
 
-        rendition.display(10);
+        rendition.display(0);
     }
     $: if (viewContainer && book) renderBook(viewContainer, book);
 </script>

@@ -1,9 +1,10 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
-    import Reader from "./Reader.svelte";
+    import Reader, { type ReaderController } from "./Reader.svelte";
 
     export let bookPath: string;
     let tocEnabled = false;
+    let readerController: ReaderController;
 
     const dispatch = createEventDispatcher<{ goBack: void }>();
 </script>
@@ -15,11 +16,15 @@
     </div>
     <div class="mainView">
         <div class="readerView">
-            <button class="navButton">&lt</button>
+            <button class="navButton" on:click={() => readerController.prev()}
+                >&lt</button
+            >
             <div class="readerPage">
-                <Reader {bookPath} />
+                <Reader {bookPath} bind:controller={readerController} />
             </div>
-            <button class="navButton">&gt</button>
+            <button class="navButton" on:click={() => readerController.next()}
+                >&gt</button
+            >
         </div>
         {#if tocEnabled}
             <div class="toc" />
