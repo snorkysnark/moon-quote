@@ -48,7 +48,7 @@
             height: "100%",
             width: "100%",
             flow: "scrolled-doc",
-            allowScriptedContent: true,
+            allowScriptedContent: true, //Needed for arrow key navigation
         });
         rendition.on("keyup", onKeyUp);
         rendition.display(0);
