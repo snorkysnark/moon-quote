@@ -58,7 +58,9 @@
     }
 
     .toc {
-        min-width: 500px;
+        width: 500px;
+        min-width: 200px;
+        flex: 0 1 auto;
         background-color: lightblue;
     }
 
