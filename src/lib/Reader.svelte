@@ -24,6 +24,17 @@
         },
     };
 
+    function onKeyUp(event: KeyboardEvent) {
+        switch (event.key) {
+            case "ArrowLeft":
+                controller.prev();
+                break;
+            case "ArrowRight":
+                controller.next();
+                break;
+        }
+    }
+
     async function loadBook(path: string) {
         const file = await fs.readBinaryFile(path);
         book = ePub(file.buffer);
@@ -39,12 +50,13 @@
             flow: "scrolled-doc",
             allowScriptedContent: true,
         });
-
+        rendition.on("keyup", onKeyUp);
         rendition.display(0);
     }
     $: if (viewContainer && book) renderBook(viewContainer, book);
 </script>
 
+<svelte:window on:keyup={onKeyUp} />
 <div id="reader" bind:this={viewContainer} />
 
 <style>
