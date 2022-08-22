@@ -2,6 +2,7 @@
     export interface ReaderController {
         next: () => Promise<void>;
         prev: () => Promise<void>;
+        display: (target: string | number) => Promise<void>;
     }
 </script>
 
@@ -19,6 +20,13 @@
         },
         prev: async () => {
             if (rendition) await rendition.prev();
+        },
+        display: async (target) => {
+            if (rendition)
+                await rendition.display(
+                    // @ts-ignore: Overloaded method, display(string | number) should be the same as display(string) + display(number)
+                    target
+                );
         },
     };
 

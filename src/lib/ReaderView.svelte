@@ -1,9 +1,10 @@
 <script lang="ts">
-    import type { Book } from "epubjs";
+    import type { Book, NavItem } from "epubjs";
     import { createEventDispatcher } from "svelte";
     import * as fs from "@tauri-apps/api/fs";
     import ePub from "epubjs";
     import Reader, { type ReaderController } from "./Reader.svelte";
+    import ToC from "./ToC.svelte";
 
     let tocEnabled = false;
     let readerController: ReaderController;
@@ -17,9 +18,14 @@
         const book = ePub(file.buffer);
 
         await book.ready;
+        console.log(book.navigation);
         return book;
     }
     $: bookPromise = loadBook(bookPath);
+
+    function onTocClick(event: CustomEvent<NavItem>) {
+        if (readerController) readerController.display(event.detail.href);
+    }
 </script>
 
 <div class="container">
@@ -48,7 +54,13 @@
             >
         </div>
         {#if tocEnabled}
-            <div class="toc" />
+            <div class="toc">
+                {#await bookPromise}
+                    <p>Loading</p>
+                {:then book}
+                    <ToC items={book.navigation.toc} on:click={onTocClick} />
+                {/await}
+            </div>
         {/if}
         <div class="sidePanel">
             <button on:click={() => (tocEnabled = !tocEnabled)}>TOC</button>
@@ -83,6 +95,7 @@
         min-width: 200px;
         flex: 0 1 auto;
         background-color: lightblue;
+        overflow-y: scroll;
     }
 
     .readerView {
