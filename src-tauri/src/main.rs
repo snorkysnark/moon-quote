@@ -38,6 +38,7 @@ fn main() {
         .manage(db_pool)
         .invoke_handler(tauri::generate_handler![
             commands::db_execute,
+            commands::db_query,
             commands::library_dir,
             commands::path_exists,
             commands::is_dir
