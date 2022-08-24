@@ -12,10 +12,10 @@ export function isDir(path: string): Promise<boolean> {
     return invoke("is_dir", { path: path });
 }
 
-export function dbExecute(sql: string, params: any[]): Promise<number> {
-    return invoke("db_execute", { sql: sql, params: params });
+export function dbExecute(sql: string, params?: any[]): Promise<number> {
+    return invoke("db_execute", { sql: sql, params: params || [] });
 }
 
-export function dbQuery(sql: string, params: any[]): Promise<object> {
-    return invoke("db_query", { sql: sql, params: params });
+export function dbQuery(sql: string, params?: any[]): Promise<object> {
+    return invoke("db_query", { sql: sql, params: params || [] });
 }
