@@ -75,6 +75,7 @@ dependencies = [
  "rusqlite_migration",
  "serde",
  "serde_json",
+ "serde_rusqlite",
  "tauri",
  "tauri-build",
 ]
@@ -2311,7 +2312,6 @@ dependencies = [
  "fallible-streaming-iterator",
  "hashlink",
  "libsqlite3-sys",
- "serde_json",
  "smallvec",
 ]
 
@@ -2511,6 +2511,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "serde_rusqlite"
+version = "0.30.1"
+source = "git+https://github.com/twistedfall/serde_rusqlite?branch=dependabot/cargo/rusqlite-0.28#3f7b2a310bc2e4d936251774419293156c61f924"
+dependencies = [
+ "rusqlite",
+ "serde",
 ]
 
 [[package]]
