@@ -3,7 +3,7 @@
     windows_subsystem = "windows"
 )]
 
-use std::{borrow::BorrowMut, path::Path};
+use std::{borrow::BorrowMut, fs, path::Path};
 
 use anyhow::Result;
 use r2d2_sqlite::SqliteConnectionManager;
@@ -24,15 +24,14 @@ fn init_db(db_path: &Path) -> Result<r2d2::Pool<SqliteConnectionManager>> {
 
 fn main() {
     let context = tauri::generate_context!();
-    let db_path = tauri::api::path::data_dir()
-        .map(|dir| {
-            dir.join(&context.config().tauri.bundle.identifier)
-                .join("library")
-                .join("metadata.db")
-        })
-        .expect("Cannot find data directory");
+    let library_path = tauri::api::path::data_dir()
+        .expect("Cannot find data directory")
+        .join(&context.config().tauri.bundle.identifier)
+        .join("library");
+    fs::create_dir_all(&library_path).expect("cannot create library folder");
 
-    let db_pool = init_db(&db_path).expect("database initialization error");
+    let db_pool =
+        init_db(&library_path.join("metadata.db")).expect("database initialization error");
 
     tauri::Builder::default()
         .manage(db_pool)
