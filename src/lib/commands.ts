@@ -12,6 +12,6 @@ export function isDir(path: string): Promise<boolean> {
     return invoke("is_dir", { path: path });
 }
 
-export function query(sql: string, params: any[]) {
-    return invoke("query", { sql: sql, params: params });
+export function dbExecute(sql: string, params: any[]) {
+    return invoke("db_execute", { sql: sql, params: params });
 }

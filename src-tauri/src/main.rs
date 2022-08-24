@@ -37,7 +37,7 @@ fn main() {
     tauri::Builder::default()
         .manage(db_pool)
         .invoke_handler(tauri::generate_handler![
-            commands::query,
+            commands::db_execute,
             commands::library_dir,
             commands::path_exists,
             commands::is_dir

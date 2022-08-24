@@ -11,10 +11,10 @@ use crate::error::SerializableResult;
 type Db = Pool<SqliteConnectionManager>;
 
 #[tauri::command]
-pub fn query(db: State<Db>, sql: &str, params: Vec<JsonValue>) -> SerializableResult<()> {
-    db.get()?.execute(sql, params_from_iter(params.iter()))?;
+pub fn db_execute(db: State<Db>, sql: &str, params: Vec<JsonValue>) -> SerializableResult<usize> {
+    let num_rows = db.get()?.execute(sql, params_from_iter(params.iter()))?;
 
-    Ok(())
+    Ok(num_rows)
 }
 
 #[tauri::command]
