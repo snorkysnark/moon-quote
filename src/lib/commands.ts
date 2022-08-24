@@ -1,11 +1,17 @@
 import { invoke } from "@tauri-apps/api/tauri";
 
-function appDataDir(): Promise<string> {
-    return invoke("app_data_dir");
+export function libraryDir(): Promise<string> {
+    return invoke("library_dir");
 }
 
-function pathExists(path: string): Promise<boolean> {
+export function pathExists(path: string): Promise<boolean> {
     return invoke("path_exists", { path: path });
 }
 
-export { appDataDir, pathExists };
+export function isDir(path: string): Promise<boolean> {
+    return invoke("is_dir", { path: path });
+}
+
+export function query(sql: string, params: any[]) {
+    return invoke("query", { sql: sql, params: params });
+}

@@ -18,6 +18,11 @@ tauri-build = { version = "1.0.4", features = [] }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.0.5", features = ["api-all"] }
+r2d2 = "0.8.10"
+r2d2_sqlite = "0.21.0"
+rusqlite = { version = "0.28.0", features = ["serde_json"] }
+rusqlite_migration = "1.0.0"
+anyhow = "1.0.62"
 
 [features]
 # by default Tauri runs in production mode
