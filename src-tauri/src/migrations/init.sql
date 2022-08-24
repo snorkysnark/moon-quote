@@ -1,10 +1,10 @@
 CREATE TABLE books (
     book_id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-    epub_path text NOT NULL,
+    epub_path text,
     cover_path text,
 
-    meta_title text NOT NULL,
+    meta_title text,
     meta_creator text,
     meta_description text,
     meta_pubdate
