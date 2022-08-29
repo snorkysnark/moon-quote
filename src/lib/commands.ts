@@ -1,3 +1,4 @@
+import type { BinaryFileContents } from "@tauri-apps/api/fs";
 import { invoke } from "@tauri-apps/api/tauri";
 import type { PackagingMetadataObject } from "epubjs/types/packaging";
 
@@ -25,12 +26,16 @@ export function uploadBook(
     bookPath: string,
     metadata: PackagingMetadataObject,
     coverUrl: string,
-    coverData: Uint8Array
+    coverData: BinaryFileContents
 ) {
     invoke("upload_book", {
         bookPath,
         metadata,
         coverUrl,
-        coverData: Array.from(coverData),
+        coverData: Array.from(
+            coverData instanceof ArrayBuffer
+                ? new Uint8Array(coverData)
+                : coverData
+        ),
     });
 }

@@ -1,14 +1,8 @@
 <script lang="ts">
-    /* import Library from "./library"; */
-    /* import FileDrop from "./FileDrop.svelte"; */
     import * as dialog from "@tauri-apps/api/dialog";
     import * as fs from "@tauri-apps/api/fs";
     import ePub from "epubjs";
     import { uploadBook } from "./commands";
-    /* import { createEventDispatcher } from "svelte"; */
-
-    /* const dispatch = createEventDispatcher<{ openBook: string }>(); */
-    /* const libraryPromise = Library.load(); */
 
     async function addBookDialog() {
         let selected = await dialog.open({
@@ -23,9 +17,9 @@
 
         const coverUrl = await book.loaded.cover;
         const coverBlob = await book.archive.getBlob(coverUrl);
-        const coverData = new Uint8Array(await coverBlob.arrayBuffer());
 
-        uploadBook(selected, metadata, coverUrl, coverData);
+        uploadBook(selected, metadata, coverUrl, await coverBlob.arrayBuffer());
+        console.log("book successfuly uploaded");
     }
 </script>
 

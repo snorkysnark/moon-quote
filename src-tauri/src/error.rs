@@ -7,6 +7,12 @@ pub struct SerializableError {
     error: anyhow::Error,
 }
 
+impl SerializableError {
+    pub fn new(error: anyhow::Error) -> Self {
+        Self { error }
+    }
+}
+
 impl<E> From<E> for SerializableError
 where
     E: StdError + Send + Sync + 'static,
@@ -27,14 +33,12 @@ impl Serialize for SerializableError {
     }
 }
 
-pub trait AsSerializable {
-    fn as_serializable(self) -> SerializableError;
-}
-
-impl AsSerializable for anyhow::Error {
-    fn as_serializable(self) -> SerializableError {
-        SerializableError { error: self }
-    }
-}
-
 pub type SerializableResult<T, E = SerializableError> = Result<T, E>;
+
+macro_rules! sanyhow {
+    ($($args:tt),+) => {
+        crate::error::SerializableError::new(::anyhow::anyhow!($($args),+))
+    };
+}
+
+pub(crate) use sanyhow;

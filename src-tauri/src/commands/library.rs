@@ -1,17 +1,11 @@
-use std::{
-    any,
-    borrow::BorrowMut,
-    fs,
-    path::{Path, PathBuf},
-};
+use std::{fs, path::Path};
 
-use anyhow::anyhow;
 use rusqlite::named_params;
 use serde::Deserialize;
 use tauri::State;
 
 use crate::{
-    error::{AsSerializable, SerializableResult},
+    error::{sanyhow, SerializableResult},
     Constants,
 };
 
@@ -41,21 +35,25 @@ pub fn upload_book(
     constants: State<Constants>,
     book_path: &Path,
     metadata: Metadata,
-    cover_url: &str,
-    cover_data: Vec<u8>,
+    cover_url: &Path,
+    cover_data: &[u8],
 ) -> SerializableResult<i32> {
     let mut conn = db.get()?;
     let tx = conn.transaction()?;
 
     // Extract the extension from the cover url, creating a filename like "cover.<extension>"
-    let cover_filename = cover_url
-        .rsplit_once('.')
-        .map(|(_, extension)| format!("cover.{}", extension))
-        .ok_or_else(|| anyhow!("extension missing in cover url: {}", cover_url).as_serializable())?;
+    let cover_filename = format!(
+        "cover.{}",
+        cover_url
+            .extension()
+            .ok_or_else(|| sanyhow!("Cover url has no extension"))?
+            .to_str()
+            .ok_or_else(|| sanyhow!("Cover url has non-utf8 symbols"))?
+    );
 
     let book_filename = book_path
         .file_name()
-        .ok_or_else(|| anyhow!("can't get epub filename").as_serializable())?;
+        .ok_or_else(|| sanyhow!("can't get epub filename"))?;
 
     let book_id: i32 = {
         let mut insert = tx.prepare_cached(include_str!("./sql/insert_book.sql"))?;
@@ -63,7 +61,7 @@ pub fn upload_book(
         {
             let book_path_str = book_filename
                 .to_str()
-                .ok_or_else(|| anyhow!("Book path has non-utf8 symbols").as_serializable())?;
+                .ok_or_else(|| sanyhow!("Book path has non-utf8 symbols"))?;
 
             insert.query_row(
                 named_params! {
