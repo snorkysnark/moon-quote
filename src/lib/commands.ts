@@ -1,27 +1,13 @@
 import { invoke } from "@tauri-apps/api/tauri";
+import type { PackagingMetadataObject } from "epubjs/types/packaging";
 
-export function libraryDir(): Promise<string> {
-    return invoke("library_dir");
-}
-
-export function pathExists(path: string): Promise<boolean> {
-    return invoke("path_exists", { path: path });
-}
-
-export function isDir(path: string): Promise<boolean> {
-    return invoke("is_dir", { path: path });
-}
-
-export function dbExecute(
-    sql: string,
-    params?: object
-): Promise<number> {
+export function dbExecute(sql: string, params?: object): Promise<number> {
     params = params || [];
 
     if (Array.isArray(params)) {
-        return invoke("db_execute", { sql: sql, params: params });
+        return invoke("db_execute", { sql, params });
     } else {
-        return invoke("db_execute_named", { sql: sql, params: params });
+        return invoke("db_execute_named", { sql, params });
     }
 }
 
@@ -29,8 +15,22 @@ export function dbQuery(sql: string, params?: object): Promise<object> {
     params = params || [];
 
     if (Array.isArray(params)) {
-        return invoke("db_query", { sql: sql, params: params });
+        return invoke("db_query", { sql, params });
     } else {
-        return invoke("db_query_named", { sql: sql, params: params });
+        return invoke("db_query_named", { sql, params });
     }
+}
+
+export function uploadBook(
+    bookPath: string,
+    metadata: PackagingMetadataObject,
+    coverUrl: string,
+    coverData: Uint8Array
+) {
+    invoke("upload_book", {
+        bookPath,
+        metadata,
+        coverUrl,
+        coverData: Array.from(coverData),
+    });
 }

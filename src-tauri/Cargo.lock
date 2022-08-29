@@ -69,6 +69,7 @@ name = "app"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "paste",
  "r2d2",
  "r2d2_sqlite",
  "rusqlite",

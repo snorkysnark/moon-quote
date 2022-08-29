@@ -1,13 +1,8 @@
-use std::path::PathBuf;
-
-use r2d2::Pool;
-use r2d2_sqlite::SqliteConnectionManager;
 use serde_json::{Map as JsonMap, Value as JsonValue};
-use tauri::{AppHandle, State};
+use tauri::State;
 
+use super::Db;
 use crate::error::SerializableResult;
-
-type Db = Pool<SqliteConnectionManager>;
 
 #[tauri::command]
 pub fn db_execute(db: State<Db>, sql: &str, params: Vec<JsonValue>) -> SerializableResult<usize> {
@@ -64,22 +59,4 @@ pub fn db_query_named(
         serde_rusqlite::from_rows(statement.query(params_named.to_slice().as_slice())?).collect();
 
     Ok(rows?)
-}
-
-#[tauri::command]
-pub fn library_dir(app_handle: AppHandle) -> Option<PathBuf> {
-    tauri::api::path::data_dir().map(|dir| {
-        dir.join(&app_handle.config().tauri.bundle.identifier)
-            .join("library")
-    })
-}
-
-#[tauri::command]
-pub fn path_exists(path: PathBuf) -> bool {
-    path.exists()
-}
-
-#[tauri::command]
-pub fn is_dir(path: PathBuf) -> bool {
-    path.is_dir()
 }

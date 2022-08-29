@@ -3,7 +3,11 @@
     windows_subsystem = "windows"
 )]
 
-use std::{borrow::BorrowMut, fs, path::Path};
+use std::{
+    borrow::BorrowMut,
+    fs,
+    path::{Path, PathBuf},
+};
 
 use anyhow::Result;
 use r2d2_sqlite::SqliteConnectionManager;
@@ -11,6 +15,10 @@ use rusqlite_migration::{Migrations, M};
 
 mod commands;
 mod error;
+
+pub struct Constants {
+    library_path: PathBuf,
+}
 
 fn init_db(db_path: &Path) -> Result<r2d2::Pool<SqliteConnectionManager>> {
     let sqlite_manager = SqliteConnectionManager::file(db_path);
@@ -34,15 +42,14 @@ fn main() {
         init_db(&library_path.join("metadata.db")).expect("database initialization error");
 
     tauri::Builder::default()
+        .manage(Constants { library_path })
         .manage(db_pool)
         .invoke_handler(tauri::generate_handler![
             commands::db_execute,
             commands::db_execute_named,
             commands::db_query,
             commands::db_query_named,
-            commands::library_dir,
-            commands::path_exists,
-            commands::is_dir
+            commands::upload_book
         ])
         .run(context)
         .expect("error while running tauri application");

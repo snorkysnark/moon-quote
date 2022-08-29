@@ -2,17 +2,30 @@
     /* import Library from "./library"; */
     /* import FileDrop from "./FileDrop.svelte"; */
     import * as dialog from "@tauri-apps/api/dialog";
+    import * as fs from "@tauri-apps/api/fs";
+    import ePub from "epubjs";
+    import { uploadBook } from "./commands";
     /* import { createEventDispatcher } from "svelte"; */
 
     /* const dispatch = createEventDispatcher<{ openBook: string }>(); */
     /* const libraryPromise = Library.load(); */
 
     async function addBookDialog() {
-        const selected = await dialog.open({
+        let selected = await dialog.open({
             multiple: true,
             filters: [{ name: "Epub", extensions: ["epub"] }],
         });
-        console.log(selected);
+        if (Array.isArray(selected)) selected = selected[0];
+
+        const file = await fs.readBinaryFile(selected);
+        const book = ePub(file.buffer);
+        const metadata = await book.loaded.metadata;
+
+        const coverUrl = await book.loaded.cover;
+        const coverBlob = await book.archive.getBlob(coverUrl);
+        const coverData = new Uint8Array(await coverBlob.arrayBuffer());
+
+        uploadBook(selected, metadata, coverUrl, coverData);
     }
 </script>
 

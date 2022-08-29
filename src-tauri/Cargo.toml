@@ -24,6 +24,7 @@ rusqlite = "0.28.0"
 rusqlite_migration = "1.0.0"
 serde_rusqlite = { git = "https://github.com/twistedfall/serde_rusqlite", branch = "dependabot/cargo/rusqlite-0.28" }
 anyhow = "1.0.62"
+paste = "1.0.8"
 
 [features]
 # by default Tauri runs in production mode

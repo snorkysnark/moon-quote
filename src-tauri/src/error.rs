@@ -27,4 +27,14 @@ impl Serialize for SerializableError {
     }
 }
 
+pub trait AsSerializable {
+    fn as_serializable(self) -> SerializableError;
+}
+
+impl AsSerializable for anyhow::Error {
+    fn as_serializable(self) -> SerializableError {
+        SerializableError { error: self }
+    }
+}
+
 pub type SerializableResult<T, E = SerializableError> = Result<T, E>;
