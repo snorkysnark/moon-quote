@@ -1,10 +1,17 @@
 <script lang="ts">
-    export let cover: string;
+    import * as tauri from "@tauri-apps/api/tauri";
+
+    export let coverPath: string | null;
     export let name: string;
+
+    let coverUrl: string;
+    $: coverUrl = coverPath ? tauri.convertFileSrc(coverPath) : null;
 </script>
 
 <button>
-    <img src={cover} alt={name}>
+    {#if coverUrl}
+        <img src={coverUrl} alt={name} />
+    {/if}
     <p>{name}</p>
 </button>
 

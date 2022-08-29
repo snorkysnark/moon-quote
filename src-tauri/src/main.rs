@@ -5,9 +5,9 @@
 
 use std::{fs, path::PathBuf};
 
-mod commands;
 mod db;
 mod error;
+mod library;
 
 pub struct Constants {
     library_path: PathBuf,
@@ -26,7 +26,7 @@ fn main() {
     tauri::Builder::default()
         .manage(Constants { library_path })
         .manage(db_pool)
-        .invoke_handler(tauri::generate_handler![commands::upload_book])
+        .invoke_handler(tauri::generate_handler![library::upload_book])
         .run(context)
         .expect("error while running tauri application");
 }

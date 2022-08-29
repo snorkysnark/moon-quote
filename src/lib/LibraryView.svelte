@@ -1,7 +1,12 @@
 <script lang="ts">
     import * as dialog from "@tauri-apps/api/dialog";
+    import * as path from "@tauri-apps/api/path";
+    import type { BookEntry } from "./data";
     import * as library from "./library";
-    import LibraryBook from "./LibraryBook.svelte";
+    import LibraryBook from './LibraryBook.svelte';
+
+    let uploadingBookName: string = null;
+    let bookEntries: BookEntry[] = [];
 
     async function addBookDialog() {
         let selected = await dialog.open({
@@ -11,8 +16,14 @@
         if (selected === null) return;
 
         const bookPaths = Array.isArray(selected) ? selected : [selected];
-        for (const bookPath of bookPaths) {
-            await library.uploadBook(bookPath);
+        try {
+            for (const bookPath of bookPaths) {
+                uploadingBookName = await path.basename(bookPath);
+                const bookEntry = await library.uploadBook(bookPath);
+                bookEntries = [...bookEntries, bookEntry];
+            }
+        } finally {
+            uploadingBookName = null;
         }
     }
 </script>
@@ -22,11 +33,16 @@
         <span>Library</span>
     </div>
     <div class="mainView">
-        <div class="libraryGrid">
-            <LibraryBook
-                cover="asset:///home/lisk/Images/ae.jpg"
-                name="The Listening Society"
-            />
+        {#if uploadingBookName}
+            <p class="overlay">Uploading {uploadingBookName}</p>
+        {/if}
+        <div
+            class="libraryGrid"
+            style={`pointer-events: ${uploadingBookName ? "none" : "auto"};`}
+        >
+            {#each bookEntries as book}
+                <LibraryBook coverPath={book.coverPath} name={book.metaTitle}/>
+            {/each}
             <button class="addBook" on:click={addBookDialog}>+</button>
         </div>
     </div>
@@ -61,5 +77,13 @@
     .addBook {
         width: 50px;
         height: 50px;
+    }
+
+    .overlay {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, .2);
+        text-align: center;
     }
 </style>

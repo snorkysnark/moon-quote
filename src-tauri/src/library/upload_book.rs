@@ -1,4 +1,7 @@
-use std::{fs, path::Path};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use diesel::{Connection, Insertable, RunQueryDsl};
 use serde::Deserialize;
@@ -10,37 +13,21 @@ use crate::{
     Constants,
 };
 
-#[derive(Deserialize)]
-pub struct EpubMetadata<'a> {
-    title: Option<&'a str>,
-    creator: Option<&'a str>,
-    description: Option<&'a str>,
-    pubdate: Option<&'a str>,
-    publisher: Option<&'a str>,
-    identifier: Option<&'a str>,
-    language: Option<&'a str>,
-    rights: Option<&'a str>,
-    modified_date: Option<&'a str>,
-    layout: Option<&'a str>,
-    orientation: Option<&'a str>,
-    flow: Option<&'a str>,
-    viewport: Option<&'a str>,
-    spread: Option<&'a str>,
-}
+use super::data::{Book, EpubMetadata};
 
 #[derive(Deserialize)]
-pub struct EpubCover<'a> {
-    url: &'a Path,
-    data: &'a [u8],
+pub struct EpubCover {
+    url: PathBuf,
+    data: Vec<u8>,
 }
 
-struct EpubCoverFile<'a> {
+struct EpubCoverFile {
     filename: String,
-    data: &'a [u8],
+    data: Vec<u8>,
 }
 
-impl<'a> EpubCover<'a> {
-    fn to_file_description(self) -> SerializableResult<EpubCoverFile<'a>> {
+impl EpubCover {
+    fn to_file_description(self) -> SerializableResult<EpubCoverFile> {
         let extension = self
             .url
             .extension()
@@ -77,7 +64,7 @@ struct NewBook<'a> {
 }
 
 impl<'a> NewBook<'a> {
-    fn from_metadata(
+    fn from_parts(
         epub_file: &'a str,
         cover_file: Option<&'a str>,
         metadata: &EpubMetadata<'a>,
@@ -104,15 +91,15 @@ impl<'a> NewBook<'a> {
 }
 
 #[tauri::command]
-pub fn upload_book(
+pub fn upload_book<'a>(
     db: State<SqlitePool>,
     constants: State<Constants>,
     book_path: &Path,
-    metadata: EpubMetadata,
+    metadata: EpubMetadata<'a>,
     cover: Option<EpubCover>,
-) -> SerializableResult<i32> {
+) -> SerializableResult<Book<'a>> {
     let mut conn = db.get()?;
-    let book_id = conn.transaction::<i32, SerializableError, _>(|conn| {
+    let book = conn.transaction::<_, SerializableError, _>(|conn| {
         let cover_file = cover.map(|cover| cover.to_file_description()).transpose()?;
         let book_filename = book_path
             .file_name()
@@ -121,7 +108,7 @@ pub fn upload_book(
             .ok_or_else(|| sanyhow!("Book path has non-utf8 symbols"))?;
 
         let book_id: i32 = diesel::insert_into(books::table)
-            .values(NewBook::from_metadata(
+            .values(NewBook::from_parts(
                 book_filename,
                 cover_file.as_ref().map(|cover| cover.filename.as_str()),
                 &metadata,
@@ -130,15 +117,27 @@ pub fn upload_book(
             .get_result(conn)?;
 
         let container_path = constants.library_path.join(book_id.to_string());
+        let new_book_path = container_path.join(book_filename);
+
         fs::create_dir(&container_path)?;
-        fs::copy(book_path, container_path.join(book_filename))?;
+        fs::copy(&book_path, &new_book_path)?;
 
-        if let Some(cover_file) = cover_file {
-            fs::write(container_path.join(cover_file.filename), &cover_file.data)?;
-        }
+        let new_cover_path = match cover_file {
+            Some(cover_file) => {
+                let new_cover_path = container_path.join(cover_file.filename);
+                fs::write(&new_cover_path, &cover_file.data)?;
+                Some(new_cover_path)
+            }
+            None => None,
+        };
 
-        Ok(book_id)
+        Ok(Book::from_parts(
+            book_id,
+            new_book_path,
+            new_cover_path,
+            &metadata,
+        ))
     })?;
 
-    Ok(book_id)
+    Ok(book)
 }

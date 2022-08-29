@@ -1,41 +1,32 @@
 import type { BinaryFileContents } from "@tauri-apps/api/fs";
 import { invoke } from "@tauri-apps/api/tauri";
 import type { PackagingMetadataObject } from "epubjs/types/packaging";
+import type { BookEntry } from "./data";
 
-export function dbExecute(sql: string, params?: object): Promise<number> {
-    params = params || [];
-
-    if (Array.isArray(params)) {
-        return invoke("db_execute", { sql, params });
-    } else {
-        return invoke("db_execute_named", { sql, params });
-    }
+export interface EpubCover {
+    url: string;
+    data: BinaryFileContents;
 }
 
-export function dbQuery(sql: string, params?: object): Promise<object> {
-    params = params || [];
-
-    if (Array.isArray(params)) {
-        return invoke("db_query", { sql, params });
-    } else {
-        return invoke("db_query_named", { sql, params });
-    }
+function toArray(data: BinaryFileContents): number[] {
+    return Array.from(
+        data instanceof ArrayBuffer ? new Uint8Array(data) : data
+    );
 }
 
 export function uploadBook(
     bookPath: string,
     metadata: PackagingMetadataObject,
-    coverUrl: string,
-    coverData: BinaryFileContents
-): Promise<number> {
+    cover?: EpubCover
+): Promise<BookEntry> {
     return invoke("upload_book", {
         bookPath,
         metadata,
-        coverUrl,
-        coverData: Array.from(
-            coverData instanceof ArrayBuffer
-                ? new Uint8Array(coverData)
-                : coverData
-        ),
+        cover: cover
+            ? {
+                  url: cover.url,
+                  data: toArray(cover.data),
+              }
+            : null,
     });
 }
