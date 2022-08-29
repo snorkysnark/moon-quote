@@ -1,25 +1,19 @@
 <script lang="ts">
     import * as dialog from "@tauri-apps/api/dialog";
-    import * as fs from "@tauri-apps/api/fs";
-    import ePub from "epubjs";
-    import { uploadBook } from "./commands";
+    import * as library from "./library";
+    import LibraryBook from "./LibraryBook.svelte";
 
     async function addBookDialog() {
         let selected = await dialog.open({
             multiple: true,
             filters: [{ name: "Epub", extensions: ["epub"] }],
         });
-        if (Array.isArray(selected)) selected = selected[0];
+        if (selected === null) return;
 
-        const file = await fs.readBinaryFile(selected);
-        const book = ePub(file.buffer);
-        const metadata = await book.loaded.metadata;
-
-        const coverUrl = await book.loaded.cover;
-        const coverBlob = await book.archive.getBlob(coverUrl);
-
-        uploadBook(selected, metadata, coverUrl, await coverBlob.arrayBuffer());
-        console.log("book successfuly uploaded");
+        const bookPaths = Array.isArray(selected) ? selected : [selected];
+        for (const bookPath of bookPaths) {
+            await library.uploadBook(bookPath);
+        }
     }
 </script>
 
@@ -28,7 +22,13 @@
         <span>Library</span>
     </div>
     <div class="mainView">
-        <button on:click={addBookDialog}>+</button>
+        <div class="libraryGrid">
+            <LibraryBook
+                cover="asset:///home/lisk/Images/ae.jpg"
+                name="The Listening Society"
+            />
+            <button class="addBook" on:click={addBookDialog}>+</button>
+        </div>
     </div>
 </div>
 
@@ -40,12 +40,26 @@
         height: 100vh;
     }
 
+    .topPanel {
+        background-color: orange;
+    }
+
     .mainView {
         flex: 1 1 auto;
         min-height: 0;
     }
 
-    .topPanel {
-        background-color: orange;
+    .libraryGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, 200px);
+        grid-auto-rows: minmax(250px, content-fit);
+        align-items: center;
+        justify-items: center;
+        overflow-y: scroll;
+    }
+
+    .addBook {
+        width: 50px;
+        height: 50px;
     }
 </style>

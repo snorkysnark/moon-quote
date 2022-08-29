@@ -1,28 +1,19 @@
-import ePub from "epubjs";
 import * as fs from "@tauri-apps/api/fs";
+import ePub from "epubjs";
 import * as commands from "./commands";
 
-class Library {
-    libraryDir: string;
+export async function uploadBook(bookPath: string): Promise<number> {
+    const file = await fs.readBinaryFile(bookPath);
+    const book = ePub(file.buffer);
+    const metadata = await book.loaded.metadata;
 
-    private constructor(libraryDir: string) {
-        this.libraryDir = libraryDir;
-    }
+    const coverUrl = await book.loaded.cover;
+    const coverBlob = await book.archive.getBlob(coverUrl);
 
-    static async load(): Promise<Library> {
-        const libraryDir = await commands.libraryDir();
-        await fs.createDir(libraryDir, { recursive: true });
-
-        return new Library(libraryDir);
-    }
-
-    async uploadBook(bookPath: string) {
-        const file = await fs.readBinaryFile(bookPath);
-        const book = ePub(file.buffer);
-
-        const metadata = await book.loaded.metadata;
-        const cover = await book.archive.getBlob(await book.loaded.cover);
-    }
+    return await commands.uploadBook(
+        bookPath,
+        metadata,
+        coverUrl,
+        await coverBlob.arrayBuffer()
+    );
 }
-
-export default Library;

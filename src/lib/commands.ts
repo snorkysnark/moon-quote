@@ -27,8 +27,8 @@ export function uploadBook(
     metadata: PackagingMetadataObject,
     coverUrl: string,
     coverData: BinaryFileContents
-) {
-    invoke("upload_book", {
+): Promise<number> {
+    return invoke("upload_book", {
         bookPath,
         metadata,
         coverUrl,

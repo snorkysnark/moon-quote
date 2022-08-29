@@ -18,6 +18,12 @@
                     "$DATA/**",
                     "$CONFIG/**"
                 ]
+            },
+            "protocol": {
+                "asset": true,
+                "assetScope": [
+                    "*"
+                ]
             }
         },
         "bundle": {
