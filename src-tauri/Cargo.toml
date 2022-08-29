@@ -18,13 +18,10 @@ tauri-build = { version = "1.0.4", features = [] }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.0.5", features = ["api-all"] }
-r2d2 = "0.8.10"
-r2d2_sqlite = "0.21.0"
-rusqlite = "0.28.0" 
-rusqlite_migration = "1.0.0"
-serde_rusqlite = { git = "https://github.com/twistedfall/serde_rusqlite", branch = "dependabot/cargo/rusqlite-0.28" }
 anyhow = "1.0.62"
 paste = "1.0.8"
+diesel = { version = "2.0.0", features = ["sqlite", "r2d2", "returning_clauses_for_sqlite_3_35"] }
+diesel_migrations = "2.0.0"
 
 [features]
 # by default Tauri runs in production mode

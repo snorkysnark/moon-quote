@@ -1,7 +1,7 @@
 CREATE TABLE books (
-    book_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    epub_path text,
-    cover_path text,
+    book_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    epub_file text NOT NULL,
+    cover_file text,
     meta_title text,
     meta_creator text,
     meta_description text,
