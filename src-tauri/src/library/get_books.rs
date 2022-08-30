@@ -4,7 +4,7 @@ use diesel::{Queryable, RunQueryDsl};
 use tauri::State;
 
 use crate::{
-    db::{schema::books, SqlitePool},
+    db::{schema, SqlitePool},
     error::SerializableResult,
     Constants,
 };
@@ -64,8 +64,10 @@ pub fn get_books<'a>(
     db: State<SqlitePool>,
     constants: State<Constants>,
 ) -> SerializableResult<Vec<Book<'a>>> {
+    use schema::books::dsl::*;
+
     let mut conn = db.get()?;
-    let rows = books::table.load::<BookRow>(&mut conn)?;
+    let rows = books.load::<BookRow>(&mut conn)?;
     let rows_abs_path: Vec<_> = rows
         .into_iter()
         .map(|row| row.with_absolute_paths(&constants.library_path))

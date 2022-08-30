@@ -8,7 +8,7 @@ use serde::Deserialize;
 use tauri::State;
 
 use crate::{
-    db::{schema::books, SqlitePool},
+    db::{schema, SqlitePool},
     error::{sanyhow, SerializableError, SerializableResult},
     Constants,
 };
@@ -43,7 +43,7 @@ impl EpubCover {
 }
 
 #[derive(Insertable)]
-#[diesel(table_name = books)]
+#[diesel(table_name = schema::books)]
 struct NewBook<'a> {
     epub_file: &'a str,
     cover_file: Option<&'a str>,
@@ -98,41 +98,45 @@ pub fn upload_book<'a>(
     metadata: EpubMetadata<'a>,
     cover: Option<EpubCover>,
 ) -> SerializableResult<Book<'a>> {
+    use schema::books::dsl::*;
+
     let mut conn = db.get()?;
     let book = conn.transaction::<_, SerializableError, _>(|conn| {
-        let cover_file = cover.map(|cover| cover.to_file_description()).transpose()?;
+        let cover_file_desc = cover.map(|cover| cover.to_file_description()).transpose()?;
         let book_filename = book_path
             .file_name()
             .ok_or_else(|| sanyhow!("can't get epub filename"))?
             .to_str()
             .ok_or_else(|| sanyhow!("Book path has non-utf8 symbols"))?;
 
-        let book_id: i32 = diesel::insert_into(books::table)
+        let new_book_id: i32 = diesel::insert_into(books)
             .values(NewBook::from_parts(
                 book_filename,
-                cover_file.as_ref().map(|cover| cover.filename.as_str()),
+                cover_file_desc
+                    .as_ref()
+                    .map(|cover| cover.filename.as_str()),
                 &metadata,
             ))
-            .returning(books::book_id)
+            .returning(book_id)
             .get_result(conn)?;
 
-        let container_path = constants.library_path.join(book_id.to_string());
+        let container_path = constants.library_path.join(new_book_id.to_string());
         let new_book_path = container_path.join(book_filename);
 
         fs::create_dir(&container_path)?;
         fs::copy(&book_path, &new_book_path)?;
 
-        let new_cover_path = match cover_file {
-            Some(cover_file) => {
-                let new_cover_path = container_path.join(cover_file.filename);
-                fs::write(&new_cover_path, &cover_file.data)?;
+        let new_cover_path = match cover_file_desc {
+            Some(cover_file_desc) => {
+                let new_cover_path = container_path.join(cover_file_desc.filename);
+                fs::write(&new_cover_path, &cover_file_desc.data)?;
                 Some(new_cover_path)
             }
             None => None,
         };
 
         Ok(Book::from_parts(
-            book_id,
+            new_book_id,
             new_book_path,
             new_cover_path,
             &metadata,
