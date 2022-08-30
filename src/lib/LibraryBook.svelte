@@ -1,18 +1,26 @@
 <script lang="ts">
     import * as tauri from "@tauri-apps/api/tauri";
+    import { createEventDispatcher } from "svelte";
+    import type { BookEntry } from "./library/data";
 
-    export let coverPath: string | null;
-    export let name: string;
+    export let book: BookEntry;
 
     let coverUrl: string;
-    $: coverUrl = coverPath ? tauri.convertFileSrc(coverPath) : null;
+    $: coverUrl = book.coverPath ? tauri.convertFileSrc(book.coverPath) : null;
+
+    const dispatch = createEventDispatcher<{ delete: number }>();
+
+    function onRightClick(event: Event) {
+        event.preventDefault();
+        dispatch("delete", book.bookId);
+    }
 </script>
 
-<button>
+<button on:contextmenu={onRightClick}>
     {#if coverUrl}
-        <img src={coverUrl} alt={name} />
+        <img src={coverUrl} alt={book.metaTitle} />
     {/if}
-    <p>{name}</p>
+    <p>{book.metaTitle}</p>
 </button>
 
 <style>

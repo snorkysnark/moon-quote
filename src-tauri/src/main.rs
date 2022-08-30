@@ -28,7 +28,8 @@ fn main() {
         .manage(db_pool)
         .invoke_handler(tauri::generate_handler![
             library::upload_book,
-            library::get_books
+            library::get_books,
+            library::delete_book
         ])
         .run(context)
         .expect("error while running tauri application");

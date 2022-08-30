@@ -34,3 +34,7 @@ export function uploadBook(
 export function getBooks(): Promise<BookEntry[]> {
     return invoke("get_books");
 }
+
+export function deleteBook(bookId: number): Promise<void> {
+    return invoke("delete_book", { idToDelete: bookId });
+}

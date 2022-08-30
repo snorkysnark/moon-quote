@@ -1,16 +1,16 @@
 <script lang="ts">
     import * as dialog from "@tauri-apps/api/dialog";
     import * as path from "@tauri-apps/api/path";
-    import type { BookEntry } from "./data";
     import * as library from "./library";
+    import type { BookEntry } from "./library";
     import LibraryBook from "./LibraryBook.svelte";
 
     let uploadingBookName: string = null;
-    let bookEntries: BookEntry[] = [];
+    let booksById: { [id: number]: BookEntry } = {};
 
     async function loadBooks() {
         const newBooks = await library.getBooks();
-        bookEntries = [...bookEntries, ...newBooks];
+        booksById = { ...booksById, ...newBooks };
     }
     loadBooks();
 
@@ -26,11 +26,21 @@
             for (const bookPath of bookPaths) {
                 uploadingBookName = await path.basename(bookPath);
                 const bookEntry = await library.uploadBook(bookPath);
-                bookEntries = [...bookEntries, bookEntry];
+
+                booksById = { ...booksById, [bookEntry.bookId]: bookEntry };
             }
         } finally {
             uploadingBookName = null;
         }
+    }
+
+    function deleteBook(event: CustomEvent<number>) {
+        const bookId = event.detail;
+
+        delete booksById[bookId];
+        booksById = booksById;
+
+        library.deleteBook(bookId);
     }
 </script>
 
@@ -46,8 +56,8 @@
             class="libraryGrid"
             style={`pointer-events: ${uploadingBookName ? "none" : "auto"};`}
         >
-            {#each bookEntries as book}
-                <LibraryBook coverPath={book.coverPath} name={book.metaTitle} />
+            {#each Object.values(booksById) as book}
+                <LibraryBook {book} on:delete={deleteBook} />
             {/each}
             <button class="addBook" on:click={addBookDialog}>+</button>
         </div>
