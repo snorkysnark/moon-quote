@@ -5,10 +5,8 @@
     import ePub from "epubjs";
     import Reader, { type ReaderController } from "./Reader.svelte";
     import ToC from "./ToC.svelte";
-    import Indexer from "./Indexer.svelte";
 
     let tocEnabled = false;
-    let indexerEnabled = false;
     let readerController: ReaderController;
     const dispatch = createEventDispatcher<{ goBack: void }>();
 
@@ -20,7 +18,6 @@
         const book = ePub(file.buffer);
 
         await book.ready;
-        console.log(book.navigation);
         return book;
     }
     $: bookPromise = loadBook(bookPath);
@@ -29,12 +26,6 @@
         if (readerController) readerController.display(event.detail.href);
     }
 </script>
-
-{#if indexerEnabled}
-    {#await bookPromise then book}
-        <Indexer {book} />
-    {/await}
-{/if}
 
 <div class="container">
     <div class="topPanel">
@@ -72,9 +63,6 @@
         {/if}
         <div class="sidePanel">
             <button on:click={() => (tocEnabled = !tocEnabled)}>TOC</button>
-            <button on:click={() => (indexerEnabled = !indexerEnabled)}
-                >Ind</button
-            >
         </div>
     </div>
 </div>
