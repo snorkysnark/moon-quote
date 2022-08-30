@@ -7,8 +7,9 @@
 </script>
 
 <script lang="ts">
-    import type { Book, Contents, Rendition } from "epubjs";
-    import bookStylesheet from './book.css?url';
+    import { EpubCFI, type Book, type Contents, type Rendition } from "epubjs";
+    import bookStylesheet from "./book.css?url";
+    import BookOverlay from "./BookOverlay.svelte";
 
     export let book: Book;
 
@@ -58,20 +59,23 @@
     $: if (viewContainer) renderBook(viewContainer, book);
 
     function onContentsChange(contents: Contents) {
-        let selectionMenu = document.createElement("div");
-        selectionMenu.setAttribute("id", "__moonquote__selectionMenu");
-        selectionMenu = contents.document.body.appendChild(selectionMenu);
-
-        contents.document.addEventListener("selectionchange", () => {
-            const selection = contents.document.getSelection();
-            if (selection.type == "Range") {
-                const rect = selection.getRangeAt(0).getBoundingClientRect();
-                selectionMenu.setAttribute("style", `display: block;
-                left: ${rect.x + rect.width / 2}px;
-                top: ${rect.y - 50}px`);
-            } else {
-                selectionMenu.removeAttribute("style");
-            }
+        const overlay = new BookOverlay({
+            target: contents.document.body,
+            props: { bookDocument: contents.document },
+        });
+        overlay.$on("highlight", (event: CustomEvent<Range>) => {
+            const cfi = new EpubCFI(event.detail, contents.cfiBase);
+            rendition.annotations.highlight(
+                cfi.toString(),
+                undefined,
+                undefined,
+                undefined,
+                {
+                    fill: "green",
+                    ["pointer-events"]: "all",
+                    cursor: "pointer",
+                }
+            );
         });
     }
 </script>
