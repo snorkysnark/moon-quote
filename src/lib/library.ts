@@ -9,6 +9,7 @@ export async function uploadBook(bookPath: string): Promise<BookEntry> {
     const metadata = await book.loaded.metadata;
 
     const coverUrl = await book.loaded.cover;
+    console.log("cover", coverUrl);
     const cover = coverUrl
         ? {
               url: coverUrl,

@@ -92,6 +92,7 @@
     }
 
     .mainView {
+        background-color: #e8e8e8;
         flex: 1 1 auto;
         min-height: 0;
         display: flex;
@@ -117,9 +118,9 @@
 
     .navButton {
         flex: 1 1 auto;
-        border: 0;
-        border-radius: 0;
-        background-color: #e8e8e8;
+        border: none;
+        outline: none;
+        background: none;
         margin: 0;
         color: #b8b8b8;
         font-size: 50px;
@@ -129,9 +130,10 @@
 
     .readerPage {
         z-index: 1;
+        margin-top: 10px;
         background-color: white;
         width: 800px;
-        height: 100%;
+        height: calc(100% - 20px);
         box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     }
 </style>

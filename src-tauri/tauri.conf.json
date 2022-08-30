@@ -15,14 +15,13 @@
             "all": true,
             "fs": {
                 "scope": [
-                    "$DATA/**",
-                    "$CONFIG/**"
+                    "*"
                 ]
             },
             "protocol": {
                 "asset": true,
                 "assetScope": [
-                    "*"
+                    "$DATA/**"
                 ]
             }
         },

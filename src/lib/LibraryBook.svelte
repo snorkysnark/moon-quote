@@ -8,15 +8,15 @@
     let coverUrl: string;
     $: coverUrl = book.coverPath ? tauri.convertFileSrc(book.coverPath) : null;
 
-    const dispatch = createEventDispatcher<{ delete: number }>();
+    const dispatch = createEventDispatcher<{ delete: void }>();
 
-    function onRightClick(event: Event) {
+    function onContextMenu(event: Event) {
         event.preventDefault();
-        dispatch("delete", book.bookId);
+        dispatch("delete");
     }
 </script>
 
-<button on:contextmenu={onRightClick}>
+<button on:click on:contextmenu={onContextMenu}>
     {#if coverUrl}
         <img src={coverUrl} alt={book.metaTitle} />
     {/if}
@@ -24,6 +24,12 @@
 </button>
 
 <style>
+    button {
+        cursor: pointer;
+        min-width: 150px;
+        min-height: 200px;
+    }
+
     img {
         height: 200px;
         object-fit: contain;

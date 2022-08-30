@@ -4,9 +4,12 @@
     import * as library from "./library";
     import type { BookEntry } from "./library";
     import LibraryBook from "./LibraryBook.svelte";
+    import { createEventDispatcher } from "svelte";
 
     let uploadingBookName: string = null;
     let booksById: { [id: number]: BookEntry } = {};
+
+    const dispatch = createEventDispatcher<{ openBook: string }>();
 
     async function loadBooks() {
         const newBooks = await library.getBooks();
@@ -34,13 +37,15 @@
         }
     }
 
-    function deleteBook(event: CustomEvent<number>) {
-        const bookId = event.detail;
-
+    function deleteBook(bookId: number) {
         delete booksById[bookId];
         booksById = booksById;
 
         library.deleteBook(bookId);
+    }
+
+    function openBook(epubPath: string) {
+        dispatch("openBook", epubPath);
     }
 </script>
 
@@ -57,7 +62,11 @@
             style={`pointer-events: ${uploadingBookName ? "none" : "auto"};`}
         >
             {#each Object.values(booksById) as book}
-                <LibraryBook {book} on:delete={deleteBook} />
+                <LibraryBook
+                    {book}
+                    on:click={() => openBook(book.epubPath)}
+                    on:delete={() => deleteBook(book.bookId)}
+                />
             {/each}
             <button class="addBook" on:click={addBookDialog}>+</button>
         </div>
@@ -83,6 +92,7 @@
 
     .libraryGrid {
         display: grid;
+        gap: 10px;
         grid-template-columns: repeat(auto-fit, 200px);
         grid-auto-rows: minmax(250px, content-fit);
         align-items: center;
@@ -91,6 +101,7 @@
     }
 
     .addBook {
+        cursor: pointer;
         width: 50px;
         height: 50px;
     }
