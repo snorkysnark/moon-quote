@@ -7,7 +7,8 @@
 </script>
 
 <script lang="ts">
-    import type { Book, Rendition } from "epubjs";
+    import type { Book, Contents, Rendition } from "epubjs";
+    import bookStylesheet from './book.css?url';
 
     export let book: Book;
 
@@ -47,12 +48,32 @@
             height: "100%",
             width: "100%",
             flow: "scrolled-doc",
+            stylesheet: bookStylesheet,
             allowScriptedContent: true, //Needed for arrow key navigation
         });
         rendition.on("keyup", onKeyUp);
-        rendition.display(0);
+        rendition.hooks.content.register(onContentsChange);
+        rendition.display(10);
     }
     $: if (viewContainer) renderBook(viewContainer, book);
+
+    function onContentsChange(contents: Contents) {
+        let selectionMenu = document.createElement("div");
+        selectionMenu.setAttribute("id", "__moonquote__selectionMenu");
+        selectionMenu = contents.document.body.appendChild(selectionMenu);
+
+        contents.document.addEventListener("selectionchange", () => {
+            const selection = contents.document.getSelection();
+            if (selection.type == "Range") {
+                const rect = selection.getRangeAt(0).getBoundingClientRect();
+                selectionMenu.setAttribute("style", `display: block;
+                left: ${rect.x + rect.width / 2}px;
+                top: ${rect.y - 50}px`);
+            } else {
+                selectionMenu.removeAttribute("style");
+            }
+        });
+    }
 </script>
 
 <svelte:window on:keyup={onKeyUp} />
