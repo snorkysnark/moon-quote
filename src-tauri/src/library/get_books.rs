@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use diesel::{Queryable, RunQueryDsl};
+use diesel::prelude::*;
 use tauri::State;
 
 use crate::{

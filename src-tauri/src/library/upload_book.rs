@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use diesel::{Connection, Insertable, RunQueryDsl};
+use diesel::prelude::*;
 use serde::Deserialize;
 use tauri::State;
 
