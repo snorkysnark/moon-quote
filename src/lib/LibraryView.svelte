@@ -3,10 +3,16 @@
     import * as path from "@tauri-apps/api/path";
     import type { BookEntry } from "./data";
     import * as library from "./library";
-    import LibraryBook from './LibraryBook.svelte';
+    import LibraryBook from "./LibraryBook.svelte";
 
     let uploadingBookName: string = null;
     let bookEntries: BookEntry[] = [];
+
+    async function loadBooks() {
+        const newBooks = await library.getBooks();
+        bookEntries = [...bookEntries, ...newBooks];
+    }
+    loadBooks();
 
     async function addBookDialog() {
         let selected = await dialog.open({
@@ -41,7 +47,7 @@
             style={`pointer-events: ${uploadingBookName ? "none" : "auto"};`}
         >
             {#each bookEntries as book}
-                <LibraryBook coverPath={book.coverPath} name={book.metaTitle}/>
+                <LibraryBook coverPath={book.coverPath} name={book.metaTitle} />
             {/each}
             <button class="addBook" on:click={addBookDialog}>+</button>
         </div>
@@ -83,7 +89,7 @@
         margin: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, .2);
+        background-color: rgba(0, 0, 0, 0.2);
         text-align: center;
     }
 </style>

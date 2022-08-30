@@ -18,3 +18,7 @@ export async function uploadBook(bookPath: string): Promise<BookEntry> {
 
     return await commands.uploadBook(bookPath, metadata, cover);
 }
+
+export function getBooks(): Promise<BookEntry[]> {
+    return commands.getBooks();
+}

@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{borrow::Cow, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
 
@@ -23,23 +23,23 @@ pub struct EpubMetadata<'a> {
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Book<'a> {
-    book_id: i32,
-    epub_path: PathBuf,
-    cover_path: Option<PathBuf>,
-    meta_title: Option<&'a str>,
-    meta_creator: Option<&'a str>,
-    meta_description: Option<&'a str>,
-    meta_pubdate: Option<&'a str>,
-    meta_publisher: Option<&'a str>,
-    meta_identifier: Option<&'a str>,
-    meta_language: Option<&'a str>,
-    meta_rights: Option<&'a str>,
-    meta_modified_date: Option<&'a str>,
-    meta_layout: Option<&'a str>,
-    meta_orientation: Option<&'a str>,
-    meta_flow: Option<&'a str>,
-    meta_viewport: Option<&'a str>,
-    meta_spread: Option<&'a str>,
+    pub book_id: i32,
+    pub epub_path: PathBuf,
+    pub cover_path: Option<PathBuf>,
+    pub meta_title: Option<Cow<'a, str>>,
+    pub meta_creator: Option<Cow<'a, str>>,
+    pub meta_description: Option<Cow<'a, str>>,
+    pub meta_pubdate: Option<Cow<'a, str>>,
+    pub meta_publisher: Option<Cow<'a, str>>,
+    pub meta_identifier: Option<Cow<'a, str>>,
+    pub meta_language: Option<Cow<'a, str>>,
+    pub meta_rights: Option<Cow<'a, str>>,
+    pub meta_modified_date: Option<Cow<'a, str>>,
+    pub meta_layout: Option<Cow<'a, str>>,
+    pub meta_orientation: Option<Cow<'a, str>>,
+    pub meta_flow: Option<Cow<'a, str>>,
+    pub meta_viewport: Option<Cow<'a, str>>,
+    pub meta_spread: Option<Cow<'a, str>>,
 }
 
 impl<'a> Book<'a> {
@@ -53,20 +53,20 @@ impl<'a> Book<'a> {
             book_id,
             epub_path,
             cover_path,
-            meta_title: metadata.title,
-            meta_creator: metadata.creator,
-            meta_description: metadata.description,
-            meta_pubdate: metadata.pubdate,
-            meta_publisher: metadata.publisher,
-            meta_identifier: metadata.identifier,
-            meta_language: metadata.language,
-            meta_rights: metadata.rights,
-            meta_modified_date: metadata.modified_date,
-            meta_layout: metadata.layout,
-            meta_orientation: metadata.orientation,
-            meta_flow: metadata.flow,
-            meta_viewport: metadata.viewport,
-            meta_spread: metadata.spread,
+            meta_title: metadata.title.map(Into::into),
+            meta_creator: metadata.creator.map(Into::into),
+            meta_description: metadata.description.map(Into::into),
+            meta_pubdate: metadata.pubdate.map(Into::into),
+            meta_publisher: metadata.publisher.map(Into::into),
+            meta_identifier: metadata.identifier.map(Into::into),
+            meta_language: metadata.language.map(Into::into),
+            meta_rights: metadata.rights.map(Into::into),
+            meta_modified_date: metadata.modified_date.map(Into::into),
+            meta_layout: metadata.layout.map(Into::into),
+            meta_orientation: metadata.orientation.map(Into::into),
+            meta_flow: metadata.flow.map(Into::into),
+            meta_viewport: metadata.viewport.map(Into::into),
+            meta_spread: metadata.spread.map(Into::into),
         }
     }
 }

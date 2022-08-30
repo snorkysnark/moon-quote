@@ -30,3 +30,7 @@ export function uploadBook(
             : null,
     });
 }
+
+export function getBooks(): Promise<BookEntry[]> {
+    return invoke("get_books");
+}
