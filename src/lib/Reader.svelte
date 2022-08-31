@@ -14,6 +14,7 @@
 
     let viewContainer: HTMLElement;
     let rendition: Rendition;
+    let overlay: BookOverlay;
 
     export const controller: ReaderController = {
         next: async () => {
@@ -55,9 +56,11 @@
     $: if (viewContainer) renderBook(viewContainer, book);
 
     function onContentsChange(contents: Contents) {
+        if (overlay) overlay.$destroy();
+
         // @ts-ignore: rendition.views() is of type Views, not View[]
         const innerView: HTMLDivElement = rendition.views().first().element;
-        const overlay = new BookOverlay({
+        overlay = new BookOverlay({
             target: innerView,
             props: {
                 bookDocument: contents.document,
@@ -65,12 +68,8 @@
         });
         overlay.$on("highlight", (event: CustomEvent<Range>) => {
             const cfi = new EpubCFI(event.detail, contents.cfiBase).toString();
-            rendition.annotations.highlight(cfi, { cfi: cfi }, onAnnotationClick);
+            rendition.annotations.highlight(cfi, { cfi: cfi });
         });
-    }
-
-    function onAnnotationClick(event) {
-        console.log(event.target);
     }
 </script>
 

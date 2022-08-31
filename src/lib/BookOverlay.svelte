@@ -2,7 +2,7 @@
     import { createEventDispatcher, onDestroy } from "svelte";
 
     export let bookDocument: Document;
-    $: bookDocument.addEventListener("selectionchange", onSelectionChange);
+    bookDocument.addEventListener("selectionchange", onSelectionChange);
 
     let selectionRange: Range = null;
     let selectionRect: DOMRect;
@@ -24,7 +24,9 @@
         bookDocument.getSelection().removeAllRanges();
     }
 
-    onDestroy(() => console.log("overlay destroyed"))
+    onDestroy(() => {
+        bookDocument.removeEventListener("selectionchange", onSelectionChange);
+    });
 </script>
 
 {#if selectionRect}
