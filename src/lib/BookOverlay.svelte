@@ -5,8 +5,16 @@
     bookDocument.addEventListener("selectionchange", onSelectionChange);
 
     let selectionRange: Range = null;
-    let selectionRect: DOMRect;
-    $: selectionRect = selectionRange?.getBoundingClientRect();
+
+    let position: [number, number];
+    function computePosition(range: Range): [number, number] {
+        const rect = range.getBoundingClientRect();
+        const x = rect.x + rect.width / 2
+        const y = (rect.y > 30) ? rect.y - 30 : rect.y + rect.height;
+        return [x, y];
+    }
+    $: if(selectionRange) position = computePosition(selectionRange);
+
 
     const dispatch = createEventDispatcher<{ highlight: Range }>();
 
@@ -29,14 +37,10 @@
     });
 </script>
 
-{#if selectionRect}
+{#if selectionRange}
     <div
         id="selectionMenu"
-        style={selectionRect
-            ? `left: ${selectionRect.x + selectionRect.width / 2}px; top: ${
-                  selectionRect.y - 30
-              }px;`
-            : ""}
+        style="left: {position[0]}px; top: {position[1]}px;"
     >
         <button on:click={highlight}>Highlight</button>
     </div>
