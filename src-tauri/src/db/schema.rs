@@ -1,6 +1,15 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    annotations (annotation_id) {
+        annotation_id -> Integer,
+        book_id -> Integer,
+        cfi -> Text,
+        text_content -> Text,
+    }
+}
+
+diesel::table! {
     books (book_id) {
         book_id -> Integer,
         epub_file -> Text,
@@ -21,3 +30,8 @@ diesel::table! {
         meta_spread -> Nullable<Text>,
     }
 }
+
+diesel::allow_tables_to_appear_in_same_query!(
+    annotations,
+    books,
+);
