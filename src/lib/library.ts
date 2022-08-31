@@ -9,7 +9,6 @@ export async function uploadBook(bookPath: string): Promise<BookEntry> {
     const metadata = await book.loaded.metadata;
 
     const coverUrl = await book.loaded.cover;
-    console.log("cover", coverUrl);
     const cover = coverUrl
         ? {
               url: coverUrl,
@@ -28,5 +27,5 @@ export async function getBooks(): Promise<{ [id: number]: BookEntry }> {
     return bookEntries;
 }
 
-export { deleteBook } from "./library/commands";
+export { deleteBook, addAnnotation } from "./library/commands";
 export type { BookEntry };

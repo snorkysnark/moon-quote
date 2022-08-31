@@ -4,6 +4,6 @@ CREATE TABLE annotations (
     cfi text NOT NULL,
     text_content text NOT NULL,
 
-    FOREIGN KEY (book_id) REFERENCES books (books_id)
+    FOREIGN KEY (book_id) REFERENCES books (book_id)
         ON DELETE CASCADE
 );

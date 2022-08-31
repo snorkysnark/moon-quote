@@ -29,7 +29,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             library::upload_book,
             library::get_books,
-            library::delete_book
+            library::delete_book,
+            library::add_annotation
         ])
         .run(context)
         .expect("error while running tauri application");

@@ -38,3 +38,11 @@ export function getBooks(): Promise<BookEntry[]> {
 export function deleteBook(bookId: number): Promise<void> {
     return invoke("delete_book", { idToDelete: bookId });
 }
+
+export function addAnnotation(
+    bookId: number,
+    cfi: string,
+    textContent: string
+): Promise<void> {
+    return invoke("add_annotation", { bookId, cfi, textContent });
+}

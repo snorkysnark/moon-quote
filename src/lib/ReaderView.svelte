@@ -5,12 +5,13 @@
     import ePub from "epubjs";
     import Reader, { type ReaderController } from "./Reader.svelte";
     import ToC from "./ToC.svelte";
+    import type { BookEntry } from "./library/data";
 
     let tocEnabled = false;
     let readerController: ReaderController;
     const dispatch = createEventDispatcher<{ goBack: void }>();
 
-    export let bookPath: string;
+    export let bookEntry: BookEntry;
 
     let bookPromise: Promise<Book>;
     async function loadBook(path: string) {
@@ -20,7 +21,7 @@
         await book.ready;
         return book;
     }
-    $: bookPromise = loadBook(bookPath);
+    $: bookPromise = loadBook(bookEntry.epubPath);
 
     function onTocClick(event: CustomEvent<NavItem>) {
         if (readerController) readerController.display(event.detail.href);
@@ -43,7 +44,11 @@
                 {#await bookPromise}
                     <p>Loading...</p>
                 {:then book}
-                    <Reader {book} bind:controller={readerController} />
+                    <Reader
+                        {book}
+                        bookId={bookEntry.bookId}
+                        bind:controller={readerController}
+                    />
                 {/await}
             </div>
             <button

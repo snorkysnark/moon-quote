@@ -8,10 +8,12 @@
 
 <script lang="ts">
     import { EpubCFI, type Book, type Contents, type Rendition } from "epubjs";
-import { onMount } from "svelte";
+    import { onMount } from "svelte";
     import BookOverlay from "./BookOverlay.svelte";
+    import * as library from "./library";
 
     export let book: Book;
+    export let bookId: number;
 
     let viewContainer: HTMLElement;
     let rendition: Rendition;
@@ -68,8 +70,11 @@ import { onMount } from "svelte";
             },
         });
         overlay.$on("highlight", (event: CustomEvent<Range>) => {
-            const cfi = new EpubCFI(event.detail, contents.cfiBase).toString();
+            const range = event.detail;
+            const cfi = new EpubCFI(range, contents.cfiBase).toString();
             rendition.annotations.highlight(cfi, { cfi: cfi });
+
+            library.addAnnotation(bookId, cfi, range.toString());
         });
     }
 </script>

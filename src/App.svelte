@@ -1,19 +1,18 @@
 <script lang="ts">
+    import type { BookEntry } from "./lib/library";
     import LibraryView from "./lib/LibraryView.svelte";
     import ReaderView from "./lib/ReaderView.svelte";
 
-    let currentBookPath = null;
+    let currentBook: BookEntry = null;
 </script>
 
 <main>
-    {#if currentBookPath === null}
-        <LibraryView
-            on:openBook={(event) => (currentBookPath = event.detail)}
-        />
+    {#if currentBook === null}
+        <LibraryView on:openBook={(event) => (currentBook = event.detail)} />
     {:else}
         <ReaderView
-            bookPath={currentBookPath}
-            on:goBack={() => (currentBookPath = null)}
+            bookEntry={currentBook}
+            on:goBack={() => (currentBook = null)}
         />
     {/if}
 </main>

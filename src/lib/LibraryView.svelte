@@ -9,7 +9,7 @@
     let uploadingBookName: string = null;
     let booksById: { [id: number]: BookEntry } = {};
 
-    const dispatch = createEventDispatcher<{ openBook: string }>();
+    const dispatch = createEventDispatcher<{ openBook: BookEntry }>();
 
     async function loadBooks() {
         const newBooks = await library.getBooks();
@@ -44,8 +44,8 @@
         library.deleteBook(bookId);
     }
 
-    function openBook(epubPath: string) {
-        dispatch("openBook", epubPath);
+    function openBook(bookEntry: BookEntry) {
+        dispatch("openBook", bookEntry);
     }
 </script>
 
@@ -64,7 +64,7 @@
             {#each Object.values(booksById) as book}
                 <LibraryBook
                     {book}
-                    on:click={() => openBook(book.epubPath)}
+                    on:click={() => openBook(book)}
                     on:delete={() => deleteBook(book.bookId)}
                 />
             {/each}
