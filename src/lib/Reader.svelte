@@ -8,6 +8,7 @@
 
 <script lang="ts">
     import { EpubCFI, type Book, type Contents, type Rendition } from "epubjs";
+import { onMount } from "svelte";
     import BookOverlay from "./BookOverlay.svelte";
 
     export let book: Book;
@@ -53,7 +54,7 @@
         rendition.hooks.content.register(onContentsChange);
         rendition.display(10);
     }
-    $: if (viewContainer) renderBook(viewContainer, book);
+    onMount(() => renderBook(viewContainer, book));
 
     function onContentsChange(contents: Contents) {
         if (overlay) overlay.$destroy();
