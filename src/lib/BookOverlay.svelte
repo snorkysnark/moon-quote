@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onDestroy } from "svelte";
 
     export let bookDocument: Document;
     $: bookDocument.addEventListener("selectionchange", onSelectionChange);
@@ -23,11 +23,13 @@
         dispatch("highlight", selectionRange);
         bookDocument.getSelection().removeAllRanges();
     }
+
+    onDestroy(() => console.log("overlay destroyed"))
 </script>
 
 {#if selectionRect}
     <div
-        id="__moonquote__selectionMenu"
+        id="selectionMenu"
         style={selectionRect
             ? `left: ${selectionRect.x + selectionRect.width / 2}px; top: ${
                   selectionRect.y - 30
@@ -37,3 +39,12 @@
         <button on:click={highlight}>Highlight</button>
     </div>
 {/if}
+
+<style>
+    #selectionMenu {
+        position: absolute;
+        background: red;
+        user-select: none;
+        z-index: 2;
+    }
+</style>

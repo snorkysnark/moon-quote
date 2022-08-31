@@ -8,7 +8,6 @@
 
 <script lang="ts">
     import { EpubCFI, type Book, type Contents, type Rendition } from "epubjs";
-    import bookStylesheet from "./book.css?url";
     import BookOverlay from "./BookOverlay.svelte";
 
     export let book: Book;
@@ -43,13 +42,10 @@
     }
 
     function renderBook(container: HTMLElement, book: Book) {
-        if (rendition) rendition.destroy();
-
         rendition = book.renderTo(container, {
             height: "100%",
             width: "100%",
             flow: "scrolled-doc",
-            stylesheet: bookStylesheet,
             allowScriptedContent: true, //Needed for arrow key navigation
         });
         rendition.on("keyup", onKeyUp);
@@ -59,24 +55,22 @@
     $: if (viewContainer) renderBook(viewContainer, book);
 
     function onContentsChange(contents: Contents) {
+        // @ts-ignore: rendition.views() is of type Views, not View[]
+        const innerView: HTMLDivElement = rendition.views().first().element;
         const overlay = new BookOverlay({
-            target: contents.document.body,
-            props: { bookDocument: contents.document },
+            target: innerView,
+            props: {
+                bookDocument: contents.document,
+            },
         });
         overlay.$on("highlight", (event: CustomEvent<Range>) => {
-            const cfi = new EpubCFI(event.detail, contents.cfiBase);
-            rendition.annotations.highlight(
-                cfi.toString(),
-                undefined,
-                undefined,
-                undefined,
-                {
-                    fill: "green",
-                    ["pointer-events"]: "all",
-                    cursor: "pointer",
-                }
-            );
+            const cfi = new EpubCFI(event.detail, contents.cfiBase).toString();
+            rendition.annotations.highlight(cfi, { cfi: cfi }, onAnnotationClick);
         });
+    }
+
+    function onAnnotationClick(event) {
+        console.log(event.target);
     }
 </script>
 
@@ -87,5 +81,11 @@
     #reader {
         width: 100%;
         height: 100%;
+    }
+
+    :global(.epubjs-hl) {
+        fill: green;
+        pointer-events: all;
+        cursor: pointer;
     }
 </style>
