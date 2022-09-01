@@ -54,9 +54,15 @@
         });
         rendition.on("keyup", onKeyUp);
         rendition.hooks.content.register(onContentsChange);
-        rendition.display(10);
+        rendition.display(10).then(loadAnnotations);
     }
     onMount(() => renderBook(viewContainer, book));
+
+    async function loadAnnotations() {
+        for (const annotation of await library.getAnnotationsForBook(bookId)) {
+            rendition.annotations.highlight(annotation.cfi);
+        }
+    }
 
     function onContentsChange(contents: Contents) {
         if (overlay) overlay.$destroy();
@@ -72,7 +78,7 @@
         overlay.$on("highlight", (event: CustomEvent<Range>) => {
             const range = event.detail;
             const cfi = new EpubCFI(range, contents.cfiBase).toString();
-            rendition.annotations.highlight(cfi, { cfi: cfi });
+            rendition.annotations.highlight(cfi);
 
             library.addAnnotation(bookId, cfi, range.toString());
         });
