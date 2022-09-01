@@ -1,7 +1,7 @@
 import * as fs from "@tauri-apps/api/fs";
 import ePub from "epubjs";
 import * as commands from "./library/commands";
-import type { BookEntry } from "./library/data";
+import type { BookEntry, AnnotationEntry } from "./library/data";
 
 export async function uploadBook(bookPath: string): Promise<BookEntry> {
     const file = await fs.readBinaryFile(bookPath);
@@ -25,6 +25,16 @@ export async function getBooks(): Promise<{ [id: number]: BookEntry }> {
         bookEntries[bookEntry.bookId] = bookEntry;
     }
     return bookEntries;
+}
+
+export async function getAnnotationsForBook(
+    bookId: number
+): Promise<{ [id: number]: AnnotationEntry }> {
+    const annotations = {};
+    for (const annotation of await commands.getAnnotationsForBook(bookId)) {
+        annotations[annotation.annotationId] = annotation;
+    }
+    return annotations;
 }
 
 export { deleteBook, addAnnotation } from "./library/commands";

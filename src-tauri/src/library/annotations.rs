@@ -1,4 +1,5 @@
 use diesel::prelude::*;
+use serde::Serialize;
 use tauri::State;
 
 use crate::{
@@ -26,4 +27,27 @@ pub fn add_annotation(
 
         Ok(())
     })
+}
+
+#[derive(Queryable, Serialize)]
+pub struct BookAnnotation {
+    annotation_id: i32,
+    cfi: String,
+    text_content: String,
+}
+
+#[tauri::command]
+pub fn get_annotations_for_book(
+    db: State<SqlitePool>,
+    book_id: i32,
+) -> SerializableResult<Vec<BookAnnotation>> {
+    use schema::annotations::dsl;
+
+    let mut conn = db.get()?;
+    let rows = dsl::annotations
+        .filter(dsl::book_id.eq(book_id))
+        .select((dsl::annotation_id, dsl::cfi, dsl::text_content))
+        .load::<BookAnnotation>(&mut conn)?;
+
+    Ok(rows)
 }

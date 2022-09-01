@@ -30,7 +30,8 @@ fn main() {
             library::upload_book,
             library::get_books,
             library::delete_book,
-            library::add_annotation
+            library::add_annotation,
+            library::get_annotations_for_book
         ])
         .run(context)
         .expect("error while running tauri application");

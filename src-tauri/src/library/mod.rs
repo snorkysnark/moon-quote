@@ -11,9 +11,9 @@ mod data;
 mod upload_book;
 mod get_books;
 mod delete_book;
-mod add_annotation;
+mod annotations;
 
 pub_use_hidden!( upload_book => upload_book );
 pub_use_hidden!( get_books => get_books );
 pub_use_hidden!( delete_book => delete_book );
-pub_use_hidden!( add_annotation => add_annotation );
+pub_use_hidden!( annotations => add_annotation, get_annotations_for_book );

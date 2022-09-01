@@ -17,3 +17,9 @@ export interface BookEntry {
     metaViewport: string;
     metaSpread: string;
 }
+
+export interface AnnotationEntry {
+    annotationId: number;
+    cfi: string;
+    text_content: string;
+}

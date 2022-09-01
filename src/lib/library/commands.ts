@@ -1,7 +1,7 @@
 import type { BinaryFileContents } from "@tauri-apps/api/fs";
 import { invoke } from "@tauri-apps/api/tauri";
 import type { PackagingMetadataObject } from "epubjs/types/packaging";
-import type { BookEntry } from "./data";
+import type { BookEntry, AnnotationEntry } from "./data";
 
 export interface EpubCover {
     url: string;
@@ -45,4 +45,10 @@ export function addAnnotation(
     textContent: string
 ): Promise<void> {
     return invoke("add_annotation", { bookId, cfi, textContent });
+}
+
+export function getAnnotationsForBook(
+    bookId: number
+): Promise<AnnotationEntry[]> {
+    return invoke("get_annotations_for_book", { bookId });
 }
