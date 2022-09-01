@@ -7,13 +7,13 @@
     import { createEventDispatcher } from "svelte";
 
     let uploadingBookName: string = null;
-    let booksById: { [id: number]: BookEntry } = {};
+    let bookEntries: BookEntry[] = [];
 
     const dispatch = createEventDispatcher<{ openBook: BookEntry }>();
 
     async function loadBooks() {
         const newBooks = await library.getBooks();
-        booksById = { ...booksById, ...newBooks };
+        bookEntries = [...bookEntries, ...newBooks];
     }
     loadBooks();
 
@@ -28,9 +28,9 @@
         try {
             for (const bookPath of bookPaths) {
                 uploadingBookName = await path.basename(bookPath);
-                const bookEntry = await library.uploadBook(bookPath);
+                const newBook = await library.uploadBook(bookPath);
 
-                booksById = { ...booksById, [bookEntry.bookId]: bookEntry };
+                bookEntries = [...bookEntries, newBook];
             }
         } finally {
             uploadingBookName = null;
@@ -38,9 +38,7 @@
     }
 
     function deleteBook(bookId: number) {
-        delete booksById[bookId];
-        booksById = booksById;
-
+        bookEntries = bookEntries.filter((entry) => entry.bookId != bookId);
         library.deleteBook(bookId);
     }
 
@@ -61,7 +59,7 @@
             class="libraryGrid"
             style={`pointer-events: ${uploadingBookName ? "none" : "auto"};`}
         >
-            {#each Object.values(booksById) as book}
+            {#each bookEntries as book}
                 <LibraryBook
                     {book}
                     on:click={() => openBook(book)}
