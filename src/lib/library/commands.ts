@@ -43,7 +43,7 @@ export function addAnnotation(
     bookId: number,
     cfi: string,
     textContent: string
-): Promise<void> {
+): Promise<number> {
     return invoke("add_annotation", { bookId, cfi, textContent });
 }
 

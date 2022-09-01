@@ -4,7 +4,7 @@ use tauri::State;
 
 use crate::{
     db::{schema, SqlitePool},
-    error::{SerializableError, SerializableResult},
+    error::SerializableResult,
 };
 
 #[tauri::command]
@@ -13,23 +13,24 @@ pub fn add_annotation(
     book_id: i32,
     cfi: &str,
     text_content: &str,
-) -> SerializableResult<()> {
+) -> SerializableResult<i32> {
     use schema::annotations::dsl;
 
-    db.get()?.transaction::<_, SerializableError, _>(|conn| {
-        diesel::insert_into(dsl::annotations)
-            .values((
-                dsl::book_id.eq(book_id),
-                dsl::cfi.eq(cfi),
-                dsl::text_content.eq(text_content),
-            ))
-            .execute(conn)?;
+    let mut conn = db.get()?;
+    let annotation_id: i32 = diesel::insert_into(dsl::annotations)
+        .values((
+            dsl::book_id.eq(book_id),
+            dsl::cfi.eq(cfi),
+            dsl::text_content.eq(text_content),
+        ))
+        .returning(dsl::annotation_id)
+        .get_result(&mut conn)?;
 
-        Ok(())
-    })
+    Ok(annotation_id)
 }
 
 #[derive(Queryable, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct BookAnnotation {
     annotation_id: i32,
     cfi: String,

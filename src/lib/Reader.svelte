@@ -60,7 +60,10 @@
 
     async function loadAnnotations() {
         for (const annotation of await library.getAnnotationsForBook(bookId)) {
-            rendition.annotations.highlight(annotation.cfi);
+            rendition.annotations.highlight(annotation.cfi, {}, () => {
+                    onAnnotationClick(annotation.annotationId);
+                }
+            );
         }
     }
 
@@ -78,10 +81,19 @@
         overlay.$on("highlight", (event: CustomEvent<Range>) => {
             const range = event.detail;
             const cfi = new EpubCFI(range, contents.cfiBase).toString();
-            rendition.annotations.highlight(cfi);
 
-            library.addAnnotation(bookId, cfi, range.toString());
+            library
+                .addAnnotation(bookId, cfi, range.toString())
+                .then((annotationId) => {
+                    rendition.annotations.highlight(cfi, {}, () =>
+                        onAnnotationClick(annotationId)
+                    );
+                });
         });
+    }
+
+    function onAnnotationClick(id: number) {
+        console.log("Annotation", id);
     }
 </script>
 
