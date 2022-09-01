@@ -1,5 +1,5 @@
 CREATE TABLE annotations (
-    annotation_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    annotation_id INTEGER NOT NULL PRIMARY KEY,
     book_id INTEGER NOT NULL,
     cfi text NOT NULL,
     text_content text NOT NULL,

@@ -1,5 +1,5 @@
 CREATE TABLE books (
-    book_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    book_id INTEGER NOT NULL PRIMARY KEY,
     epub_file text NOT NULL,
     cover_file text,
     meta_title text,

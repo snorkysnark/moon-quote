@@ -31,6 +31,8 @@ diesel::table! {
     }
 }
 
+diesel::joinable!(annotations -> books (book_id));
+
 diesel::allow_tables_to_appear_in_same_query!(
     annotations,
     books,
