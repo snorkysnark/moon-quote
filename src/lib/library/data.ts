@@ -21,5 +21,5 @@ export interface BookEntry {
 export interface AnnotationEntry {
     annotationId: number;
     cfi: string;
-    text_content: string;
+    textContent: string;
 }

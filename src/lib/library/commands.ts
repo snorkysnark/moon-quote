@@ -52,3 +52,7 @@ export function getAnnotationsForBook(
 ): Promise<AnnotationEntry[]> {
     return invoke("get_annotations_for_book", { bookId });
 }
+
+export function deleteAnnotation(annotationId: number): Promise<void> {
+    return invoke("delete_annotation", { annotationId });
+}

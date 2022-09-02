@@ -52,3 +52,14 @@ pub fn get_annotations_for_book(
 
     Ok(rows)
 }
+
+#[tauri::command]
+pub fn delete_annotation(db: State<SqlitePool>, annotation_id: i32) -> SerializableResult<()> {
+    use schema::annotations::dsl;
+
+    let mut conn = db.get()?;
+    diesel::delete(dsl::annotations.filter(dsl::annotation_id.eq(annotation_id)))
+        .execute(&mut conn)?;
+
+    Ok(())
+}
