@@ -1,11 +1,12 @@
 <script lang="ts">
-    import { loadBookAt, type BookDatabaseEntry } from "../backend";
+    import type { BookDatabaseEntry, LoadedBook } from "../backend";
+    import * as backend from "../backend";
     import { createEventDispatcher } from "svelte";
-    import type { Book } from "epubjs";
     import Loading from "../Loading.svelte";
+    import ReaderMainView from "./ReaderMainView.svelte";
 
     export let bookEntry: BookDatabaseEntry;
-    let bookPromise: Promise<Book> = loadBookAt(bookEntry.epubPath);
+    let bookPromise: Promise<LoadedBook> = backend.loadBook(bookEntry);
 
     const dispatch = createEventDispatcher<{ goBack: void }>();
 </script>
@@ -19,7 +20,7 @@
         {#await bookPromise}
             <Loading />
         {:then book}
-
+            <ReaderMainView {book} />
         {/await}
     </div>
 </main>

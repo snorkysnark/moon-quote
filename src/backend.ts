@@ -2,7 +2,7 @@ import { invoke } from "@tauri-apps/api";
 import type { BinaryFileContents } from "@tauri-apps/api/fs";
 import type { PackagingMetadataObject } from "epubjs/types/packaging";
 import * as fs from "@tauri-apps/api/fs";
-import ePub from "epubjs";
+import ePub, { Book } from "epubjs";
 
 export interface BookDatabaseEntry {
     bookId: number;
@@ -76,10 +76,31 @@ export async function uploadBook(bookPath: string): Promise<BookDatabaseEntry> {
     return await uploadBookRaw(bookPath, metadata, cover);
 }
 
-export async function loadBookAt(path: string) {
-    const file = await fs.readBinaryFile(path);
-    const book = ePub(file.buffer);
+export interface AnnotationDatabaseEntry {
+    annotationId: number;
+    cfi: string;
+    textContent: string;
+}
 
-    await book.ready;
-    return book;
+export function getAnnotationsForBook(
+    bookId: number
+): Promise<AnnotationDatabaseEntry[]> {
+    return invoke("get_annotations_for_book", { bookId });
+}
+
+export interface LoadedBook {
+    entry: BookDatabaseEntry;
+    epub: Book;
+    annotations: AnnotationDatabaseEntry[];
+}
+
+export async function loadBook(entry: BookDatabaseEntry): Promise<LoadedBook> {
+    const [file, annotations] = await Promise.all([
+        fs.readBinaryFile(entry.epubPath),
+        getAnnotationsForBook(entry.bookId),
+    ]);
+    const epub = ePub(file.buffer);
+
+    await epub.ready;
+    return { entry, epub, annotations };
 }
