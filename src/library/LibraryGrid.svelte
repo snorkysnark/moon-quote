@@ -7,7 +7,7 @@
 
 <div id="grid">
     {#each bookEntries as bookEntry}
-        <LibraryBook {bookEntry} />
+        <LibraryBook on:open on:delete {bookEntry} />
     {/each}
 </div>
 

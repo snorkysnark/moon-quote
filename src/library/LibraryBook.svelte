@@ -1,5 +1,6 @@
 <script lang="ts">
     import { convertFileSrc } from "@tauri-apps/api/tauri";
+    import { createEventDispatcher } from "svelte";
     import AddContextMenu from "../AddContextMenu.svelte";
     import type { BookDatabaseEntry } from "../backend";
 
@@ -11,9 +12,17 @@
         : null;
 
     let button: HTMLElement;
+    let dispatch = createEventDispatcher<{
+        open: BookDatabaseEntry;
+        delete: BookDatabaseEntry;
+    }>();
+
+    /* const bookDir = asyncDerived(bookDir, (value: BookDatabaseEntry) => */
+    /*     commands.pathParent(value.epubPath) */
+    /* ); */
 </script>
 
-<button bind:this={button}>
+<button bind:this={button} on:click={() => dispatch("open", bookEntry)}>
     {#if coverUrl}
         <img src={coverUrl} alt={bookEntry.metaTitle} draggable="false" />
     {/if}
@@ -23,7 +32,10 @@
 {#if button}
     <AddContextMenu
         target={button}
-        items={[{ label: "Open Folder" }, { label: "Delete" }]}
+        items={[
+            { label: "Open Folder" },
+            { label: "Delete", action: () => dispatch("delete", bookEntry) },
+        ]}
     />
 {/if}
 

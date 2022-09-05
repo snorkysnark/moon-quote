@@ -1,8 +1,12 @@
 <script lang="ts">
-    import { currentMenuStore, closeMenu } from "./contextmenu";
+    import {
+        currentMenuStore,
+        closeMenu,
+        type ContextMenuItem,
+    } from "./contextmenu";
 
     let menuContainer: HTMLElement;
-    function onClick(event: MouseEvent, rightClick: boolean) {
+    function onClickBody(event: MouseEvent, rightClick: boolean) {
         if (menuContainer) {
             if (
                 !rightClick &&
@@ -16,6 +20,11 @@
             closeMenu();
         }
     }
+
+    function onClickItem(item: ContextMenuItem) {
+        if (item.action) item.action();
+        closeMenu();
+    }
 </script>
 
 {#if $currentMenuStore}
@@ -24,13 +33,15 @@
         style={`left: ${$currentMenuStore.x}px; top: ${$currentMenuStore.y}px`}
     >
         {#each $currentMenuStore.items as menuItem}
-            <menuitem>{menuItem.label}</menuitem>
+            <menuitem on:click={() => onClickItem(menuItem)}
+                >{menuItem.label}</menuitem
+            >
         {/each}
     </menu>
 {/if}
 <svelte:body
-    on:click={(e) => onClick(e, false)}
-    on:contextmenu={(e) => onClick(e, true)} />
+    on:click={(e) => onClickBody(e, false)}
+    on:contextmenu={(e) => onClickBody(e, true)} />
 
 <style>
     menu {

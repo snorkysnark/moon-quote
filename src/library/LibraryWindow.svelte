@@ -13,6 +13,12 @@
 
     let disableUi: boolean;
     $: disableUi = bookEntries === null || hoveringFiles !== null;
+
+    function deleteBook(target: BookDatabaseEntry) {
+        bookEntries = bookEntries.filter(
+            (other) => other.bookId != target.bookId
+        );
+    }
 </script>
 
 {#if bookEntries}
@@ -28,7 +34,10 @@
         {#if hoveringFiles}
             <FileDropSplash message={"Drag and Drop\nto upload books"} />
         {:else if bookEntries}
-            <LibraryGrid {bookEntries} />
+            <LibraryGrid
+                {bookEntries}
+                on:delete={(e) => deleteBook(e.detail)}
+            />
         {:else}
             <Loading />
         {/if}
