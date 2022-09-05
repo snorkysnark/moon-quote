@@ -4,6 +4,7 @@
     import FileDropHandler from "../FileDropHandler.svelte";
     import FileDropSplash from "../FileDropSplash.svelte";
     import { getBooks, type BookDatabaseEntry } from "../backend";
+    import { closeMenu } from "../contextmenu";
 
     let bookEntries: BookDatabaseEntry[] = null;
     getBooks().then((result) => (bookEntries = result));
@@ -23,7 +24,7 @@
         <h1>Library</h1>
         <button id="addBook" disabled={disableUi}>+</button>
     </div>
-    <div id="library">
+    <div id="library" on:scroll={closeMenu}>
         {#if hoveringFiles}
             <FileDropSplash message={"Drag and Drop\nto upload books"} />
         {:else if bookEntries}
