@@ -42,7 +42,11 @@
 </script>
 
 {#if enableFiledrop}
-    <FileDropHandler bind:hovering />
+    <FileDropHandler
+        bind:hovering
+        extensionFilter={["epub"]}
+        on:fileDrop={(e) => console.log(e.detail)}
+    />
 {/if}
 
 <main>
