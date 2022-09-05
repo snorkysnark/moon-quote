@@ -16,10 +16,6 @@
         open: BookDatabaseEntry;
         delete: BookDatabaseEntry;
     }>();
-
-    /* const bookDir = asyncDerived(bookDir, (value: BookDatabaseEntry) => */
-    /*     commands.pathParent(value.epubPath) */
-    /* ); */
 </script>
 
 <button bind:this={button} on:click={() => dispatch("open", bookEntry)}>

@@ -75,3 +75,11 @@ export async function uploadBook(bookPath: string): Promise<BookDatabaseEntry> {
 
     return await uploadBookRaw(bookPath, metadata, cover);
 }
+
+export async function loadBookAt(path: string) {
+    const file = await fs.readBinaryFile(path);
+    const book = ePub(file.buffer);
+
+    await book.ready;
+    return book;
+}

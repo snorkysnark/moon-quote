@@ -8,6 +8,7 @@
     import type { BookDatabaseEntry } from "../backend";
     import * as path from "@tauri-apps/api/path";
     import * as dialog from "@tauri-apps/api/dialog";
+    import { createEventDispatcher } from "svelte";
 
     let bookEntries: BookDatabaseEntry[] = null;
     backend.getBooks().then((result) => (bookEntries = result));
@@ -44,6 +45,8 @@
         }
     }
 
+    const dispatch = createEventDispatcher<{ open: BookDatabaseEntry }>();
+
     let enableFiledrop: boolean;
     $: enableFiledrop = bookEntries !== null && uploadingBook === null;
 
@@ -77,6 +80,7 @@
         {:else if bookEntries}
             <LibraryGrid
                 {bookEntries}
+                on:open
                 on:delete={(e) => deleteBook(e.detail)}
             />
         {:else}
