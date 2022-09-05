@@ -44,8 +44,8 @@
 {#if enableFiledrop}
     <FileDropHandler
         bind:hovering
-        extensionFilter={["epub"]}
-        on:fileDrop={(e) => console.log(e.detail)}
+        allowedExtensions={["epub"]}
+        on:fileDrop={(e) => uploadBooks(e.detail)}
     />
 {/if}
 
@@ -56,7 +56,7 @@
     </div>
     <div id="library" on:scroll={closeMenu}>
         {#if uploadingBook}
-            <Loading message={uploadingBook} />
+            <Loading message={`Uploading\n${uploadingBook}`} />
         {:else if hovering}
             <FileDropSplash message={"Drag and Drop\nto upload books"} />
         {:else if bookEntries}

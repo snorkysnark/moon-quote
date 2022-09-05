@@ -2,11 +2,10 @@
     import { onDestroy } from "svelte";
     import { listen } from "@tauri-apps/api/event";
     import { createEventDispatcher } from "svelte";
-    import { asyncFilter } from "./utils";
-    import * as path from "@tauri-apps/api/path";
+    import { filterByExtension } from "./utils";
 
     export let hovering: boolean = false;
-    export let extensionFilter: string[] = null;
+    export let allowedExtensions: string[] = null;
 
     const hoverHandler = listen<string[]>("tauri://file-drop-hover", () => {
         hovering = true;
@@ -24,11 +23,10 @@
         async (event) => {
             hovering = false;
 
-            let allowedFiles = extensionFilter
-                ? await asyncFilter(event.payload, async (filePath) =>
-                      extensionFilter!.includes(await path.extname(filePath))
-                  )
+            let allowedFiles = allowedExtensions
+                ? await filterByExtension(event.payload, allowedExtensions)
                 : event.payload;
+            console.log(allowedFiles);
 
             if (allowedFiles.length > 0) {
                 dispatch("fileDrop", allowedFiles);
