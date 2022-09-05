@@ -1,4 +1,6 @@
-export interface BookEntry {
+import { invoke } from "@tauri-apps/api";
+
+export interface BookDatabaseEntry {
     bookId: number;
     epubPath: string;
     coverPath: string;
@@ -18,8 +20,6 @@ export interface BookEntry {
     metaSpread: string;
 }
 
-export interface AnnotationEntry {
-    annotationId: number;
-    cfi: string;
-    textContent: string;
+export function getBooks(): Promise<BookDatabaseEntry[]> {
+    return invoke("get_books");
 }
