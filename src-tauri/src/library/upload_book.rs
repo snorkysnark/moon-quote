@@ -1,7 +1,4 @@
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
+use std::{fs, path::Path};
 
 use diesel::prelude::*;
 use serde::Deserialize;
@@ -17,7 +14,7 @@ use super::data::{Book, EpubMetadata};
 
 #[derive(Deserialize)]
 pub struct EpubCover {
-    url: PathBuf,
+    url: String,
     data: Vec<u8>,
 }
 
@@ -28,12 +25,10 @@ struct EpubCoverFile {
 
 impl EpubCover {
     fn to_file_description(self) -> SerializableResult<EpubCoverFile> {
-        let extension = self
+        let (_, extension) = self
             .url
-            .extension()
-            .ok_or_else(|| sanyhow!("Cover url has no extension"))?
-            .to_str()
-            .ok_or_else(|| sanyhow!("Cover url has non-utf8 symbols"))?;
+            .rsplit_once(".")
+            .ok_or_else(|| sanyhow!("Cover url has no extension"))?;
 
         Ok(EpubCoverFile {
             filename: format!("cover.{extension}"),
