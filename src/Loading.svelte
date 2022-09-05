@@ -7,7 +7,7 @@
 <div>
     <Spinner />
     {#if message}
-        <p>{message}</p>
+        <pre><p>{message}</p></pre>
     {/if}
 </div>
 
@@ -19,5 +19,10 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
+    }
+
+    p {
+        font-size: 1.5em;
+        text-align: center;
     }
 </style>
