@@ -3,35 +3,59 @@
     import LibraryGrid from "./LibraryGrid.svelte";
     import FileDropHandler from "../FileDropHandler.svelte";
     import FileDropSplash from "../FileDropSplash.svelte";
-    import { getBooks, type BookDatabaseEntry } from "../backend";
     import { closeMenu } from "../contextmenu";
+    import * as backend from "../backend";
+    import type { BookDatabaseEntry } from "../backend";
+    import * as path from "@tauri-apps/api/path";
 
     let bookEntries: BookDatabaseEntry[] = null;
-    getBooks().then((result) => (bookEntries = result));
+    backend.getBooks().then((result) => (bookEntries = result));
 
     let hoveringFiles: string[] = null;
-
-    let disableUi: boolean;
-    $: disableUi = bookEntries === null || hoveringFiles !== null;
+    let uploadingBook: string = null;
 
     function deleteBook(target: BookDatabaseEntry) {
         bookEntries = bookEntries.filter(
             (other) => other.bookId != target.bookId
         );
+        backend.deleteBook(target.bookId);
     }
+
+    async function uploadBooks(bookPaths: string[]) {
+        try {
+            for (const bookPath of bookPaths) {
+                uploadingBook = await path.basename(bookPath);
+                const newBook = await backend.uploadBook(bookPath);
+                bookEntries = [...bookEntries, newBook];
+            }
+        } finally {
+            uploadingBook = null;
+        }
+    }
+
+    let enableFiledrop: boolean;
+    $: enableFiledrop = bookEntries !== null && uploadingBook === null;
+
+    let enableButtons: boolean;
+    $: enableButtons =
+        bookEntries !== null &&
+        uploadingBook === null &&
+        hoveringFiles === null;
 </script>
 
-{#if bookEntries}
+{#if enableFiledrop}
     <FileDropHandler bind:hoveringFiles />
 {/if}
 
 <main>
     <div id="topPanel">
         <h1>Library</h1>
-        <button id="addBook" disabled={disableUi}>+</button>
+        <button id="addBook" disabled={!enableButtons}>+</button>
     </div>
     <div id="library" on:scroll={closeMenu}>
-        {#if hoveringFiles}
+        {#if uploadingBook}
+            <Loading message={uploadingBook} />
+        {:else if hoveringFiles}
             <FileDropSplash message={"Drag and Drop\nto upload books"} />
         {:else if bookEntries}
             <LibraryGrid
