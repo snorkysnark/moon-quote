@@ -19,26 +19,46 @@
 </script>
 
 {#if $currentMenuStore}
-    <div
+    <menu
         bind:this={menuContainer}
-        id="menuContainer"
         style={`left: ${$currentMenuStore.x}px; top: ${$currentMenuStore.y}px`}
     >
         {#each $currentMenuStore.items as menuItem}
-            <div>{menuItem.label}</div>
+            <menuitem>{menuItem.label}</menuitem>
         {/each}
-    </div>
+    </menu>
 {/if}
 <svelte:body
     on:click={(e) => onClick(e, false)}
     on:contextmenu={(e) => onClick(e, true)} />
 
 <style>
-    #menuContainer {
+    menu {
         position: absolute;
-        background: white;
-        border: solid;
         display: flex;
         flex-direction: column;
+        gap: 2px;
+
+        padding: 2px 0px 2px 0px;
+        margin: 0;
+
+        background: white;
+        border: solid;
+        border-color: gray;
+        border-width: 2px;
+        box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 10px;
+    }
+
+    menuitem {
+        cursor: default;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+
+        padding: 0px 5px 0px 5px;
+    }
+
+    menuitem:hover {
+        background-color: lightblue;
     }
 </style>
