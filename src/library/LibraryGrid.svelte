@@ -16,6 +16,6 @@
         display: grid;
         gap: 10px;
         grid-template-columns: repeat(auto-fit, 200px);
-        grid-auto-rows: minmax(250px, content-fit);
+        grid-auto-rows: 1fr;
     }
 </style>
