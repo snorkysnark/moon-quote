@@ -1,21 +1,36 @@
 <script lang="ts">
     import Loading from "../Loading.svelte";
     import LibraryGrid from "./LibraryGrid.svelte";
-    import { getBooks } from "../backend";
+    import FileDropHandler from "../FileDropHandler.svelte";
+    import FileDropSplash from "../FileDropSplash.svelte";
+    import { getBooks, type BookDatabaseEntry } from "../backend";
 
-    let bookEntries = getBooks();
+    let bookEntries: BookDatabaseEntry[] = null;
+    getBooks().then((result) => (bookEntries = result));
+
+    let hoveringFiles: string[] = null;
+
+    let disableUi: boolean;
+    $: disableUi = bookEntries === null || hoveringFiles !== null;
 </script>
+
+{#if bookEntries}
+    <FileDropHandler bind:hoveringFiles />
+{/if}
 
 <main>
     <div id="topPanel">
         <h1>Library</h1>
+        <button id="addBook" disabled={disableUi}>+</button>
     </div>
     <div id="library">
-        {#await bookEntries}
-            <Loading />
-        {:then bookEntries}
+        {#if hoveringFiles}
+            <FileDropSplash message={"Drag and Drop\nto upload books"} />
+        {:else if bookEntries}
             <LibraryGrid {bookEntries} />
-        {/await}
+        {:else}
+            <Loading />
+        {/if}
     </div>
 </main>
 
@@ -31,15 +46,22 @@
         user-select: none;
     }
 
-    h1 {
-        margin-top: 0;
-        margin-left: 10px;
-
-    }
-
     #topPanel {
         height: 50px;
         background-color: orange;
+        display: flex;
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+    h1 {
+        margin: 0;
+        flex: 1 1 auto;
+    }
+
+    #addBook {
+        width: 100px;
+        font-size: 25px;
     }
 
     #library {

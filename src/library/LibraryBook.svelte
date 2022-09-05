@@ -20,7 +20,6 @@
 <style>
     button {
         min-height: 200px;
-        cursor: pointer;
     }
 
     img {
