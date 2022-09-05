@@ -1,5 +1,6 @@
 <script lang="ts">
     import { convertFileSrc } from "@tauri-apps/api/tauri";
+    import AddContextMenu from "../AddContextMenu.svelte";
     import type { BookDatabaseEntry } from "../backend";
 
     export let bookEntry: BookDatabaseEntry;
@@ -8,14 +9,23 @@
     $: coverUrl = bookEntry.coverPath
         ? convertFileSrc(bookEntry.coverPath)
         : null;
+
+    let button: HTMLElement;
 </script>
 
-<button>
+<button bind:this={button}>
     {#if coverUrl}
-        <img src={coverUrl} alt={bookEntry.metaTitle} />
+        <img src={coverUrl} alt={bookEntry.metaTitle} draggable="false" />
     {/if}
     <p>{bookEntry.metaTitle}</p>
 </button>
+
+{#if button}
+    <AddContextMenu
+        target={button}
+        items={[{ label: "Open Folder" }, { label: "Delete" }]}
+    />
+{/if}
 
 <style>
     button {
