@@ -26,7 +26,6 @@
             let allowedFiles = allowedExtensions
                 ? await filterByExtension(event.payload, allowedExtensions)
                 : event.payload;
-            console.log(allowedFiles);
 
             if (allowedFiles.length > 0) {
                 dispatch("fileDrop", allowedFiles);
