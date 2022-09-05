@@ -11,7 +11,7 @@
     let bookEntries: BookDatabaseEntry[] = null;
     backend.getBooks().then((result) => (bookEntries = result));
 
-    let hoveringFiles: string[] = null;
+    let hovering: boolean = false;
     let uploadingBook: string = null;
 
     function deleteBook(target: BookDatabaseEntry) {
@@ -38,13 +38,11 @@
 
     let enableButtons: boolean;
     $: enableButtons =
-        bookEntries !== null &&
-        uploadingBook === null &&
-        hoveringFiles === null;
+        bookEntries !== null && uploadingBook === null && !hovering;
 </script>
 
 {#if enableFiledrop}
-    <FileDropHandler bind:hoveringFiles />
+    <FileDropHandler bind:hovering />
 {/if}
 
 <main>
@@ -55,7 +53,7 @@
     <div id="library" on:scroll={closeMenu}>
         {#if uploadingBook}
             <Loading message={uploadingBook} />
-        {:else if hoveringFiles}
+        {:else if hovering}
             <FileDropSplash message={"Drag and Drop\nto upload books"} />
         {:else if bookEntries}
             <LibraryGrid

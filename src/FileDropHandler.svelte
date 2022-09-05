@@ -3,24 +3,21 @@
     import { listen } from "@tauri-apps/api/event";
     import { createEventDispatcher } from "svelte";
 
-    export let hoveringFiles: string[] = null;
+    export let hovering: boolean = false;
 
-    const hoverHandler = listen<string[]>(
-        "tauri://file-drop-hover",
-        (event) => {
-            hoveringFiles = event.payload;
-        }
-    );
+    const hoverHandler = listen<string[]>("tauri://file-drop-hover", () => {
+        hovering = true;
+    });
     const cancelledHandler = listen<string[]>(
         "tauri://file-drop-cancelled",
         () => {
-            hoveringFiles = null;
+            hovering = false;
         }
     );
 
     const dispatch = createEventDispatcher<{ fileDrop: string[] }>();
     const fileDropHandler = listen<string[]>("tauri://file-drop", (event) => {
-        hoveringFiles = null;
+        hovering = false;
         dispatch("fileDrop", event.payload);
     });
 
