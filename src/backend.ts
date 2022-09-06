@@ -80,12 +80,26 @@ export interface AnnotationDatabaseEntry {
     annotationId: number;
     cfi: string;
     textContent: string;
+    color: number;
 }
 
 export function getAnnotationsForBook(
     bookId: number
 ): Promise<AnnotationDatabaseEntry[]> {
     return invoke("get_annotations_for_book", { bookId });
+}
+
+export function addAnnotation(
+    bookId: number,
+    cfi: string,
+    textContent: string,
+    color: number
+): Promise<AnnotationDatabaseEntry> {
+    return invoke("add_annotation", { bookId, cfi, textContent, color });
+}
+
+export function deleteAnnotation(annotationId: number): Promise<void> {
+    return invoke("delete_annotation", { annotationId });
 }
 
 export interface LoadedBook {

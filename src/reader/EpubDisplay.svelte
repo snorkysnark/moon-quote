@@ -1,23 +1,96 @@
+<script lang="ts" context="module">
+    export interface EpubDisplayContext {
+        addAnnotation: (
+            cfi: string,
+            callback?: () => void,
+            className?: string,
+            styles?: object
+        ) => void;
+        removeAnnotation: (cfi: string) => void;
+    }
+
+    export interface EpubHighlightDetail {
+        cfi: EpubCFI;
+        range: Range;
+        color: number;
+    }
+</script>
+
 <script lang="ts">
-    import type { Book } from "epubjs";
-import { onMount } from "svelte";
+    import { EpubCFI, type Book, type Contents, type Rendition } from "epubjs";
+    import { createEventDispatcher, onMount, setContext } from "svelte";
+    import EpubOverlay from "./overlay/EpubOverlay.svelte";
 
     export let book: Book;
 
     let viewContainer: HTMLElement;
+    let rendition: Rendition;
+    let overlay: EpubOverlay;
+    let readyToAnnotate: boolean = false;
 
-    onMount(() => {
-        const rendition = book.renderTo(viewContainer, {
+    onMount(async () => {
+        rendition = book.renderTo(viewContainer, {
             height: "100%",
             width: "100%",
             flow: "scrolled-doc",
             allowScriptedContent: true, //Needed for arrow key navigation
         });
-        rendition.display(10);
+        rendition.hooks.content.register(onContentsChange);
+        await rendition.display(10);
+        // renditions.annotations only becomes initialized
+        // after the first page is rendered
+        readyToAnnotate = true;
+    });
+
+    const dispatch =
+        createEventDispatcher<{ highlight: EpubHighlightDetail }>();
+
+    function onContentsChange(contents: Contents) {
+        if (overlay) overlay.$destroy();
+
+        // @ts-ignore: rendition.views() is of type Views, not View[]
+        const innerView: HTMLDivElement = rendition.views().first().element;
+        overlay = new EpubOverlay({
+            target: innerView,
+            props: {
+                bookDocument: contents.document,
+            },
+        });
+        overlay.$on("highlight", (event) => {
+            const { range, color } = event.detail;
+            const cfi = new EpubCFI(range, contents.cfiBase);
+
+            dispatch("highlight", { cfi, range, color });
+        });
+    }
+
+    setContext<EpubDisplayContext>("EpubDisplay", {
+        // Allow components in the <slot/> to modify annotations
+        addAnnotation: (
+            cfi: string,
+            callback?: () => void,
+            className?: string,
+            styles?: object
+        ) => {
+            rendition.annotations.highlight(
+                cfi,
+                undefined,
+                callback,
+                className,
+                styles
+            );
+        },
+        removeAnnotation: (cfi: string) => {
+            rendition.annotations.remove(cfi, "highlight");
+        },
     });
 </script>
 
-<div id="reader" bind:this={viewContainer}></div>
+<div id="reader" bind:this={viewContainer}>
+    {#if readyToAnnotate}
+        <slot />
+    {/if}
+</div>
 
 <style>
     #reader {

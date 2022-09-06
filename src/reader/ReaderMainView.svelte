@@ -1,22 +1,32 @@
 <script lang="ts">
-    import type { Book } from "epubjs";
     import type {
         AnnotationDatabaseEntry,
         BookDatabaseEntry,
         LoadedBook,
     } from "src/backend";
     import annotationsIcon from "../decor/annotations.svg";
-    import EpubDisplay from "./EpubDisplay.svelte";
+    import EpubAnnotation from "./EpubAnnotation.svelte";
+    import EpubDisplay, {
+        type EpubHighlightDetail,
+    } from "./EpubDisplay.svelte";
+    import * as backend from "../backend";
+    import type { Book } from "epubjs";
 
     export let book: LoadedBook;
 
-    let epub: Book;
-    let annotations: AnnotationDatabaseEntry[];
-    let bookEntry: BookDatabaseEntry;
-    $: {
-        epub = book.epub;
-        annotations = book.annotations;
-        bookEntry = book.entry;
+    let epub: Book = book.epub;
+    let annotations: AnnotationDatabaseEntry[] = book.annotations;
+    let bookEntry: BookDatabaseEntry = book.entry;
+
+    async function highlight(event: CustomEvent<EpubHighlightDetail>) {
+        const { cfi, range, color } = event.detail;
+        const newAnnotation = await backend.addAnnotation(
+            bookEntry.bookId,
+            cfi.toString(),
+            range.toString(),
+            color
+        );
+        annotations = [...annotations, newAnnotation];
     }
 </script>
 
@@ -24,12 +34,16 @@
     <div id="readerView">
         <button class="navButton">←</button>
         <div id="readerPage">
-            <EpubDisplay book={epub} />
+            <EpubDisplay book={epub} on:highlight={highlight}>
+                {#each annotations as annotation}
+                    <EpubAnnotation {annotation} />
+                {/each}
+            </EpubDisplay>
         </div>
         <button class="navButton">→</button>
     </div>
     <!--<div id="sidePanel">-->
-        <!--aowihfiwohf-->
+    <!--aowihfiwohf-->
     <!--</div>-->
     <div id="sidePanelToggle">
         <button class="toggle"
@@ -52,7 +66,7 @@
     #readerView {
         flex: 1 1 auto;
         display: flex;
-        background-color: #F1F1F1;
+        background-color: #f1f1f1;
     }
 
     #readerPage {

@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use diesel::prelude::*;
 use serde::Serialize;
 use tauri::State;
@@ -7,13 +9,23 @@ use crate::{
     error::SerializableResult,
 };
 
+#[derive(Queryable, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BookAnnotation<'a> {
+    annotation_id: i32,
+    cfi: Cow<'a, str>,
+    text_content: Cow<'a, str>,
+    color: i32,
+}
+
 #[tauri::command]
-pub fn add_annotation(
+pub fn add_annotation<'a>(
     db: State<SqlitePool>,
     book_id: i32,
-    cfi: &str,
-    text_content: &str,
-) -> SerializableResult<i32> {
+    cfi: &'a str,
+    text_content: &'a str,
+    color: i32,
+) -> SerializableResult<BookAnnotation<'a>> {
     use schema::annotations::dsl;
 
     let mut conn = db.get()?;
@@ -22,19 +34,17 @@ pub fn add_annotation(
             dsl::book_id.eq(book_id),
             dsl::cfi.eq(cfi),
             dsl::text_content.eq(text_content),
+            dsl::color.eq(color),
         ))
         .returning(dsl::annotation_id)
         .get_result(&mut conn)?;
 
-    Ok(annotation_id)
-}
-
-#[derive(Queryable, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct BookAnnotation {
-    annotation_id: i32,
-    cfi: String,
-    text_content: String,
+    Ok(BookAnnotation {
+        annotation_id,
+        cfi: cfi.into(),
+        text_content: text_content.into(),
+        color,
+    })
 }
 
 #[tauri::command]
@@ -47,7 +57,7 @@ pub fn get_annotations_for_book(
     let mut conn = db.get()?;
     let rows = dsl::annotations
         .filter(dsl::book_id.eq(book_id))
-        .select((dsl::annotation_id, dsl::cfi, dsl::text_content))
+        .select((dsl::annotation_id, dsl::cfi, dsl::text_content, dsl::color))
         .load::<BookAnnotation>(&mut conn)?;
 
     Ok(rows)

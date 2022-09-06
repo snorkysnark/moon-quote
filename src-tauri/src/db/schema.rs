@@ -6,6 +6,7 @@ diesel::table! {
         book_id -> Integer,
         cfi -> Text,
         text_content -> Text,
+        color -> Integer,
     }
 }
 
