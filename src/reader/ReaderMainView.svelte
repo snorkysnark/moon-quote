@@ -6,6 +6,7 @@
         LoadedBook,
     } from "src/backend";
     import annotationsIcon from "../decor/annotations.svg";
+    import EpubDisplay from "./EpubDisplay.svelte";
 
     export let book: LoadedBook;
 
@@ -22,7 +23,9 @@
 <div id="container">
     <div id="readerView">
         <button class="navButton">←</button>
-        <div id="readerPage" />
+        <div id="readerPage">
+            <EpubDisplay book={epub} />
+        </div>
         <button class="navButton">→</button>
     </div>
     <!--<div id="sidePanel">-->
@@ -48,17 +51,17 @@
 
     #readerView {
         flex: 1 1 auto;
-        height: 100%;
         display: flex;
+        background-color: #F1F1F1;
     }
 
     #readerPage {
         z-index: 1;
         margin-top: 10px;
-        background-color: white;
         width: 800px;
         height: calc(100% - 20px);
         box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+        background-color: white;
     }
 
     .navButton {
@@ -80,9 +83,10 @@
 
     #sidePanelToggle {
         flex: 0 1 auto;
-        width: 50px;
+        width: 40px;
         display: flex;
         flex-direction: column;
+        background-color: white;
     }
 
     .toggle > img {
