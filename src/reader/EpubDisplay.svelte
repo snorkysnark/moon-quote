@@ -2,7 +2,7 @@
     export interface EpubDisplayContext {
         addAnnotation: (
             cfi: string,
-            callback?: () => void,
+            callback?: Function,
             className?: string,
             styles?: object
         ) => void;
@@ -28,6 +28,12 @@
     let overlay: EpubOverlay;
     let readyToAnnotate: boolean = false;
 
+    const dispatch =
+        createEventDispatcher<{
+            highlight: EpubHighlightDetail;
+            click: MouseEvent;
+        }>();
+
     onMount(async () => {
         rendition = book.renderTo(viewContainer, {
             height: "100%",
@@ -36,14 +42,12 @@
             allowScriptedContent: true, //Needed for arrow key navigation
         });
         rendition.hooks.content.register(onContentsChange);
+        rendition.on("click", (event: MouseEvent) => dispatch("click", event));
         await rendition.display(10);
         // renditions.annotations only becomes initialized
         // after the first page is rendered
         readyToAnnotate = true;
     });
-
-    const dispatch =
-        createEventDispatcher<{ highlight: EpubHighlightDetail }>();
 
     function onContentsChange(contents: Contents) {
         if (overlay) overlay.$destroy();
@@ -68,7 +72,7 @@
         // Allow components in the <slot/> to modify annotations
         addAnnotation: (
             cfi: string,
-            callback?: () => void,
+            callback?: Function,
             className?: string,
             styles?: object
         ) => {

@@ -28,15 +28,27 @@
         );
         annotations = [...annotations, newAnnotation];
     }
+
+    let selectedAnnotationId: number = null;
 </script>
 
 <div id="container">
     <div id="readerView">
         <button class="navButton">←</button>
         <div id="readerPage">
-            <EpubDisplay book={epub} on:highlight={highlight}>
+            <EpubDisplay
+                book={epub}
+                on:highlight={highlight}
+                on:click={() => (selectedAnnotationId = null)}
+            >
                 {#each annotations as annotation}
-                    <EpubAnnotation {annotation} />
+                    <EpubAnnotation
+                        {annotation}
+                        selected={annotation.annotationId ===
+                            selectedAnnotationId}
+                        on:click={() =>
+                            (selectedAnnotationId = annotation.annotationId)}
+                    />
                 {/each}
             </EpubDisplay>
         </div>
