@@ -24,7 +24,7 @@
 
 <script lang="ts">
     import { EpubCFI, type Book, type Contents, type Rendition } from "epubjs";
-import type { AnnotationDatabaseEntry } from "src/backend";
+    import type { AnnotationDatabaseEntry } from "src/backend";
     import { createEventDispatcher, onMount, setContext } from "svelte";
     import EpubOverlay from "./overlay/EpubOverlay.svelte";
 
@@ -50,8 +50,10 @@ import type { AnnotationDatabaseEntry } from "src/backend";
             allowScriptedContent: true, //Needed for arrow key navigation
         });
         rendition.hooks.content.register(onContentsChange);
-        rendition.on("mousedown", (event: MouseEvent) => { dispatch("mousedown", event) });
-        await rendition.display(10);
+        rendition.on("mousedown", (event: MouseEvent) => {
+            dispatch("mousedown", event);
+        });
+        await rendition.display(0);
         // renditions.annotations only becomes initialized
         // after the first page is rendered
         readyToAnnotate = true;
@@ -71,7 +73,6 @@ import type { AnnotationDatabaseEntry } from "src/backend";
                 await rendition.display(target);
         },
     };
-
 
     // Insert overlay into HTML
     function onContentsChange(contents: Contents) {
@@ -96,7 +97,7 @@ import type { AnnotationDatabaseEntry } from "src/backend";
         });
     }
 
-    $: if(overlay) overlay.$set({ selectedAnnotation });
+    $: if (overlay) overlay.$set({ selectedAnnotation });
 
     setContext<EpubDisplayContext>("EpubDisplay", {
         // Allow components in the <slot/> to modify annotations
