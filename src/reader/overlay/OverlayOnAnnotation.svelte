@@ -18,7 +18,10 @@
     function computePosition(range: Range) {
         const rect = range.getBoundingClientRect();
         const x = rect.x + rect.width / 2;
-        const y = rect.y > 50 ? rect.y - 50 : rect.y + rect.height;
+        const y =
+            bookDocument.body.clientHeight - rect.y > 100
+                ? rect.y + rect.height
+                : rect.y - 50;
         return { x, y };
     }
     $: if (annotationRange) position = computePosition(annotationRange);
