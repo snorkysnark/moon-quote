@@ -12,6 +12,7 @@
     } from "./EpubDisplay.svelte";
     import * as backend from "../backend";
     import type { Book } from "epubjs";
+    import AnnotationBlock from "./AnnotationBlock.svelte";
 
     export let book: LoadedBook;
 
@@ -42,6 +43,7 @@
     }
 
     let selectedAnnotation: AnnotationDatabaseEntry = null;
+    let sidePanelEnabled: boolean = false;
 </script>
 
 <div id="container">
@@ -72,11 +74,24 @@
             >→</button
         >
     </div>
-    <!--<div id="sidePanel">-->
-    <!--aowihfiwohf-->
-    <!--</div>-->
+    {#if sidePanelEnabled}
+        <div id="sidePanel">
+            {#each annotations as annotation}
+                <AnnotationBlock
+                    {annotation}
+                    on:click={() => {
+                        readerController.display(annotation.cfi);
+                        selectedAnnotation = annotation;
+                    }}
+                />
+            {/each}
+        </div>
+    {/if}
     <div id="sidePanelToggle">
-        <button class="toggle"
+        <button
+            class="toggle"
+            class:active={sidePanelEnabled}
+            on:click={() => (sidePanelEnabled = !sidePanelEnabled)}
             ><img
                 draggable="false"
                 src={annotationsIcon}
@@ -123,6 +138,8 @@
     #sidePanel {
         flex: 0 1 auto;
         background-color: lightblue;
+        max-width: 500px;
+        overflow-y: scroll;
     }
 
     #sidePanelToggle {
@@ -136,5 +153,9 @@
     .toggle > img {
         width: 100%;
         object-fit: contain;
+    }
+
+    .toggle.active {
+        background-color: lightblue;
     }
 </style>
