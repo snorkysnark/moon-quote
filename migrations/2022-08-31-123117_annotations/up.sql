@@ -5,6 +5,8 @@ CREATE TABLE annotations (
     text_content text NOT NULL,
     color INTEGER NOT NULL,
 
+    UNIQUE (book_id, cfi),
+
     FOREIGN KEY (book_id) REFERENCES books (book_id)
         ON DELETE CASCADE
 );
