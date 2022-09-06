@@ -27,7 +27,9 @@
     $: applyHighlight(annotation, selected);
 
     onDestroy(() => {
-        if (hasBeenApplied) context.removeAnnotation(annotation.cfi);
+        if (hasBeenApplied) {
+            context.removeAnnotation(annotation.cfi);
+        }
     });
 
     const dispatch = createEventDispatcher<{ click: MouseEvent }>();

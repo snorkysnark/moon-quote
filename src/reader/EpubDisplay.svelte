@@ -39,6 +39,7 @@ import type { AnnotationDatabaseEntry } from "src/backend";
     const dispatch = createEventDispatcher<{
         highlight: EpubHighlightDetail;
         click: MouseEvent;
+        deleteAnnotation: AnnotationDatabaseEntry;
     }>();
 
     onMount(async () => {
@@ -89,6 +90,9 @@ import type { AnnotationDatabaseEntry } from "src/backend";
             const cfi = new EpubCFI(range, contents.cfiBase);
 
             dispatch("highlight", { cfi, range, color });
+        });
+        overlay.$on("deleteAnnotation", (event) => {
+            dispatch("deleteAnnotation", event.detail);
         });
     }
 
