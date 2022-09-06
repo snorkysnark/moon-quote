@@ -8,7 +8,6 @@
     import type { BookDatabaseEntry } from "../backend";
     import * as path from "@tauri-apps/api/path";
     import * as dialog from "@tauri-apps/api/dialog";
-    import { createEventDispatcher } from "svelte";
 
     let bookEntries: BookDatabaseEntry[] = null;
     backend.getBooks().then((result) => (bookEntries = result));
@@ -44,8 +43,6 @@
             uploadBooks(Array.isArray(bookPaths) ? bookPaths : [bookPaths]);
         }
     }
-
-    const dispatch = createEventDispatcher<{ open: BookDatabaseEntry }>();
 
     let enableFiledrop: boolean;
     $: enableFiledrop = bookEntries !== null && uploadingBook === null;
@@ -102,7 +99,7 @@
     }
 
     #topPanel {
-        height: 50px;
+        max-height: 50px;
         background-color: orange;
         display: flex;
         padding-left: 5px;

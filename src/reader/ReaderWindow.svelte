@@ -38,7 +38,7 @@
     }
 
     #topPanel {
-        height: 50px;
+        max-height: 50px;
         background-color: orange;
         display: flex;
         gap: 10px;
