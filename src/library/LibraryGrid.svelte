@@ -6,7 +6,7 @@
 </script>
 
 <div id="grid">
-    {#each bookEntries as bookEntry}
+    {#each bookEntries as bookEntry (bookEntry.bookId)}
         <LibraryBook on:open on:delete {bookEntry} />
     {/each}
 </div>
