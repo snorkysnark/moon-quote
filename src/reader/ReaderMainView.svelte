@@ -7,6 +7,7 @@
     import annotationsIcon from "../decor/annotations.svg";
     import EpubAnnotation from "./EpubAnnotation.svelte";
     import EpubDisplay, {
+        type EpubDisplayController,
         type EpubHighlightDetail,
     } from "./EpubDisplay.svelte";
     import * as backend from "../backend";
@@ -17,6 +18,8 @@
     let epub: Book = book.epub;
     let annotations: AnnotationDatabaseEntry[] = book.annotations;
     let bookEntry: BookDatabaseEntry = book.entry;
+
+    let readerController: EpubDisplayController;
 
     async function highlight(event: CustomEvent<EpubHighlightDetail>) {
         const { cfi, range, color } = event.detail;
@@ -34,10 +37,13 @@
 
 <div id="container">
     <div id="readerView">
-        <button class="navButton">←</button>
+        <button class="navButton" on:click={() => readerController.prev()}
+            >←</button
+        >
         <div id="readerPage">
             <EpubDisplay
                 book={epub}
+                bind:controller={readerController}
                 on:highlight={highlight}
                 on:click={() => (selectedAnnotationId = null)}
             >
@@ -52,7 +58,9 @@
                 {/each}
             </EpubDisplay>
         </div>
-        <button class="navButton">→</button>
+        <button class="navButton" on:click={() => readerController.next()}
+            >→</button
+        >
     </div>
     <!--<div id="sidePanel">-->
     <!--aowihfiwohf-->

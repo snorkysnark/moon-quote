@@ -14,6 +14,12 @@
         range: Range;
         color: number;
     }
+
+    export interface EpubDisplayController {
+        next: () => Promise<void>;
+        prev: () => Promise<void>;
+        display: (target: string | number) => Promise<void>;
+    }
 </script>
 
 <script lang="ts">
@@ -28,11 +34,10 @@
     let overlay: EpubOverlay;
     let readyToAnnotate: boolean = false;
 
-    const dispatch =
-        createEventDispatcher<{
-            highlight: EpubHighlightDetail;
-            click: MouseEvent;
-        }>();
+    const dispatch = createEventDispatcher<{
+        highlight: EpubHighlightDetail;
+        click: MouseEvent;
+    }>();
 
     onMount(async () => {
         rendition = book.renderTo(viewContainer, {
@@ -48,6 +53,21 @@
         // after the first page is rendered
         readyToAnnotate = true;
     });
+
+    export const controller: EpubDisplayController = {
+        next: async () => {
+            if (rendition) await rendition.next();
+        },
+        prev: async () => {
+            if (rendition) await rendition.prev();
+        },
+        display: async (target) => {
+            if (rendition)
+                // @ts-ignore: Overloaded method, display(string | number)
+                // should be the same as display(string) + display(number)
+                await rendition.display(target);
+        },
+    };
 
     function onContentsChange(contents: Contents) {
         if (overlay) overlay.$destroy();
