@@ -38,7 +38,7 @@ import type { AnnotationDatabaseEntry } from "src/backend";
 
     const dispatch = createEventDispatcher<{
         highlight: EpubHighlightDetail;
-        click: MouseEvent;
+        mousedown: MouseEvent;
         deleteAnnotation: AnnotationDatabaseEntry;
     }>();
 
@@ -50,7 +50,7 @@ import type { AnnotationDatabaseEntry } from "src/backend";
             allowScriptedContent: true, //Needed for arrow key navigation
         });
         rendition.hooks.content.register(onContentsChange);
-        rendition.on("click", (event: MouseEvent) => dispatch("click", event));
+        rendition.on("mousedown", (event: MouseEvent) => { dispatch("mousedown", event) });
         await rendition.display(10);
         // renditions.annotations only becomes initialized
         // after the first page is rendered

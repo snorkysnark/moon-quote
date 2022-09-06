@@ -34,7 +34,9 @@
 
     const dispatch = createEventDispatcher<{ click: MouseEvent }>();
     function onClick(source: MouseEvent) {
-        source.stopPropagation();
-        dispatch("click", source);
+        if (source.detail == 1) {
+            // Only on mousedown
+            dispatch("click", source);
+        }
     }
 </script>

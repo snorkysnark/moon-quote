@@ -55,7 +55,7 @@
                 {selectedAnnotation}
                 bind:controller={readerController}
                 on:highlight={highlight}
-                on:click={() => (selectedAnnotation = null)}
+                on:mousedown={() => (selectedAnnotation = null)}
                 on:deleteAnnotation={deleteHighlight}
             >
                 {#each annotations as annotation (annotation.annotationId)}
