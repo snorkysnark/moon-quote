@@ -32,7 +32,7 @@
         annotations = [...annotations, newAnnotation];
     }
 
-    let selectedAnnotationId: number = null;
+    let selectedAnnotation: AnnotationDatabaseEntry = null;
 </script>
 
 <div id="container">
@@ -43,17 +43,17 @@
         <div id="readerPage">
             <EpubDisplay
                 book={epub}
+                {selectedAnnotation}
                 bind:controller={readerController}
                 on:highlight={highlight}
-                on:click={() => (selectedAnnotationId = null)}
+                on:click={() => (selectedAnnotation = null)}
             >
                 {#each annotations as annotation}
                     <EpubAnnotation
                         {annotation}
                         selected={annotation.annotationId ===
-                            selectedAnnotationId}
-                        on:click={() =>
-                            (selectedAnnotationId = annotation.annotationId)}
+                            selectedAnnotation?.annotationId}
+                        on:click={() => (selectedAnnotation = annotation)}
                     />
                 {/each}
             </EpubDisplay>

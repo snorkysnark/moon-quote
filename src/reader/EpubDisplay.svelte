@@ -24,10 +24,12 @@
 
 <script lang="ts">
     import { EpubCFI, type Book, type Contents, type Rendition } from "epubjs";
+import type { AnnotationDatabaseEntry } from "src/backend";
     import { createEventDispatcher, onMount, setContext } from "svelte";
     import EpubOverlay from "./overlay/EpubOverlay.svelte";
 
     export let book: Book;
+    export let selectedAnnotation: AnnotationDatabaseEntry = null;
 
     let viewContainer: HTMLElement;
     let rendition: Rendition;
@@ -69,6 +71,8 @@
         },
     };
 
+
+    // Insert overlay into HTML
     function onContentsChange(contents: Contents) {
         if (overlay) overlay.$destroy();
 
@@ -87,6 +91,8 @@
             dispatch("highlight", { cfi, range, color });
         });
     }
+
+    $: if(overlay) overlay.$set({ selectedAnnotation });
 
     setContext<EpubDisplayContext>("EpubDisplay", {
         // Allow components in the <slot/> to modify annotations
