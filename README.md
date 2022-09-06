@@ -1,4 +1,4 @@
-# MoonQuote Reader
+# MoonQuote
 
 ## Attribution
 
