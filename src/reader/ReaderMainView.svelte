@@ -4,7 +4,6 @@
         BookDatabaseEntry,
         LoadedBook,
     } from "src/backend";
-    import annotationsIcon from "../decor/annotations.svg";
     import EpubAnnotation from "./EpubAnnotation.svelte";
     import EpubDisplay, {
         type EpubDisplayController,
@@ -12,7 +11,8 @@
     } from "./EpubDisplay.svelte";
     import * as backend from "../backend";
     import type { Book } from "epubjs";
-    import AnnotationBlock from "./AnnotationBlock.svelte";
+    import { sidePanelRight } from "../settings";
+    import SidePanel from "./sidePanel/SidePanel.svelte";
 
     export let book: LoadedBook;
 
@@ -42,11 +42,26 @@
         selectedAnnotation = null;
     }
 
+    function annotationLinkClicked(
+        event: CustomEvent<AnnotationDatabaseEntry>
+    ) {
+        const annotation = event.detail;
+        readerController.display(annotation.cfi);
+        selectedAnnotation = annotation;
+    }
+
     let selectedAnnotation: AnnotationDatabaseEntry = null;
-    let sidePanelEnabled: boolean = false;
+    let showAnnotations: boolean = false;
 </script>
 
 <div id="container">
+    {#if !$sidePanelRight}
+        <SidePanel
+            {annotations}
+            on:annotationClick={annotationLinkClicked}
+            bind:showAnnotations
+        />
+    {/if}
     <div id="readerView">
         <button class="navButton" on:click={() => readerController.prev()}
             >←</button
@@ -74,31 +89,13 @@
             >→</button
         >
     </div>
-    {#if sidePanelEnabled}
-        <div id="sidePanel">
-            {#each annotations as annotation}
-                <AnnotationBlock
-                    {annotation}
-                    on:click={() => {
-                        readerController.display(annotation.cfi);
-                        selectedAnnotation = annotation;
-                    }}
-                />
-            {/each}
-        </div>
+    {#if $sidePanelRight}
+        <SidePanel
+            {annotations}
+            on:annotationClick={annotationLinkClicked}
+            bind:showAnnotations
+        />
     {/if}
-    <div id="sidePanelToggle">
-        <button
-            class="toggle"
-            class:active={sidePanelEnabled}
-            on:click={() => (sidePanelEnabled = !sidePanelEnabled)}
-            ><img
-                draggable="false"
-                src={annotationsIcon}
-                alt="Annotations"
-            /></button
-        >
-    </div>
 </div>
 
 <style>
@@ -133,29 +130,5 @@
         font-size: 50px;
         user-select: none;
         cursor: pointer;
-    }
-
-    #sidePanel {
-        flex: 0 1 auto;
-        background-color: lightblue;
-        max-width: 500px;
-        overflow-y: scroll;
-    }
-
-    #sidePanelToggle {
-        flex: 0 1 auto;
-        width: 40px;
-        display: flex;
-        flex-direction: column;
-        background-color: white;
-    }
-
-    .toggle > img {
-        width: 100%;
-        object-fit: contain;
-    }
-
-    .toggle.active {
-        background-color: lightblue;
     }
 </style>
