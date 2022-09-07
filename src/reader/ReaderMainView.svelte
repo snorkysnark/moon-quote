@@ -34,6 +34,10 @@
         annotations = [...annotations, newAnnotation];
     }
 
+    function clearSelectedAnnotation() {
+        selectedAnnotation = null;
+    }
+
     function deleteHighlight(event: CustomEvent<AnnotationDatabaseEntry>) {
         const targetId = event.detail.annotationId;
         annotations = annotations.filter(
@@ -67,13 +71,13 @@
         <button class="navButton" on:click={() => readerController.prev()}
             >←</button
         >
-        <div id="readerPage">
+        <div id="readerPage" on:mousedown={clearSelectedAnnotation}>
             <EpubDisplay
                 book={epub}
                 {selectedAnnotation}
                 bind:controller={readerController}
                 on:highlight={highlight}
-                on:mousedown={() => (selectedAnnotation = null)}
+                on:mousedown={clearSelectedAnnotation}
                 on:deleteAnnotation={deleteHighlight}
             >
                 {#each annotations as annotation (annotation.annotationId)}
