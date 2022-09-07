@@ -79,8 +79,6 @@
                 {#each annotations as annotation (annotation.annotationId)}
                     <EpubAnnotation
                         {annotation}
-                        selected={annotation.annotationId ===
-                            selectedAnnotation?.annotationId}
                         on:click={() => (selectedAnnotation = annotation)}
                     />
                 {/each}
