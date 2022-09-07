@@ -23,7 +23,7 @@
 </script>
 
 <script lang="ts">
-    import { EpubCFI, type Book, type Contents, type Rendition } from "epubjs";
+    import type { EpubCFI, Book, Contents, Rendition } from "epubjs";
     import type { AnnotationDatabaseEntry } from "src/backend";
     import { createEventDispatcher, onMount, setContext } from "svelte";
     import EpubOverlay from "./overlay/EpubOverlay.svelte";
@@ -31,10 +31,11 @@
     export let book: Book;
     export let selectedAnnotation: AnnotationDatabaseEntry = null;
 
-    let viewContainer: HTMLElement;
+    let outerContainer: HTMLElement; // Container created by this component
     let rendition: Rendition;
+    let innerContainer: HTMLElement; // Contaier created by svelte
+
     let overlay: EpubOverlay;
-    let readyToAnnotate: boolean = false;
 
     const dispatch = createEventDispatcher<{
         highlight: EpubHighlightDetail;
@@ -43,7 +44,7 @@
     }>();
 
     onMount(async () => {
-        rendition = book.renderTo(viewContainer, {
+        rendition = book.renderTo(outerContainer, {
             height: "100%",
             width: "100%",
             flow: "scrolled-doc",
@@ -54,10 +55,17 @@
             dispatch("mousedown", event);
         });
         await rendition.display(0);
-        // renditions.annotations only becomes initialized
-        // after the first page is rendered
-        readyToAnnotate = true;
+
+        // @ts-ignore: type annotations missing for DefaultViewManager
+        innerContainer = rendition.manager.container;
+        overlay = new EpubOverlay({ target: innerContainer });
     });
+
+    // Update values on the overlay component
+    function onContentsChange(contents: Contents) {
+        overlay.$set({ contents: contents });
+    }
+    $: if (overlay) overlay.$set({ selectedAnnotation });
 
     export const controller: EpubDisplayController = {
         next: async () => {
@@ -73,31 +81,6 @@
                 await rendition.display(target);
         },
     };
-
-    // Insert overlay into HTML
-    function onContentsChange(contents: Contents) {
-        if (overlay) overlay.$destroy();
-
-        // @ts-ignore: rendition.views() is of type Views, not View[]
-        const innerView: HTMLDivElement = rendition.views().first().element;
-        overlay = new EpubOverlay({
-            target: innerView,
-            props: {
-                bookDocument: contents.document,
-            },
-        });
-        overlay.$on("highlight", (event) => {
-            const { range, color } = event.detail;
-            const cfi = new EpubCFI(range, contents.cfiBase);
-
-            dispatch("highlight", { cfi, range, color });
-        });
-        overlay.$on("deleteAnnotation", (event) => {
-            dispatch("deleteAnnotation", event.detail);
-        });
-    }
-
-    $: if (overlay) overlay.$set({ selectedAnnotation });
 
     setContext<EpubDisplayContext>("EpubDisplay", {
         // Allow components in the <slot/> to modify annotations
@@ -121,8 +104,9 @@
     });
 </script>
 
-<div id="reader" bind:this={viewContainer}>
-    {#if readyToAnnotate}
+<div id="reader" bind:this={outerContainer}>
+    <!--Only annotate when rendition fully loaded-->
+    {#if innerContainer}
         <slot />
     {/if}
 </div>

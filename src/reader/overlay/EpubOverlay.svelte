@@ -1,11 +1,12 @@
 <script lang="ts">
+    import type { Contents } from "epubjs";
     import type { AnnotationDatabaseEntry } from "src/backend";
-    import OverlayOnAnnotation from "./OverlayOnAnnotation.svelte";
-    import OverlayOnSelection from "./OverlayOnSelection.svelte";
+    import SelectedAnnotationOverlay from "./SelectedAnnotationOverlay.svelte";
 
-    export let bookDocument: Document;
     export let selectedAnnotation: AnnotationDatabaseEntry = null;
+    export let contents: Contents = null;
 </script>
 
-<OverlayOnSelection on:highlight {bookDocument} />
-<OverlayOnAnnotation {selectedAnnotation} {bookDocument} on:deleteAnnotation />
+{#if selectedAnnotation && contents}
+    <SelectedAnnotationOverlay {selectedAnnotation} {contents} />
+{/if}
