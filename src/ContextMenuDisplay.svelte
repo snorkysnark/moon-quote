@@ -25,12 +25,32 @@
         if (item.action) item.action();
         closeMenu();
     }
+
+    let clientWidth: number;
+    let clientHeight: number;
+
+    let position: { x: number, y: number };
+    $: if ($currentMenuStore) {
+            let mousePos = { x: $currentMenuStore.x, y: $currentMenuStore.y };
+
+            // Don't go out of bounds
+            if (clientWidth && clientHeight) {
+                const overflowX = clientWidth - (window.innerWidth - mousePos.x);
+                const overflowY = clientHeight - (window.innerHeight - mousePos.y);
+
+                if (overflowX > 0) mousePos.x -= overflowX;
+                if (overflowY > 0) mousePos.y -= overflowY;
+            }
+            position = mousePos;
+        }
 </script>
 
 {#if $currentMenuStore}
     <menu
         bind:this={menuContainer}
-        style={`left: ${$currentMenuStore.x}px; top: ${$currentMenuStore.y}px`}
+        bind:clientWidth={clientWidth}
+        bind:clientHeight={clientHeight}
+        style={`left: ${position.x}px; top: ${position.y}px`}
     >
         {#each $currentMenuStore.items as menuItem}
             <menuitem
@@ -61,6 +81,8 @@
         border-color: gray;
         border-width: 2px;
         box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 10px;
+
+        min-width: 100px;
     }
 
     menuitem {
