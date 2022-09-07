@@ -102,19 +102,10 @@ export function deleteAnnotation(annotationId: number): Promise<void> {
     return invoke("delete_annotation", { annotationId });
 }
 
-export interface LoadedBook {
-    entry: BookDatabaseEntry;
-    epub: Book;
-    annotations: AnnotationDatabaseEntry[];
-}
+export async function loadBook(entry: BookDatabaseEntry): Promise<Book> {
+    const file = await fs.readBinaryFile(entry.epubPath);
+    const book = ePub(file.buffer);
 
-export async function loadBook(entry: BookDatabaseEntry): Promise<LoadedBook> {
-    const [file, annotations] = await Promise.all([
-        fs.readBinaryFile(entry.epubPath),
-        getAnnotationsForBook(entry.bookId),
-    ]);
-    const epub = ePub(file.buffer);
-
-    await epub.ready;
-    return { entry, epub, annotations };
+    await book.ready;
+    return book;
 }

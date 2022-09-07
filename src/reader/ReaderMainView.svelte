@@ -2,23 +2,24 @@
     import type {
         AnnotationDatabaseEntry,
         BookDatabaseEntry,
-        LoadedBook,
     } from "src/backend";
+    import * as backend from "src/backend";
     import EpubAnnotation from "./EpubAnnotation.svelte";
     import EpubDisplay, {
         type EpubDisplayController,
         type EpubHighlightDetail,
     } from "./EpubDisplay.svelte";
-    import * as backend from "../backend";
     import type { Book } from "epubjs";
     import { sidePanelRight } from "../settings";
     import SidePanel from "./sidePanel/SidePanel.svelte";
 
-    export let book: LoadedBook;
+    export let epub: Book;
+    export let bookEntry: BookDatabaseEntry;
 
-    let epub: Book = book.epub;
-    let annotations: AnnotationDatabaseEntry[] = book.annotations;
-    let bookEntry: BookDatabaseEntry = book.entry;
+    let annotations: AnnotationDatabaseEntry[] = [];
+    backend
+        .getAnnotationsForBook(bookEntry.bookId)
+        .then((loaded) => (annotations = [...annotations, ...loaded]));
 
     let readerController: EpubDisplayController;
 
