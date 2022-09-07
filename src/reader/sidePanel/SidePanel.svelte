@@ -34,8 +34,16 @@
     <AddContextMenu
         target={panel}
         items={[
-            { label: "Left Side", action: () => sidePanelRight.set(false) },
-            { label: "Right Side", action: () => sidePanelRight.set(true) },
+            {
+                label: "Left Side",
+                disabled: $sidePanelRight === false,
+                action: () => sidePanelRight.set(false),
+            },
+            {
+                label: "Right Side",
+                disabled: $sidePanelRight === true,
+                action: () => sidePanelRight.set(true),
+            },
         ]}
     />
 {/if}

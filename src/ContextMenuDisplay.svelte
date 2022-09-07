@@ -33,8 +33,11 @@
         style={`left: ${$currentMenuStore.x}px; top: ${$currentMenuStore.y}px`}
     >
         {#each $currentMenuStore.items as menuItem}
-            <menuitem on:click={() => onClickItem(menuItem)}
-                >{menuItem.label}</menuitem
+            <menuitem
+                class:disabled={menuItem.disabled === true}
+                on:click={() => {
+                    if (!menuItem.disabled) onClickItem(menuItem);
+                }}>{menuItem.label}</menuitem
             >
         {/each}
     </menu>
@@ -69,7 +72,11 @@
         padding: 0px 5px 0px 5px;
     }
 
-    menuitem:hover {
+    menuitem:not(.disabled):hover {
         background-color: lightblue;
+    }
+
+    menuitem.disabled {
+        color: gray;
     }
 </style>

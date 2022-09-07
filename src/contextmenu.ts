@@ -9,6 +9,7 @@ export interface ContextMenuDescriptor {
 export interface ContextMenuItem {
     label: string;
     action?: () => void;
+    disabled?: boolean;
 }
 
 export const currentMenuStore = writable<ContextMenuDescriptor>(null);
