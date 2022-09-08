@@ -1,64 +1,36 @@
 <script lang="ts">
-    import type { NavItem } from "epubjs";
-    import { createEventDispatcher } from "svelte";
-
+    import AddContextMenu from "src/AddContextMenu.svelte";
     import type TocItem from "./toc";
+    import TocList from "./TocList.svelte";
 
     export let items: TocItem[];
-    export let toplevel: boolean = true;
 
-    const dispatch = createEventDispatcher<{ navigate: NavItem }>();
+    let container: HTMLElement;
+    function setAllOpen(value: boolean) {
+        for (const item of items) {
+            item.setOpenRecursive(value);
+        }
+        items = items;
+    }
 </script>
 
-<ul class:toplevel>
-    {#each items as item}
-        {@const foldable = item.children !== null}
-        <li class:foldable>
-            {#if foldable}
-                <button
-                    class="toggle"
-                    on:click={() => (item.isOpen = !item.isOpen)}
-                    >{item.isOpen ? "▼" : "▶"}</button
-                >
-            {/if}
-            <span id="label" on:click={() => dispatch("navigate", item.content)}
-                >{item.content.label}</span
-            >
-        </li>
-        {#if item.children && item.isOpen}
-            <svelte:self items={item.children} toplevel={false} on:navigate />
-        {/if}
-    {/each}
-</ul>
+<div id="container" bind:this={container}>
+    <TocList {items} on:navigate />
+</div>
+
+{#if container}
+    <AddContextMenu
+        target={container}
+        items={[
+            { label: "Open All", action: () => setAllOpen(true) },
+            { label: "Fold All", action: () => setAllOpen(false) },
+        ]}
+    />
+{/if}
 
 <style>
-    ul {
-        list-style-type: none;
-    }
-
-    ul.toplevel {
-        margin: 10px;
-        padding: 0;
-    }
-
-    li {
-        margin: 2px 0;
-    }
-
-    #label {
-        cursor: pointer;
-    }
-
-    #label:hover {
-        text-decoration: underline;
-    }
-
-    .toggle {
-        background: none;
-        border: none;
-
-        color: black;
-        display: inline-block;
-        padding: 0;
+    #container {
+        position: relative;
+        left: -20px;
     }
 </style>

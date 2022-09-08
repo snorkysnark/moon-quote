@@ -68,6 +68,7 @@
 
 <style>
     menu {
+        z-index: 10;
         position: absolute;
         display: flex;
         flex-direction: column;

@@ -21,4 +21,13 @@ export default class TocItem {
     static listFromBook(book: Book) {
         return book.navigation.toc.map((item) => new TocItem(item));
     }
+
+    setOpenRecursive(value: boolean) {
+        this.isOpen = value;
+        if (this.children) {
+            for (const child of this.children) {
+                child.setOpenRecursive(value);
+            }
+        }
+    }
 }
