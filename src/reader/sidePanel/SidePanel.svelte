@@ -5,7 +5,9 @@
     import annotationsIcon from "src/decor/annotations.svg";
     import tocIcon from "src/decor/toc.svg";
     import SidePanelContent from "./SidePanelContent.svelte";
+    import type TocItem from "./toc/toc";
 
+    export let toc: TocItem[];
     export let annotations: AnnotationDatabaseEntry[];
     export let currentSidePanel: string = null;
 
@@ -22,7 +24,13 @@
 </script>
 
 {#if $sidePanelRight}
-    <SidePanelContent {currentSidePanel} {annotations} on:annotationClick />
+    <SidePanelContent
+        {currentSidePanel}
+        {annotations}
+        {toc}
+        on:annotationClick
+        on:navigate
+    />
 {/if}
 <div id="togglePanel" bind:this={panel}>
     {#each panelTypes as panelType}
@@ -39,7 +47,13 @@
     {/each}
 </div>
 {#if !$sidePanelRight}
-    <SidePanelContent {currentSidePanel} {annotations} on:annotationClick />
+    <SidePanelContent
+        {currentSidePanel}
+        {annotations}
+        {toc}
+        on:annotationClick
+        on:navigate
+    />
 {/if}
 
 {#if panel}

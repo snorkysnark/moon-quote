@@ -1,15 +1,17 @@
 <script lang="ts">
-import type { AnnotationDatabaseEntry } from "src/backend";
-
+    import type { AnnotationDatabaseEntry } from "src/backend";
     import AnnotationPanel from "./annotation/AnnotationPanel.svelte";
+    import type TocItem from "./toc/toc";
+    import ToC from "./toc/ToC.svelte";
 
-    export let currentSidePanel: string = null;
+    export let toc: TocItem[];
     export let annotations: AnnotationDatabaseEntry[];
+    export let currentSidePanel: string = null;
 </script>
 
 <div id="sidePanel">
     {#if currentSidePanel === "toc"}
-        <p>TOC</p>
+        <ToC items={toc} on:navigate />
     {:else if currentSidePanel === "annotations"}
         <AnnotationPanel {annotations} on:annotationClick />
     {/if}

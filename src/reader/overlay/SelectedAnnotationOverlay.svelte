@@ -29,7 +29,6 @@
 
         rect = annotationRect;
     }
-    $: console.log(rect);
 </script>
 
 {#if annotationRange}

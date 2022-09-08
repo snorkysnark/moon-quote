@@ -9,9 +9,10 @@
         type EpubDisplayController,
         type EpubHighlightDetail,
     } from "./EpubDisplay.svelte";
-    import type { Book } from "epubjs";
+    import type { Book, NavItem } from "epubjs";
     import { sidePanelRight } from "../settings";
     import SidePanel from "./sidePanel/SidePanel.svelte";
+    import TocItem from "./sidePanel/toc/toc";
 
     export let epub: Book;
     export let bookEntry: BookDatabaseEntry;
@@ -55,6 +56,11 @@
         selectedAnnotation = annotation;
     }
 
+    function tocItemClicked(event: CustomEvent<NavItem>) {
+        readerController.display(event.detail.href);
+    }
+
+    let toc = TocItem.listFromBook(epub);
     let selectedAnnotation: AnnotationDatabaseEntry = null;
     let currentSidePanel: string = null;
 </script>
@@ -63,7 +69,9 @@
     {#if !$sidePanelRight}
         <SidePanel
             {annotations}
+            {toc}
             on:annotationClick={annotationLinkClicked}
+            on:navigate={tocItemClicked}
             bind:currentSidePanel
         />
     {/if}
@@ -95,7 +103,9 @@
     {#if $sidePanelRight}
         <SidePanel
             {annotations}
+            {toc}
             on:annotationClick={annotationLinkClicked}
+            on:navigate={tocItemClicked}
             bind:currentSidePanel
         />
     {/if}
