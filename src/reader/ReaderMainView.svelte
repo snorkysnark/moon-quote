@@ -79,7 +79,7 @@
         <button class="navButton" on:click={() => readerController.prev()}
             >←</button
         >
-        <div id="readerPage">
+        <div id="readerPage" on:mousedown={clearSelectedAnnotation}>
             <EpubDisplay
                 book={epub}
                 {selectedAnnotation}

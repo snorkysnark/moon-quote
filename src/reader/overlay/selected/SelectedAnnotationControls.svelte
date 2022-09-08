@@ -42,7 +42,8 @@
     <button
         on:click={() => {
             dispatch("deleteAnnotation", selectedAnnotation);
-        }}>X</button
+        }}
+        on:mousedown|stopPropagation>X</button
     >
 </div>
 
