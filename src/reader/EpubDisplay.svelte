@@ -9,12 +9,6 @@
         removeAnnotation: (cfi: string) => void;
     }
 
-    export interface EpubHighlightDetail {
-        cfi: EpubCFI;
-        range: Range;
-        color: number;
-    }
-
     export interface EpubDisplayController {
         next: () => Promise<void>;
         prev: () => Promise<void>;
@@ -23,10 +17,11 @@
 </script>
 
 <script lang="ts">
-    import type { EpubCFI, Book, Contents, Rendition } from "epubjs";
+    import type { Book, Contents, Rendition } from "epubjs";
     import type { AnnotationDatabaseEntry } from "src/backend";
     import { createEventDispatcher, onMount, setContext } from "svelte";
     import EpubOverlay from "./overlay/EpubOverlay.svelte";
+    import type { NewHighlight } from "./overlay/HighlighterOverlay.svelte";
 
     export let book: Book;
     export let selectedAnnotation: AnnotationDatabaseEntry = null;
@@ -39,7 +34,7 @@
     let overlay: EpubOverlay;
 
     const dispatch = createEventDispatcher<{
-        highlight: EpubHighlightDetail;
+        highlight: NewHighlight;
         mousedown: MouseEvent;
         deleteAnnotation: AnnotationDatabaseEntry;
     }>();
@@ -64,6 +59,12 @@
         overlay = new EpubOverlay({
             target: innerContainer,
         });
+        overlay.$on("highlight", (event) => {
+            dispatch("highlight", event.detail);
+        });
+        overlay.$on("deleteAnnotation", (event) =>
+            dispatch("deleteAnnotation", event.detail)
+        );
     });
 
     $: if (overlay) overlay.$set({ contents });

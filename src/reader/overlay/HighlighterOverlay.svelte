@@ -1,15 +1,32 @@
 <script lang="ts" context="module">
-    export interface PageHighlightDetail {
+    export interface NewHighlight {
+        cfi: EpubCFI;
         range: Range;
         color: number;
     }
 </script>
 
 <script lang="ts">
+    import { EpubCFI, type Contents } from "epubjs";
+
     import { createEventDispatcher, onDestroy } from "svelte";
 
-    export let bookDocument: Document;
-    bookDocument.addEventListener("selectionchange", onSelectionChange);
+    export let contents: Contents;
+
+    let bookDocument: Document;
+    let lastBookDocument: Document;
+    $: bookDocument = contents.document;
+
+    $: {
+        if (lastBookDocument)
+            lastBookDocument.removeEventListener(
+                "selectionchange",
+                onSelectionChange
+            );
+
+        bookDocument.addEventListener("selectionchange", onSelectionChange);
+        lastBookDocument = bookDocument;
+    }
 
     let selectedRange: Range = null;
 
@@ -31,9 +48,15 @@
     }
     $: if (selectedRange) position = computePosition(selectedRange);
 
-    const dispatch = createEventDispatcher<{ highlight: PageHighlightDetail }>();
+    const dispatch =
+        createEventDispatcher<{ highlight: NewHighlight }>();
+
     function highlight(color: number) {
-        dispatch("highlight", { range: selectedRange, color });
+        dispatch("highlight", {
+            cfi: new EpubCFI(selectedRange, contents.cfiBase),
+            range: selectedRange,
+            color,
+        });
         bookDocument.getSelection().removeAllRanges();
     }
 

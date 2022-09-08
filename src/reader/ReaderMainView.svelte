@@ -7,12 +7,12 @@
     import EpubAnnotation from "./EpubAnnotation.svelte";
     import EpubDisplay, {
         type EpubDisplayController,
-        type EpubHighlightDetail,
     } from "./EpubDisplay.svelte";
     import type { Book, NavItem } from "epubjs";
     import { sidePanelRight } from "../settings";
     import SidePanel from "./sidePanel/SidePanel.svelte";
     import TocItem from "./sidePanel/toc/toc";
+    import type { NewHighlight } from "./overlay/HighlighterOverlay.svelte";
 
     export let epub: Book;
     export let bookEntry: BookDatabaseEntry;
@@ -24,7 +24,7 @@
 
     let readerController: EpubDisplayController;
 
-    async function highlight(event: CustomEvent<EpubHighlightDetail>) {
+    async function highlight(event: CustomEvent<NewHighlight>) {
         const { cfi, range, color } = event.detail;
         const newAnnotation = await backend.addAnnotation(
             bookEntry.bookId,
@@ -39,7 +39,7 @@
         selectedAnnotation = null;
     }
 
-    function deleteHighlight(event: CustomEvent<AnnotationDatabaseEntry>) {
+    function deleteAnnotation(event: CustomEvent<AnnotationDatabaseEntry>) {
         const targetId = event.detail.annotationId;
         annotations = annotations.filter(
             (value) => value.annotationId != targetId
@@ -79,14 +79,14 @@
         <button class="navButton" on:click={() => readerController.prev()}
             >←</button
         >
-        <div id="readerPage" on:mousedown={clearSelectedAnnotation}>
+        <div id="readerPage">
             <EpubDisplay
                 book={epub}
                 {selectedAnnotation}
                 bind:controller={readerController}
                 on:highlight={highlight}
                 on:mousedown={clearSelectedAnnotation}
-                on:deleteAnnotation={deleteHighlight}
+                on:deleteAnnotation={deleteAnnotation}
             >
                 {#each annotations as annotation (annotation.annotationId)}
                     <EpubAnnotation

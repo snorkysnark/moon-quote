@@ -1,6 +1,7 @@
 <script lang="ts">
     import { Contents, EpubCFI } from "epubjs";
     import type { AnnotationDatabaseEntry } from "src/backend";
+    import SelectedAnnotationControls from "./SelectedAnnotationControls.svelte";
 
     export let selectedAnnotation: AnnotationDatabaseEntry;
     export let contents: Contents;
@@ -32,6 +33,12 @@
 </script>
 
 {#if annotationRange}
+    <SelectedAnnotationControls
+        {rect}
+        {contents}
+        {selectedAnnotation}
+        on:deleteAnnotation
+    />
     <div
         id="selectionBox"
         style="left: {rect.x}px; top: {rect.y}px; width: {rect.width}px; height: {rect.height}px"
