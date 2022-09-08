@@ -56,7 +56,7 @@
     }
 
     let selectedAnnotation: AnnotationDatabaseEntry = null;
-    let showAnnotations: boolean = false;
+    let currentSidePanel: string = null;
 </script>
 
 <div id="container">
@@ -64,7 +64,7 @@
         <SidePanel
             {annotations}
             on:annotationClick={annotationLinkClicked}
-            bind:showAnnotations
+            bind:currentSidePanel
         />
     {/if}
     <div id="readerView">
@@ -96,7 +96,7 @@
         <SidePanel
             {annotations}
             on:annotationClick={annotationLinkClicked}
-            bind:showAnnotations
+            bind:currentSidePanel
         />
     {/if}
 </div>

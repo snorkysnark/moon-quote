@@ -1,33 +1,45 @@
 <script lang="ts">
     import type { AnnotationDatabaseEntry } from "src/backend";
-    import AnnotationPanel from "./AnnotationPanel.svelte";
-    import annotationsIcon from "src/decor/annotations.svg";
     import { sidePanelRight } from "src/settings";
     import AddContextMenu from "src/AddContextMenu.svelte";
+    import annotationsIcon from "src/decor/annotations.svg";
+    import tocIcon from "src/decor/toc.svg";
+    import SidePanelContent from "./SidePanelContent.svelte";
 
     export let annotations: AnnotationDatabaseEntry[];
-    export let showAnnotations: boolean = false;
+    export let currentSidePanel: string = null;
+
+    const panelTypes = [
+        { name: "toc", icon: tocIcon, label: "Table of Contents" },
+        { name: "annotations", icon: annotationsIcon, label: "Annotations" },
+    ];
+
+    function toggleSidePanel(name: string) {
+        currentSidePanel = currentSidePanel === name ? null : name;
+    }
 
     let panel: HTMLElement;
 </script>
 
-{#if showAnnotations && $sidePanelRight}
-    <AnnotationPanel {annotations} on:annotationClick />
+{#if $sidePanelRight}
+    <SidePanelContent {currentSidePanel} {annotations} on:annotationClick />
 {/if}
-<div id="sidePanelToggle" bind:this={panel}>
-    <button
-        class="toggle"
-        class:active={showAnnotations}
-        on:click={() => (showAnnotations = !showAnnotations)}
-        ><img
-            draggable="false"
-            src={annotationsIcon}
-            alt="Annotations"
-        /></button
-    >
+<div id="togglePanel" bind:this={panel}>
+    {#each panelTypes as panelType}
+        <button
+            class="toggleButton"
+            class:active={currentSidePanel === panelType.name}
+            on:click={() => toggleSidePanel(panelType.name)}
+            ><img
+                draggable="false"
+                src={panelType.icon}
+                alt={panelType.label}
+            /></button
+        >
+    {/each}
 </div>
-{#if showAnnotations && !$sidePanelRight}
-    <AnnotationPanel {annotations} on:annotationClick />
+{#if !$sidePanelRight}
+    <SidePanelContent {currentSidePanel} {annotations} on:annotationClick />
 {/if}
 
 {#if panel}
@@ -49,7 +61,7 @@
 {/if}
 
 <style>
-    #sidePanelToggle {
+    #togglePanel {
         flex: 0 1 auto;
         width: 40px;
         display: flex;
@@ -57,12 +69,13 @@
         background-color: white;
     }
 
-    .toggle > img {
+    .toggleButton > img {
         width: 100%;
         object-fit: contain;
+        min-width: 10px;
     }
 
-    .toggle.active {
+    .toggleButton.active {
         background-color: lightblue;
     }
 </style>
