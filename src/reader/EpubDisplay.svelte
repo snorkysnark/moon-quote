@@ -34,6 +34,7 @@
     let outerContainer: HTMLElement; // Container created by this component
     let rendition: Rendition;
     let innerContainer: HTMLElement; // Contaier created by svelte
+    let contents: Contents;
 
     let overlay: EpubOverlay;
 
@@ -50,7 +51,9 @@
             flow: "scrolled-doc",
             allowScriptedContent: true, //Needed for arrow key navigation
         });
-        rendition.hooks.content.register(onContentsChange);
+        rendition.hooks.content.register(
+            (newContents: Contents) => (contents = newContents)
+        );
         rendition.on("mousedown", (event: MouseEvent) => {
             dispatch("mousedown", event);
         });
@@ -58,13 +61,12 @@
 
         // @ts-ignore: type annotations missing for DefaultViewManager
         innerContainer = rendition.manager.container;
-        overlay = new EpubOverlay({ target: innerContainer });
+        overlay = new EpubOverlay({
+            target: innerContainer,
+        });
     });
 
-    // Update values on the overlay component
-    function onContentsChange(contents: Contents) {
-        overlay.$set({ contents: contents });
-    }
+    $: if (overlay) overlay.$set({ contents });
     $: if (overlay) overlay.$set({ selectedAnnotation });
 
     export const controller: EpubDisplayController = {

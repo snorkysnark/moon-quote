@@ -29,6 +29,7 @@
 
         rect = annotationRect;
     }
+    $: console.log(rect);
 </script>
 
 {#if annotationRange}
@@ -43,5 +44,8 @@
         position: absolute;
         border: solid;
         border-color: blue;
+
+        z-index: 1;
+        pointer-events: none;
     }
 </style>
