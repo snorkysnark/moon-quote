@@ -111,7 +111,7 @@
                     <RegistryValue Name="InstallDir" Type="string" Value="[INSTALLDIR]" KeyPath="yes" />
                 </RegistryKey>
                 <!--Register url protocol moonquote://-->
-                <RegistryKey Root="HKCR" Key="moonquote">
+                <RegistryKey Root="HKCR" Key="Software\\{{{manufacturer}}}\\{{{product_name}}}">
                     <RegistryValue Type="string" Value="moonquote" />
                     <RegistryValue Name="URL Protocol" Type="string" Value=""/>
                     <RegistryKey Key="shell">
