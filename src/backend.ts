@@ -109,3 +109,7 @@ export async function loadBook(entry: BookDatabaseEntry): Promise<Book> {
     await book.ready;
     return book;
 }
+
+export async function urlArg(): Promise<string | null> {
+    return invoke("url_arg");
+}

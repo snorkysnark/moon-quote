@@ -50,6 +50,8 @@
     let enableButtons: boolean;
     $: enableButtons =
         bookEntries !== null && uploadingBook === null && !hovering;
+
+    const urlArg = backend.urlArg();
 </script>
 
 {#if enableFiledrop}
@@ -70,19 +72,9 @@
         >
     </div>
     <div id="library" on:scroll={closeMenu}>
-        {#if uploadingBook}
-            <Loading message={`Uploading\n${uploadingBook}`} />
-        {:else if hovering}
-            <FileDropSplash message={"Drag and Drop\nto upload books"} />
-        {:else if bookEntries}
-            <LibraryGrid
-                {bookEntries}
-                on:open
-                on:delete={(e) => deleteBook(e.detail)}
-            />
-        {:else}
-            <Loading />
-        {/if}
+        {#await urlArg then urlArg}
+            {urlArg}
+        {/await}
     </div>
 </main>
 

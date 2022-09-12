@@ -11,9 +11,12 @@ mod library;
 
 pub struct Constants {
     library_path: PathBuf,
+    url_args: String,
 }
 
 fn main() {
+    let url_args: Vec<_> = std::env::args().collect();
+
     let context = tauri::generate_context!();
     let library_path = tauri::api::path::data_dir()
         .expect("Cannot find data directory")
@@ -24,7 +27,10 @@ fn main() {
     let db_pool = db::init_db(&library_path.join("metadata.db"));
 
     tauri::Builder::default()
-        .manage(Constants { library_path })
+        .manage(Constants {
+            library_path,
+            url_args: url_args.join(" "),
+        })
         .manage(db_pool)
         .invoke_handler(tauri::generate_handler![
             library::upload_book,
@@ -32,7 +38,8 @@ fn main() {
             library::delete_book,
             library::add_annotation,
             library::get_annotations_for_book,
-            library::delete_annotation
+            library::delete_annotation,
+            library::url_arg
         ])
         .run(context)
         .expect("error while running tauri application");
