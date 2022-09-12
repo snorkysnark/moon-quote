@@ -23,6 +23,8 @@ tauri = { version = "1.0.5", features = ["api-all"] }
 diesel = { version = "2.0.0", features = ["sqlite", "r2d2", "returning_clauses_for_sqlite_3_35"] }
 diesel_migrations = "2.0.0"
 libsqlite3-sys = { version = "0.25.1", features = ["bundled"] }
+# Bundle openssl for Ubuntu support
+openssl = { version = "0.10.41", features = ["vendored"] }
 
 [features]
 # by default Tauri runs in production mode
