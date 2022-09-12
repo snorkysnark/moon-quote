@@ -55,7 +55,10 @@
             "windows": {
                 "certificateThumbprint": null,
                 "digestAlgorithm": "sha256",
-                "timestampUrl": ""
+                "timestampUrl": "",
+                "wix": {
+                    "template": "./templates/main.wxs"
+                }
             }
         },
         "security": {
