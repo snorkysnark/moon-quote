@@ -32,6 +32,7 @@
     let contents: Contents;
 
     let overlay: EpubOverlay;
+    let displayTarget: string | number = null;
 
     const dispatch = createEventDispatcher<{
         highlight: NewHighlight;
@@ -52,7 +53,8 @@
         rendition.on("mousedown", (event: MouseEvent) => {
             dispatch("mousedown", event);
         });
-        await rendition.display(0);
+        // @ts-ignore
+        await rendition.display(displayTarget || 0);
 
         // @ts-ignore: type annotations missing for DefaultViewManager
         innerContainer = rendition.manager.container;
@@ -78,10 +80,13 @@
             if (rendition) await rendition.prev();
         },
         display: async (target) => {
-            if (rendition)
+            if (rendition) {
                 // @ts-ignore: Overloaded method, display(string | number)
                 // should be the same as display(string) + display(number)
                 await rendition.display(target);
+            } else {
+                displayTarget = target;
+            }
         },
     };
 

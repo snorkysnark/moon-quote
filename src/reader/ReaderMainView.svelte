@@ -18,9 +18,9 @@
     export let goToAnnotation: AnnotationDatabaseEntry;
     export let bookEntry: BookDatabaseEntry;
 
-    $: if (goToAnnotation) {
+    $: if (goToAnnotation && readerController) {
         selectedAnnotation = goToAnnotation;
-        /* readerController.display(goToAnnotation.cfi); */
+        readerController.display(goToAnnotation.cfi);
     }
 
     let annotations: AnnotationDatabaseEntry[] = [];
