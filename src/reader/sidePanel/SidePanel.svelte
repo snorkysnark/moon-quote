@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { AnnotationDatabaseEntry, BookDatabaseEntry } from "src/backend";
+    import type { AnnotationDatabaseEntry } from "src/backend";
     import { sidePanelRight } from "src/settings";
     import AddContextMenu from "src/AddContextMenu.svelte";
     import annotationsIcon from "src/decor/annotations.svg";
@@ -8,7 +8,6 @@
     import type TocItem from "./toc/toc";
 
     export let toc: TocItem[];
-    export let bookEntry: BookDatabaseEntry;
     export let annotations: AnnotationDatabaseEntry[];
     export let currentSidePanel: string = null;
 
@@ -29,7 +28,6 @@
         {currentSidePanel}
         {annotations}
         {toc}
-        {bookEntry}
         on:annotationClick
         on:navigate
     />
@@ -53,7 +51,6 @@
         {currentSidePanel}
         {annotations}
         {toc}
-        {bookEntry}
         on:annotationClick
         on:navigate
     />

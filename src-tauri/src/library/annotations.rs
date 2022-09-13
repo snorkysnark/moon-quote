@@ -12,6 +12,7 @@ use crate::{
 #[derive(Queryable, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BookAnnotation<'a> {
+    book_id: i32,
     annotation_id: i32,
     cfi: Cow<'a, str>,
     text_content: Cow<'a, str>,
@@ -40,6 +41,7 @@ pub fn add_annotation<'a>(
         .get_result(&mut conn)?;
 
     Ok(BookAnnotation {
+        book_id,
         annotation_id,
         cfi: cfi.into(),
         text_content: text_content.into(),
@@ -57,7 +59,6 @@ pub fn get_annotations_for_book(
     let mut conn = db.get()?;
     let rows = dsl::annotations
         .filter(dsl::book_id.eq(book_id))
-        .select((dsl::annotation_id, dsl::cfi, dsl::text_content, dsl::color))
         .load::<BookAnnotation>(&mut conn)?;
 
     Ok(rows)
@@ -73,7 +74,6 @@ pub fn get_annotation(
     let mut conn = db.get()?;
     let annotation = dsl::annotations
         .filter(dsl::annotation_id.eq(annotation_id))
-        .select((dsl::annotation_id, dsl::cfi, dsl::text_content, dsl::color))
         .first(&mut conn)?;
 
     Ok(annotation)

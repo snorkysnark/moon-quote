@@ -76,7 +76,6 @@
         <SidePanel
             {annotations}
             {toc}
-            {bookEntry}
             on:annotationClick={annotationLinkClicked}
             on:navigate={tocItemClicked}
             bind:currentSidePanel
@@ -111,7 +110,6 @@
         <SidePanel
             {annotations}
             {toc}
-            {bookEntry}
             on:annotationClick={annotationLinkClicked}
             on:navigate={tocItemClicked}
             bind:currentSidePanel

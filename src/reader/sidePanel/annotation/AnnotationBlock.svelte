@@ -1,13 +1,9 @@
 <script lang="ts">
     import AddContextMenu from "src/AddContextMenu.svelte";
-    import type {
-        AnnotationDatabaseEntry,
-        BookDatabaseEntry,
-    } from "src/backend";
+    import type { AnnotationDatabaseEntry } from "src/backend";
     import * as clipboard from "@tauri-apps/api/clipboard";
 
     export let annotation: AnnotationDatabaseEntry;
-    export let bookEntry: BookDatabaseEntry;
 
     let container: HTMLElement;
 </script>
@@ -28,7 +24,7 @@
                 label: "Copy Link",
                 action: () => {
                     clipboard.writeText(
-                        `moonquote:///book/${bookEntry.bookId}/annotation/${annotation.annotationId}`
+                        `moonquote:///book/${annotation.bookId}/annotation/${annotation.annotationId}`
                     );
                 },
             },
