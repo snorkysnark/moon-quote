@@ -15,7 +15,13 @@
     import type { NewHighlight } from "./overlay/HighlighterOverlay.svelte";
 
     export let epub: Book;
+    export let goToAnnotation: AnnotationDatabaseEntry;
     export let bookEntry: BookDatabaseEntry;
+
+    $: if (goToAnnotation) {
+        selectedAnnotation = goToAnnotation;
+        /* readerController.display(goToAnnotation.cfi); */
+    }
 
     let annotations: AnnotationDatabaseEntry[] = [];
     backend
