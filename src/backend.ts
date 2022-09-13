@@ -81,8 +81,8 @@ export async function uploadBook(bookPath: string): Promise<BookDatabaseEntry> {
 }
 
 export interface AnnotationDatabaseEntry {
-    bookId: number;
     annotationId: number;
+    bookId: number;
     cfi: string;
     textContent: string;
     color: number;

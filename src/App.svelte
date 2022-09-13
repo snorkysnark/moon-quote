@@ -9,6 +9,7 @@
     let goToAnnotation: AnnotationDatabaseEntry = null;
 
     onAnnotationLink((link) => {
+        console.log(link);
         currentBook = link.book;
         goToAnnotation = link.annotation;
     });

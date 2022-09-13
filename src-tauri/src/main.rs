@@ -21,11 +21,15 @@ pub struct Constants {
 
 fn main() {
     let mut instance_already_running = false;
-    let initial_annotation_link = std::env::args().nth(1);
+    let initial_annotation_link = std::env::args()
+        .nth(1)
+        .map(|url_string| GoToAnnotation::from_url_string(&url_string).expect("Invalid URL"));
 
-    if let Some(initial_annotation_link) = &initial_annotation_link {
-        deeplink::try_send(initial_annotation_link).expect("Failed to send message");
-        instance_already_running = true;
+    if let Some(ref initial_annotation_link) = initial_annotation_link {
+        match deeplink::try_send(&initial_annotation_link.to_url()) {
+            Err(error) => eprintln!("Can't connect to existing instance: {error}"),
+            Ok(_) => instance_already_running = true,
+        }
     }
 
     if !instance_already_running {
@@ -46,7 +50,7 @@ fn main() {
             })
             .manage(Constants {
                 library_path,
-                initial_annotation_link: None,
+                initial_annotation_link,
             })
             .manage(db_pool)
             .invoke_handler(tauri::generate_handler![

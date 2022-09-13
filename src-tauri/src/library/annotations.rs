@@ -12,8 +12,8 @@ use crate::{
 #[derive(Queryable, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BookAnnotation<'a> {
-    book_id: i32,
     annotation_id: i32,
+    book_id: i32,
     cfi: Cow<'a, str>,
     text_content: Cow<'a, str>,
     color: i32,

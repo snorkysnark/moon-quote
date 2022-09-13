@@ -3,7 +3,7 @@ use std::io::{self, BufRead, BufReader, Write};
 use anyhow::{anyhow, Context, Result};
 use interprocess::local_socket::{LocalSocketListener, LocalSocketStream, NameTypeSupport};
 use serde::Serialize;
-use tauri::{AppHandle, State};
+use tauri::{AppHandle, Manager, State};
 use url::Url;
 
 use crate::Constants;
@@ -30,6 +30,13 @@ impl GoToAnnotation {
         } else {
             Err(anyhow!("Unexpected url path: {:?}", path_segments))
         }
+    }
+
+    pub fn to_url(&self) -> String {
+        format!(
+            "moonquote:///book/{}/annotation/{}",
+            self.book_id, self.annotation_id
+        )
     }
 }
 
@@ -61,17 +68,26 @@ pub fn deeplink_server(app: AppHandle) -> Result<()> {
         }
     }
 
-    let mut buffer = String::with_capacity(128);
-    for conn in listener.incoming().filter_map(handle_error) {
+    fn handle_connection(
+        conn: LocalSocketStream,
+        app: &AppHandle,
+        buffer: &mut String,
+    ) -> Result<()> {
         let mut conn = BufReader::new(conn);
         eprintln!("Incoming connection!");
 
-        if let Err(error) = conn.read_line(&mut buffer) {
-            eprintln!("Failed to read incoming message: {error}")
-        } else {
-            eprintln!("Incoming message: {buffer}");
-        }
+        conn.read_line(buffer).context("Reading incoming message")?;
+        let link = GoToAnnotation::from_url_string(buffer).context("Invalid URL")?;
+        app.emit_all("goto_annotation", &link)?;
 
+        Ok(())
+    }
+
+    let mut buffer = String::with_capacity(128);
+    for conn in listener.incoming().filter_map(handle_error) {
+        if let Err(error) = handle_connection(conn, &app, &mut buffer) {
+            eprintln!("{error}");
+        }
         buffer.clear();
     }
 

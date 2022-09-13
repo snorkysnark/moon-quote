@@ -23,6 +23,7 @@
             {
                 label: "Copy Link",
                 action: () => {
+                    console.log(annotation);
                     clipboard.writeText(
                         `moonquote:///book/${annotation.bookId}/annotation/${annotation.annotationId}`
                     );

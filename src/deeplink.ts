@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api";
 import * as backend from "./backend";
 import type { AnnotationDatabaseEntry, BookDatabaseEntry } from "./backend";
+import { listen } from "@tauri-apps/api/event";
 
 interface GoToAnnotationIds {
     book_id: number;
@@ -31,4 +32,12 @@ export async function onAnnotationLink(
     if (initialLink) {
         callback(await loadLink(initialLink));
     }
+
+    const unlisten = listen<GoToAnnotationIds>(
+        "goto_annotation",
+        async (event) => {
+            callback(await loadLink(event.payload));
+        }
+    );
+    return unlisten;
 }
