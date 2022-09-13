@@ -30,7 +30,8 @@
             "category": "DeveloperTool",
             "copyright": "",
             "deb": {
-                "depends": []
+                "depends": [],
+                "desktopTemplate": "./templates/main.desktop"
             },
             "externalBin": [],
             "icon": [
