@@ -2,6 +2,8 @@
     import type { Contents } from "epubjs";
     import type { AnnotationDatabaseEntry } from "src/backend";
     import { createEventDispatcher } from "svelte";
+    import * as clipboard from "@tauri-apps/api/clipboard";
+    import { makeAnnotationURL } from "src/deeplink";
 
     export let rect: DOMRect;
     export let contents: Contents;
@@ -38,12 +40,17 @@
     style="left: {position.x}px; top: {position.y}px;"
     bind:clientWidth
     bind:clientHeight
+    on:mousedown|stopPropagation
 >
     <button
         on:click={() => {
             dispatch("deleteAnnotation", selectedAnnotation);
-        }}
-        on:mousedown|stopPropagation>X</button
+        }}>X</button
+    >
+    <button
+        on:click={() => {
+            clipboard.writeText(makeAnnotationURL(selectedAnnotation));
+        }}>URL</button
     >
 </div>
 
@@ -52,10 +59,13 @@
         z-index: 1;
         position: absolute;
         background-color: blue;
+
+        display: flex;
+        flex-direction: row-reverse;
     }
 
     button {
-        width: 30px;
+        min-width: 30px;
         height: 25px;
         box-sizing: content-box;
         background: none;

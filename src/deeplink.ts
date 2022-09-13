@@ -25,6 +25,10 @@ async function loadLink(idsLink: GoToAnnotationIds): Promise<GoToAnnotation> {
     return { book, annotation };
 }
 
+export function makeAnnotationURL(annotation: AnnotationDatabaseEntry) {
+    return `moonquote:///book/${annotation.bookId}/annotation/${annotation.annotationId}`;
+}
+
 export async function onAnnotationLink(
     callback: (link: GoToAnnotation) => void
 ) {

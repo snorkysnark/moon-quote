@@ -2,6 +2,7 @@
     import AddContextMenu from "src/AddContextMenu.svelte";
     import type { AnnotationDatabaseEntry } from "src/backend";
     import * as clipboard from "@tauri-apps/api/clipboard";
+    import { makeAnnotationURL } from "src/deeplink";
 
     export let annotation: AnnotationDatabaseEntry;
 
@@ -23,10 +24,7 @@
             {
                 label: "Copy Link",
                 action: () => {
-                    console.log(annotation);
-                    clipboard.writeText(
-                        `moonquote:///book/${annotation.bookId}/annotation/${annotation.annotationId}`
-                    );
+                    clipboard.writeText(makeAnnotationURL(annotation));
                 },
             },
         ]}
