@@ -3,7 +3,7 @@
     windows_subsystem = "windows"
 )]
 
-use std::{fs, path::PathBuf};
+use std::{fs, path::PathBuf, thread};
 
 use deeplink::GoToAnnotation;
 
@@ -20,36 +20,47 @@ pub struct Constants {
 }
 
 fn main() {
-    let initial_annotation_link = std::env::args()
-        .nth(1)
-        .map(|url| GoToAnnotation::from_url_string(&url).expect("Failed to parse url"));
+    let mut instance_already_running = false;
+    let initial_annotation_link = std::env::args().nth(1);
 
-    let context = tauri::generate_context!();
-    let library_path = tauri::api::path::data_dir()
-        .expect("Cannot find data directory")
-        .join(&context.config().tauri.bundle.identifier)
-        .join("library");
-    fs::create_dir_all(&library_path).expect("cannot create library folder");
+    if let Some(initial_annotation_link) = &initial_annotation_link {
+        deeplink::try_send(initial_annotation_link).expect("Failed to send message");
+        instance_already_running = true;
+    }
 
-    let db_pool = db::init_db(&library_path.join("metadata.db"));
+    if !instance_already_running {
+        let context = tauri::generate_context!();
+        let library_path = tauri::api::path::data_dir()
+            .expect("Cannot find data directory")
+            .join(&context.config().tauri.bundle.identifier)
+            .join("library");
+        fs::create_dir_all(&library_path).expect("cannot create library folder");
 
-    tauri::Builder::default()
-        .manage(Constants {
-            library_path,
-            initial_annotation_link,
-        })
-        .manage(db_pool)
-        .invoke_handler(tauri::generate_handler![
-            library::upload_book,
-            library::get_books,
-            library::get_book,
-            library::delete_book,
-            library::add_annotation,
-            library::get_annotations_for_book,
-            library::get_annotation,
-            library::delete_annotation,
-            deeplink::initial_annotation_link
-        ])
-        .run(context)
-        .expect("error while running tauri application");
+        let db_pool = db::init_db(&library_path.join("metadata.db"));
+
+        tauri::Builder::default()
+            .setup(|app| {
+                let app = app.handle();
+                thread::spawn(move || deeplink::deeplink_server(app));
+                Ok(())
+            })
+            .manage(Constants {
+                library_path,
+                initial_annotation_link: None,
+            })
+            .manage(db_pool)
+            .invoke_handler(tauri::generate_handler![
+                library::upload_book,
+                library::get_books,
+                library::get_book,
+                library::delete_book,
+                library::add_annotation,
+                library::get_annotations_for_book,
+                library::get_annotation,
+                library::delete_annotation,
+                deeplink::initial_annotation_link
+            ])
+            .run(context)
+            .expect("error while running tauri application");
+    }
 }
