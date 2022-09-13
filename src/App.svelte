@@ -3,8 +3,13 @@
     import ContextMenuDisplay from "./ContextMenuDisplay.svelte";
     import type { BookDatabaseEntry } from "./backend";
     import ReaderWindow from "./reader/ReaderWindow.svelte";
+    import { onAnnotationLink } from "./deeplink";
 
     let currentBook: BookDatabaseEntry = null;
+
+    onAnnotationLink((link) => {
+        console.log(link);
+    });
 </script>
 
 <ContextMenuDisplay />

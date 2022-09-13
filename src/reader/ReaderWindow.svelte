@@ -7,7 +7,7 @@
     import type { Book } from "epubjs";
 
     export let bookEntry: BookDatabaseEntry;
-    let epubPromise: Promise<Book> = backend.loadBook(bookEntry);
+    let epubPromise: Promise<Book> = backend.loadEpub(bookEntry);
 
     const dispatch = createEventDispatcher<{ goBack: void }>();
 </script>

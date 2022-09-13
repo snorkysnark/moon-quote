@@ -28,6 +28,10 @@ export function getBooks(): Promise<BookDatabaseEntry[]> {
     return invoke("get_books");
 }
 
+export function getBook(bookId: number): Promise<BookDatabaseEntry> {
+    return invoke("get_book", { bookId });
+}
+
 export function deleteBook(bookId: number): Promise<void> {
     return invoke("delete_book", { bookId });
 }
@@ -89,6 +93,12 @@ export function getAnnotationsForBook(
     return invoke("get_annotations_for_book", { bookId });
 }
 
+export function getAnnotation(
+    annotationId: number
+): Promise<AnnotationDatabaseEntry> {
+    return invoke("get_annotation", { annotationId });
+}
+
 export function addAnnotation(
     bookId: number,
     cfi: string,
@@ -102,7 +112,7 @@ export function deleteAnnotation(annotationId: number): Promise<void> {
     return invoke("delete_annotation", { annotationId });
 }
 
-export async function loadBook(entry: BookDatabaseEntry): Promise<Book> {
+export async function loadEpub(entry: BookDatabaseEntry): Promise<Book> {
     const file = await fs.readBinaryFile(entry.epubPath);
     const book = ePub(file.buffer);
 

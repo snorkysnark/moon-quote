@@ -64,6 +64,22 @@ pub fn get_annotations_for_book(
 }
 
 #[tauri::command]
+pub fn get_annotation(
+    db: State<SqlitePool>,
+    annotation_id: i32,
+) -> SerializableResult<BookAnnotation> {
+    use schema::annotations::dsl;
+
+    let mut conn = db.get()?;
+    let annotation = dsl::annotations
+        .filter(dsl::annotation_id.eq(annotation_id))
+        .select((dsl::annotation_id, dsl::cfi, dsl::text_content, dsl::color))
+        .first(&mut conn)?;
+
+    Ok(annotation)
+}
+
+#[tauri::command]
 pub fn delete_annotation(db: State<SqlitePool>, annotation_id: i32) -> SerializableResult<()> {
     use schema::annotations::dsl;
 

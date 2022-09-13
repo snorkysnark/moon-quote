@@ -64,14 +64,30 @@ pub fn get_books<'a>(
     db: State<SqlitePool>,
     constants: State<Constants>,
 ) -> SerializableResult<Vec<Book<'a>>> {
-    use schema::books::dsl::*;
+    use schema::books::dsl;
 
     let mut conn = db.get()?;
-    let rows = books.load::<BookRow>(&mut conn)?;
+    let rows = dsl::books.load::<BookRow>(&mut conn)?;
     let rows_abs_path: Vec<_> = rows
         .into_iter()
         .map(|row| row.with_absolute_paths(&constants.library_path))
         .collect();
 
     Ok(rows_abs_path)
+}
+
+#[tauri::command]
+pub fn get_book<'a>(
+    db: State<SqlitePool>,
+    constants: State<Constants>,
+    book_id: i32,
+) -> SerializableResult<Book<'a>> {
+    use schema::books::dsl;
+
+    let mut conn = db.get()?;
+    let book: BookRow = dsl::books
+        .filter(dsl::book_id.eq(book_id))
+        .first(&mut conn)?;
+
+    Ok(book.with_absolute_paths(&constants.library_path))
 }
