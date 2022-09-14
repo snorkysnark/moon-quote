@@ -80,6 +80,10 @@ pub fn deeplink_server(app: AppHandle) -> Result<()> {
         let link = GoToAnnotation::from_url_string(buffer).context("Invalid URL")?;
         app.emit_all("goto_annotation", &link)?;
 
+        if let Some(window) = app.get_window("main") {
+            window.set_focus()?;
+        }
+
         Ok(())
     }
 
