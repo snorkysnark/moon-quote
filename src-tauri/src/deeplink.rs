@@ -53,9 +53,9 @@ fn socket_name() -> &'static str {
     }
 }
 
-pub fn deeplink_server(app: AppHandle) -> Result<()> {
+pub fn deeplink_server(app: AppHandle) {
     let socket = socket_name();
-    let listener = LocalSocketListener::bind(socket)?;
+    let listener = LocalSocketListener::bind(socket).expect("Failed to create server");
     eprintln!("Listening on {socket}");
 
     fn handle_error(result: io::Result<LocalSocketStream>) -> Option<LocalSocketStream> {
@@ -94,8 +94,6 @@ pub fn deeplink_server(app: AppHandle) -> Result<()> {
         }
         buffer.clear();
     }
-
-    Ok(())
 }
 
 pub fn try_send(message: &str) -> Result<()> {
