@@ -1,21 +1,21 @@
 <script lang="ts">
     import LibraryWindow from "./library/LibraryWindow.svelte";
     import ContextMenuDisplay from "./ContextMenuDisplay.svelte";
-    import type {
-        GoToAnnotation,
-        AnnotationDatabaseEntry,
-        BookDatabaseEntry,
-    } from "./backend";
+    import type { AnnotationDatabaseEntry, BookDatabaseEntry } from "./backend";
     import ReaderWindow from "./reader/ReaderWindow.svelte";
-    import { listen } from "@tauri-apps/api/event";
+    import { onAnnotationLink } from "./deeplink";
+    import { onDestroy } from "svelte";
 
     let currentBook: BookDatabaseEntry = null;
     let goToAnnotation: AnnotationDatabaseEntry = null;
 
-    listen<GoToAnnotation>("goto_annotation", (event) => {
-        const link = event.payload;
+    const unsubscribe = onAnnotationLink((link) => {
         currentBook = link.book;
         goToAnnotation = link.annotation;
+    });
+
+    onDestroy(async () => {
+        (await unsubscribe)();
     });
 </script>
 

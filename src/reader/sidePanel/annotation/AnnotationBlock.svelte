@@ -2,7 +2,7 @@
     import AddContextMenu from "src/AddContextMenu.svelte";
     import type { AnnotationDatabaseEntry } from "src/backend";
     import * as clipboard from "@tauri-apps/api/clipboard";
-    import { makeAnnotationURL } from "src/backend";
+    import { makeAnnotationURL } from "src/deeplink";
 
     export let annotation: AnnotationDatabaseEntry;
 
