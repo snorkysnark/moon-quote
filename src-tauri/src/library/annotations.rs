@@ -65,10 +65,10 @@ pub fn get_annotations_for_book(
 }
 
 #[tauri::command]
-pub fn get_annotation<'a>(
+pub fn get_annotation(
     db: State<SqlitePool>,
     annotation_id: i32,
-) -> SerializableResult<BookAnnotation<'a>> {
+) -> SerializableResult<BookAnnotation<'static>> {
     use schema::annotations::dsl;
 
     let mut conn = db.get()?;

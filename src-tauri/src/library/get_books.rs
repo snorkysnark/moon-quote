@@ -60,10 +60,10 @@ impl BookRow {
 }
 
 #[tauri::command]
-pub fn get_books<'a>(
+pub fn get_books(
     db: State<SqlitePool>,
     constants: State<Constants>,
-) -> SerializableResult<Vec<Book<'a>>> {
+) -> SerializableResult<Vec<Book<'static>>> {
     use schema::books::dsl;
 
     let mut conn = db.get()?;
@@ -77,11 +77,11 @@ pub fn get_books<'a>(
 }
 
 #[tauri::command]
-pub fn get_book<'a>(
+pub fn get_book(
     db: State<SqlitePool>,
     constants: State<Constants>,
     book_id: i32,
-) -> SerializableResult<Book<'a>> {
+) -> SerializableResult<Book<'static>> {
     use schema::books::dsl;
 
     let mut conn = db.get()?;
