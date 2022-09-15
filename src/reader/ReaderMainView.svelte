@@ -73,6 +73,7 @@
 
 <div id="container">
     {#if !$sidePanelRight}
+        <!--reusable SidePanel-->
         <SidePanel
             {annotations}
             {toc}
@@ -80,6 +81,7 @@
             on:navigate={tocItemClicked}
             bind:currentSidePanel
         />
+        <!--end-->
     {/if}
     <div id="readerView">
         <button class="navButton" on:click={() => readerController.prev()}
@@ -107,13 +109,7 @@
         >
     </div>
     {#if $sidePanelRight}
-        <SidePanel
-            {annotations}
-            {toc}
-            on:annotationClick={annotationLinkClicked}
-            on:navigate={tocItemClicked}
-            bind:currentSidePanel
-        />
+        <!--repeat SidePanel-->
     {/if}
 </div>
 

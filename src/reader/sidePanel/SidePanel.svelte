@@ -24,6 +24,7 @@
 </script>
 
 {#if $sidePanelRight}
+    <!--reusable SidePanelContent-->
     <SidePanelContent
         {currentSidePanel}
         {annotations}
@@ -31,6 +32,7 @@
         on:annotationClick
         on:navigate
     />
+    <!--end-->
 {/if}
 <div id="togglePanel" bind:this={panel}>
     {#each panelTypes as panelType}
@@ -47,13 +49,7 @@
     {/each}
 </div>
 {#if !$sidePanelRight}
-    <SidePanelContent
-        {currentSidePanel}
-        {annotations}
-        {toc}
-        on:annotationClick
-        on:navigate
-    />
+    <!--repeat SidePanelContent-->
 {/if}
 
 {#if panel}
