@@ -35,6 +35,12 @@ impl Serialize for SerializableError {
 
 pub type SerializableResult<T, E = SerializableError> = Result<T, E>;
 
+impl From<SerializableError> for anyhow::Error {
+    fn from(serr: SerializableError) -> Self {
+        serr.error
+    }
+}
+
 macro_rules! sanyhow {
     ($($args:tt),+) => {
         crate::error::SerializableError::new(::anyhow::anyhow!($($args),+))

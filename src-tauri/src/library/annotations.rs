@@ -9,7 +9,7 @@ use crate::{
     error::SerializableResult,
 };
 
-#[derive(Queryable, Serialize)]
+#[derive(Clone, Queryable, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BookAnnotation<'a> {
     annotation_id: i32,
@@ -65,10 +65,10 @@ pub fn get_annotations_for_book(
 }
 
 #[tauri::command]
-pub fn get_annotation(
+pub fn get_annotation<'a>(
     db: State<SqlitePool>,
     annotation_id: i32,
-) -> SerializableResult<BookAnnotation> {
+) -> SerializableResult<BookAnnotation<'a>> {
     use schema::annotations::dsl;
 
     let mut conn = db.get()?;

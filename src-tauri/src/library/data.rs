@@ -20,7 +20,7 @@ pub struct EpubMetadata<'a> {
     pub spread: Option<&'a str>,
 }
 
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Book<'a> {
     pub book_id: i32,
