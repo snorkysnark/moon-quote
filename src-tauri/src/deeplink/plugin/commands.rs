@@ -19,6 +19,7 @@ impl From<Option<AnnotationUrlLoaded>> for InitialUrlOnce {
     }
 }
 
+// Returns initial url the first time, then returns None
 #[tauri::command]
 pub(super) fn initial_url(
     state: State<InitialUrlOnce>,
