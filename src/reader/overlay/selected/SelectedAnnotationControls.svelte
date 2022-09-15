@@ -3,7 +3,7 @@
     import type { AnnotationDatabaseEntry } from "src/backend";
     import { createEventDispatcher } from "svelte";
     import * as clipboard from "@tauri-apps/api/clipboard";
-    import { makeAnnotationURL } from "src/deeplink";
+    import { makeAnnotationURL } from "src/backend";
 
     export let rect: DOMRect;
     export let contents: Contents;

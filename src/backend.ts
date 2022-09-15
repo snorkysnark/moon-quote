@@ -120,3 +120,12 @@ export async function loadEpub(entry: BookDatabaseEntry): Promise<Book> {
     await book.ready;
     return book;
 }
+
+export interface GoToAnnotation {
+    book: BookDatabaseEntry;
+    annotation: AnnotationDatabaseEntry;
+}
+
+export function makeAnnotationURL(annotation: AnnotationDatabaseEntry) {
+    return `moonquote:///book/${annotation.bookId}/annotation/${annotation.annotationId}`;
+}
