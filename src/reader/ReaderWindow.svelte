@@ -3,18 +3,25 @@
         type BookDatabaseEntry,
         type AnnotationDatabaseEntry,
         loadEpub,
+        getAnnotationsForBook,
     } from "../backend";
     import type { Book } from "epubjs";
     import { createEventDispatcher } from "svelte";
     import ReaderMainView from "./ReaderMainView.svelte";
     import { Loading, Window, WindowHeader } from "src/decor";
 
+    const dispatch = createEventDispatcher<{ goBack: void }>();
+
     export let bookEntry: BookDatabaseEntry;
     export let goToAnnotation: AnnotationDatabaseEntry = null;
 
-    let epubPromise: Promise<Book> = loadEpub(bookEntry);
+    let epub: Book;
+    loadEpub(bookEntry).then((loaded) => (epub = loaded));
 
-    const dispatch = createEventDispatcher<{ goBack: void }>();
+    let annotations: AnnotationDatabaseEntry[];
+    getAnnotationsForBook(bookEntry.bookId).then(
+        (loaded) => (annotations = loaded)
+    );
 </script>
 
 <Window>
@@ -24,11 +31,16 @@
     </svelte:fragment>
 
     <svelte:fragment slot="main">
-        {#await epubPromise}
+        {#if epub && annotations}
+            <ReaderMainView
+                {epub}
+                bind:annotations
+                {bookEntry}
+                {goToAnnotation}
+            />
+        {:else}
             <Loading />
-        {:then epub}
-            <ReaderMainView {epub} {bookEntry} {goToAnnotation} />
-        {/await}
+        {/if}
     </svelte:fragment>
 </Window>
 

@@ -15,18 +15,14 @@
     import type { NewHighlight } from "./overlay/HighlighterOverlay.svelte";
 
     export let epub: Book;
-    export let goToAnnotation: AnnotationDatabaseEntry;
+    export let annotations: AnnotationDatabaseEntry[] = [];
     export let bookEntry: BookDatabaseEntry;
+    export let goToAnnotation: AnnotationDatabaseEntry;
 
     $: if (goToAnnotation && readerController) {
         selectedAnnotation = goToAnnotation;
         readerController.display(goToAnnotation.cfi);
     }
-
-    let annotations: AnnotationDatabaseEntry[] = [];
-    backend
-        .getAnnotationsForBook(bookEntry.bookId)
-        .then((loaded) => (annotations = [...annotations, ...loaded]));
 
     let readerController: EpubDisplayController;
 
