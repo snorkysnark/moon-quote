@@ -22,11 +22,13 @@
 <ContextMenuDisplay />
 
 {#if currentBook}
-    <ReaderWindow
-        bookEntry={currentBook}
-        {goToAnnotation}
-        on:goBack={() => (currentBook = null)}
-    />
+    {#key currentBook}
+        <ReaderWindow
+            bookEntry={currentBook}
+            {goToAnnotation}
+            on:goBack={() => (currentBook = null)}
+        />
+    {/key}
 {:else}
     <LibraryWindow on:open={(e) => (currentBook = e.detail)} />
 {/if}
