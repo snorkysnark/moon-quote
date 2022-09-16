@@ -9,6 +9,7 @@
     import { createEventDispatcher } from "svelte";
     import ReaderMainView from "./ReaderMainView.svelte";
     import { Loading, Window, WindowHeader } from "src/decor";
+    import ExportButton from "./ExportButton.svelte";
 
     const dispatch = createEventDispatcher<{ goBack: void }>();
 
@@ -28,6 +29,9 @@
     <svelte:fragment slot="top">
         <button id="goBack" on:click={() => dispatch("goBack")}>←</button>
         <WindowHeader>{bookEntry.metaTitle}</WindowHeader>
+        {#if epub && annotations}
+            <ExportButton />
+        {/if}
     </svelte:fragment>
 
     <svelte:fragment slot="main">
