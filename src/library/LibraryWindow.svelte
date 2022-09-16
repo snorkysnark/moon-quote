@@ -8,6 +8,8 @@
     import type { BookDatabaseEntry } from "../backend";
     import * as path from "@tauri-apps/api/path";
     import * as dialog from "@tauri-apps/api/dialog";
+import Window from "src/decor/Window.svelte";
+import WindowHeader from "src/decor/WindowHeader.svelte";
 
     let bookEntries: BookDatabaseEntry[] = null;
     backend.getBooks().then((result) => (bookEntries = result));
@@ -60,16 +62,17 @@
     />
 {/if}
 
-<main>
-    <div id="topPanel">
-        <h1>Library</h1>
+<Window>
+    <svelte:fragment slot="top">
+        <WindowHeader>Library</WindowHeader>
         <button
             id="addBook"
             disabled={!enableButtons}
             on:click={openBooksDialog}>+</button
         >
-    </div>
-    <div id="library" on:scroll={closeMenu}>
+    </svelte:fragment>
+
+    <div slot="main" id="library" on:scroll={closeMenu}>
         {#if uploadingBook}
             <Loading message={`Uploading\n${uploadingBook}`} />
         {:else if hovering}
@@ -84,41 +87,19 @@
             <Loading />
         {/if}
     </div>
-</main>
+</Window>
+
 
 <style>
-    main {
-        display: flex;
-        flex-flow: column;
-        width: 100%;
-        height: 100vh;
-
-        -webkit-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-    }
-
-    #topPanel {
-        max-height: 50px;
-        background-color: orange;
-        display: flex;
-        padding-left: 5px;
-        padding-right: 5px;
-    }
-
-    h1 {
-        margin: 0;
-        flex: 1 1 auto;
-    }
-
     #addBook {
         width: 100px;
         font-size: 25px;
     }
 
     #library {
-        flex: 1 1 auto;
-        min-height: 0;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
         overflow-y: scroll;
         padding: 10px;
     }

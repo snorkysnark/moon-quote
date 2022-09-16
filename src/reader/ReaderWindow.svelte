@@ -8,6 +8,8 @@
     import Loading from "../Loading.svelte";
     import ReaderMainView from "./ReaderMainView.svelte";
     import type { Book } from "epubjs";
+    import Window from "src/decor/Window.svelte";
+    import WindowHeader from "src/decor/WindowHeader.svelte";
 
     export let bookEntry: BookDatabaseEntry;
     export let goToAnnotation: AnnotationDatabaseEntry = null;
@@ -17,56 +19,24 @@
     const dispatch = createEventDispatcher<{ goBack: void }>();
 </script>
 
-<main>
-    <div id="topPanel">
+<Window>
+    <svelte:fragment slot="top">
         <button id="goBack" on:click={() => dispatch("goBack")}>←</button>
-        <h1>{bookEntry.metaTitle}</h1>
-    </div>
-    <div id="mainView">
+        <WindowHeader>{bookEntry.metaTitle}</WindowHeader>
+    </svelte:fragment>
+
+    <svelte:fragment slot="main">
         {#await epubPromise}
             <Loading />
         {:then epub}
             <ReaderMainView {epub} {bookEntry} {goToAnnotation} />
         {/await}
-    </div>
-</main>
+    </svelte:fragment>
+</Window>
 
 <style>
-    main {
-        display: flex;
-        flex-flow: column;
-        width: 100%;
-        height: 100vh;
-
-        -webkit-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-    }
-
-    #topPanel {
-        max-height: 50px;
-        background-color: orange;
-        display: flex;
-        gap: 10px;
-        padding-left: 5px;
-        padding-right: 5px;
-    }
-
-    h1 {
-        margin: 0;
-        flex: 1 1 auto;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
     #goBack {
         width: 50px;
         font-size: 25px;
-    }
-
-    #mainView {
-        flex: 1 1 auto;
-        min-height: 0;
     }
 </style>
