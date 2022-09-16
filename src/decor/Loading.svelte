@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Spinner from "./decor/Spinner.svelte";
+    import Spinner from "./Spinner.svelte";
 
     export let message: string = null;
 </script>

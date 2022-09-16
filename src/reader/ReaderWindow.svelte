@@ -1,20 +1,18 @@
 <script lang="ts">
-    import type {
-        BookDatabaseEntry,
-        AnnotationDatabaseEntry,
+    import {
+        type BookDatabaseEntry,
+        type AnnotationDatabaseEntry,
+        loadEpub,
     } from "../backend";
-    import * as backend from "../backend";
-    import { createEventDispatcher } from "svelte";
-    import Loading from "../Loading.svelte";
-    import ReaderMainView from "./ReaderMainView.svelte";
     import type { Book } from "epubjs";
-    import Window from "src/decor/Window.svelte";
-    import WindowHeader from "src/decor/WindowHeader.svelte";
+    import { createEventDispatcher } from "svelte";
+    import ReaderMainView from "./ReaderMainView.svelte";
+    import { Loading, Window, WindowHeader } from "src/decor";
 
     export let bookEntry: BookDatabaseEntry;
     export let goToAnnotation: AnnotationDatabaseEntry = null;
 
-    let epubPromise: Promise<Book> = backend.loadEpub(bookEntry);
+    let epubPromise: Promise<Book> = loadEpub(bookEntry);
 
     const dispatch = createEventDispatcher<{ goBack: void }>();
 </script>

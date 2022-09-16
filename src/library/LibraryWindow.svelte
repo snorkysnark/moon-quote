@@ -1,5 +1,4 @@
 <script lang="ts">
-    import Loading from "../Loading.svelte";
     import LibraryGrid from "./LibraryGrid.svelte";
     import FileDropHandler from "../FileDropHandler.svelte";
     import FileDropSplash from "../FileDropSplash.svelte";
@@ -8,8 +7,7 @@
     import type { BookDatabaseEntry } from "../backend";
     import * as path from "@tauri-apps/api/path";
     import * as dialog from "@tauri-apps/api/dialog";
-import Window from "src/decor/Window.svelte";
-import WindowHeader from "src/decor/WindowHeader.svelte";
+    import { Loading, Window, WindowHeader } from "src/decor";
 
     let bookEntries: BookDatabaseEntry[] = null;
     backend.getBooks().then((result) => (bookEntries = result));
@@ -88,7 +86,6 @@ import WindowHeader from "src/decor/WindowHeader.svelte";
         {/if}
     </div>
 </Window>
-
 
 <style>
     #addBook {
