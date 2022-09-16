@@ -8,19 +8,19 @@ use super::message::Message;
 // Runs on the main window, listens to incoming messages, such as GoToAnnotation
 pub struct DeeplinkServer<R: Runtime> {
     app: AppHandle<R>,
-    listener: LocalSocketListener,
 }
 
 impl<R: Runtime> DeeplinkServer<R> {
     pub fn new(app: AppHandle<R>) -> Result<Self> {
-        let listener =
-            tauri::async_runtime::block_on(LocalSocketListener::bind(super::socket_name()))?;
-
-        Ok(Self { app, listener })
+        Ok(Self { app })
     }
 
     pub async fn run(&self) {
-        self.listener
+        let listener = LocalSocketListener::bind(super::socket_name())
+            .await
+            .expect("Can't bind to socket");
+
+        listener
             .incoming()
             .filter_map(|result| async move {
                 match result {
