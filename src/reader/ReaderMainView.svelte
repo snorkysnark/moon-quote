@@ -13,6 +13,7 @@
     import SidePanel from "./sidePanel/SidePanel.svelte";
     import TocItem from "./sidePanel/toc/toc";
     import type { NewHighlight } from "./overlay/HighlighterOverlay.svelte";
+    import { sortAnnotations } from "src/utils";
 
     export let epub: Book;
     export let annotations: AnnotationDatabaseEntry[] = [];
@@ -34,7 +35,7 @@
             range.toString(),
             color
         );
-        annotations = [...annotations, newAnnotation];
+        annotations = sortAnnotations([...annotations, newAnnotation]);
     }
 
     function clearSelectedAnnotation() {
@@ -43,8 +44,8 @@
 
     function deleteAnnotation(event: CustomEvent<AnnotationDatabaseEntry>) {
         const targetId = event.detail.annotationId;
-        annotations = annotations.filter(
-            (value) => value.annotationId != targetId
+        annotations = sortAnnotations(
+            annotations.filter((value) => value.annotationId != targetId)
         );
         backend.deleteAnnotation(targetId);
         selectedAnnotation = null;

@@ -3,6 +3,7 @@ import type { BinaryFileContents } from "@tauri-apps/api/fs";
 import type { PackagingMetadataObject } from "epubjs/types/packaging";
 import * as fs from "@tauri-apps/api/fs";
 import ePub, { Book } from "epubjs";
+import { sortAnnotations } from "./utils";
 
 export interface BookDatabaseEntry {
     bookId: number;
@@ -88,10 +89,15 @@ export interface AnnotationDatabaseEntry {
     color: number;
 }
 
-export function getAnnotationsForBook(
+export async function getAnnotationsForBook(
     bookId: number
 ): Promise<AnnotationDatabaseEntry[]> {
-    return invoke("get_annotations_for_book", { bookId });
+    const annotations: AnnotationDatabaseEntry[] = await invoke(
+        "get_annotations_for_book",
+        { bookId }
+    );
+    sortAnnotations(annotations);
+    return annotations;
 }
 
 export function getAnnotation(

@@ -1,4 +1,6 @@
 import * as path from "@tauri-apps/api/path";
+import { EpubCFI } from "epubjs";
+import type { AnnotationDatabaseEntry } from "./backend";
 
 export async function asyncFilter<T>(
     array: T[],
@@ -39,4 +41,12 @@ export function clickOutside(node: HTMLElement) {
             document.removeEventListener("click", handleClick, true);
         },
     };
+}
+
+// No idea why EpubCFI.compare isn't a static method
+const compareCfi = new EpubCFI().compare
+
+export function sortAnnotations(annotations: AnnotationDatabaseEntry[]) {
+    annotations.sort((a, b) => compareCfi(a.cfi, b.cfi));
+    return annotations;
 }
