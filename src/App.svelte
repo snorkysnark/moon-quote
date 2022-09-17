@@ -22,7 +22,7 @@
 <ContextMenuDisplay />
 
 {#if currentBook}
-    {#key currentBook}
+    {#key currentBook.bookId}
         <ReaderWindow
             bookEntry={currentBook}
             {goToAnnotation}
