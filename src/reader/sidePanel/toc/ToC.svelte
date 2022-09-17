@@ -1,6 +1,6 @@
 <script lang="ts">
     import AddContextMenu from "src/AddContextMenu.svelte";
-    import NavItemExtra from "./toc";
+    import NavItemExtra from "src/structure/navItem";
     import TocList from "./TocList.svelte";
 
     export let items: NavItemExtra<boolean>[];

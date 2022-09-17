@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { NavItem } from "epubjs";
     import { createEventDispatcher } from "svelte";
-    import type NavItemExtra from "./toc";
+    import type NavItemExtra from "src/structure/navItem";
 
     export let items: NavItemExtra<boolean>[];
 

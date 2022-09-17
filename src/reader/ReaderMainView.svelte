@@ -11,7 +11,7 @@
     import type { Book, NavItem } from "epubjs";
     import { sidePanelRight } from "../settings";
     import SidePanel from "./sidePanel/SidePanel.svelte";
-    import NavItemExtra from "./sidePanel/toc/toc";
+    import NavItemExtra from "src/structure/navItem";
     import type { NewHighlight } from "./overlay/HighlighterOverlay.svelte";
     import { sortAnnotations } from "src/utils";
 
