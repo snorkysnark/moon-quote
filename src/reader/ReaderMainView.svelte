@@ -21,7 +21,7 @@
 
     $: if (goToAnnotation && readerController) {
         selectedAnnotation = goToAnnotation;
-        readerController.display(goToAnnotation.cfi);
+        readerController.display(goToAnnotation.cfi.toString());
     }
 
     let readerController: EpubDisplayController;
@@ -30,7 +30,7 @@
         const { cfi, range, color } = event.detail;
         const newAnnotation = await backend.addAnnotation(
             bookEntry.bookId,
-            cfi.toString(),
+            cfi,
             range.toString(),
             color
         );
@@ -54,7 +54,7 @@
         event: CustomEvent<AnnotationDatabaseEntry>
     ) {
         const annotation = event.detail;
-        readerController.display(annotation.cfi);
+        readerController.display(annotation.cfi.toString());
         selectedAnnotation = annotation;
     }
 

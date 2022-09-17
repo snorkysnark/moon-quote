@@ -18,11 +18,11 @@
     }
 
     onMount(() => {
-        context.addAnnotation(annotation.cfi, onClick, undefined, {
+        context.addAnnotation(annotation.cfi.toString(), onClick, undefined, {
             fill: `var(--highlight${annotation.color})`,
         });
         return () => {
-            context.removeAnnotation(annotation.cfi);
+            context.removeAnnotation(annotation.cfi.toString());
         };
     });
 </script>

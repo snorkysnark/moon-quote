@@ -1,21 +1,18 @@
 <script lang="ts">
-    import { Contents, EpubCFI } from "epubjs";
+    import type { Contents } from "epubjs";
     import type { AnnotationDatabaseEntry } from "src/backend";
     import SelectedAnnotationControls from "./SelectedAnnotationControls.svelte";
 
     export let selectedAnnotation: AnnotationDatabaseEntry;
     export let contents: Contents;
 
-    let annotationCfi: EpubCFI;
-    $: annotationCfi = new EpubCFI(selectedAnnotation.cfi);
-
     let annotationRange: Range = null;
     $: {
         // Check if we are on the right document
-        annotationRange = selectedAnnotation.cfi.startsWith(
-            `epubcfi(${contents.cfiBase}!`
-        )
-            ? annotationCfi.toRange(contents.document)
+        annotationRange = selectedAnnotation.cfi
+            .toString()
+            .startsWith(`epubcfi(${contents.cfiBase}!`)
+            ? selectedAnnotation.cfi.toRange(contents.document)
             : null;
     }
 
