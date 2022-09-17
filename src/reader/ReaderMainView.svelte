@@ -11,7 +11,7 @@
     import type { Book, NavItem } from "epubjs";
     import { sidePanelRight } from "../settings";
     import SidePanel from "./sidePanel/SidePanel.svelte";
-    import TocItem from "./sidePanel/toc/toc";
+    import NavItemExtra from "./sidePanel/toc/toc";
     import type { NewHighlight } from "./overlay/HighlighterOverlay.svelte";
     import { sortAnnotations } from "src/utils";
 
@@ -63,7 +63,7 @@
         readerController.display(event.detail.href);
     }
 
-    let toc = TocItem.listFromBook(epub);
+    let toc = NavItemExtra.createList(epub.navigation.toc, () => false);
     let selectedAnnotation: AnnotationDatabaseEntry = null;
     let currentSidePanel: string = null;
 </script>

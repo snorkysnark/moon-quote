@@ -1,9 +1,9 @@
 <script lang="ts">
     import type { NavItem } from "epubjs";
     import { createEventDispatcher } from "svelte";
-    import type TocItem from "./toc";
+    import type NavItemExtra from "./toc";
 
-    export let items: TocItem[];
+    export let items: NavItemExtra<boolean>[];
 
     const dispatch = createEventDispatcher<{ navigate: NavItem }>();
 </script>
@@ -15,15 +15,15 @@
             {#if foldable}
                 <button
                     class="toggle"
-                    on:click={() => (item.isOpen = !item.isOpen)}
-                    >{item.isOpen ? "▼" : "▶"}</button
+                    on:click={() => (item.extra = !item.extra)}
+                    >{item.extra ? "▼" : "▶"}</button
                 >
             {/if}
             <span id="label" on:click={() => dispatch("navigate", item.content)}
                 >{item.content.label}</span
             >
         </li>
-        {#if item.children && item.isOpen}
+        {#if item.children && item.extra}
             <svelte:self items={item.children} on:navigate />
         {/if}
     {/each}

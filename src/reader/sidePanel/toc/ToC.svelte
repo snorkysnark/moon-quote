@@ -1,14 +1,14 @@
 <script lang="ts">
     import AddContextMenu from "src/AddContextMenu.svelte";
-    import type TocItem from "./toc";
+    import NavItemExtra from "./toc";
     import TocList from "./TocList.svelte";
 
-    export let items: TocItem[];
+    export let items: NavItemExtra<boolean>[];
 
     let container: HTMLElement;
     function setAllOpen(value: boolean) {
-        for (const item of items) {
-            item.setOpenRecursive(value);
+        for (const item of NavItemExtra.iterEachRecursive(items)) {
+            item.extra = value;
         }
         items = items;
     }

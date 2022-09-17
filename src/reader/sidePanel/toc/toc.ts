@@ -1,33 +1,40 @@
-import type { Book, NavItem } from "epubjs";
+import type { NavItem } from "epubjs";
 
-export default class TocItem {
-    isOpen: boolean;
+// Attach extra data to each NavItem
+export default class NavItemExtra<T> {
     content: NavItem;
-    children: TocItem[] | null;
+    extra: T;
+    children: NavItemExtra<T>[] | null;
 
-    constructor(content: NavItem) {
-        this.isOpen = false;
-        this.content = content;
-
-        if (content.subitems && content.subitems.length > 0) {
-            this.children = content.subitems.map(
-                (subitem) => new TocItem(subitem)
+    constructor(item: NavItem, extend: (item: NavItem) => T) {
+        this.content = item;
+        this.extra = extend(item);
+        if (item.subitems && item.subitems.length > 0) {
+            this.children = item.subitems.map(
+                (subitem) => new NavItemExtra(subitem, extend)
             );
         } else {
             this.children = null;
         }
     }
 
-    static listFromBook(book: Book) {
-        return book.navigation.toc.map((item) => new TocItem(item));
+    static createList<T>(
+        toc: NavItem[],
+        extend: (item: NavItem) => T
+    ): NavItemExtra<T>[] {
+        return toc.map((item) => new NavItemExtra(item, extend));
     }
 
-    setOpenRecursive(value: boolean) {
-        this.isOpen = value;
+    *iterRecursive() {
+        yield this;
         if (this.children) {
-            for (const child of this.children) {
-                child.setOpenRecursive(value);
-            }
+            yield* this.children;
+        }
+    }
+
+    static *iterEachRecursive<T>(list: NavItemExtra<T>[]) {
+        for (const item of list) {
+            yield* item.iterRecursive();
         }
     }
 }
