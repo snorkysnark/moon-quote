@@ -2,7 +2,7 @@ import { invoke } from "@tauri-apps/api";
 import type { BinaryFileContents } from "@tauri-apps/api/fs";
 import type { PackagingMetadataObject } from "epubjs/types/packaging";
 import * as fs from "@tauri-apps/api/fs";
-import ePub, { Book, EpubCFI } from "epubjs";
+import ePub, { Book } from "epubjs";
 
 export interface BookDatabaseEntry {
     bookId: number;
@@ -26,6 +26,10 @@ export interface BookDatabaseEntry {
 
 export function getBooks(): Promise<BookDatabaseEntry[]> {
     return invoke("get_books");
+}
+
+export function getBook(bookId: number): Promise<BookDatabaseEntry> {
+    return invoke("get_book", { bookId });
 }
 
 export function deleteBook(bookId: number): Promise<void> {
@@ -76,7 +80,7 @@ export async function uploadBook(bookPath: string): Promise<BookDatabaseEntry> {
     return await uploadBookRaw(bookPath, metadata, cover);
 }
 
-interface AnnotationDatabaseEntryRaw {
+export interface AnnotationDatabaseEntry {
     annotationId: number;
     bookId: number;
     cfi: string;
@@ -84,53 +88,25 @@ interface AnnotationDatabaseEntryRaw {
     color: number;
 }
 
-export interface AnnotationDatabaseEntry {
-    annotationId: number;
-    bookId: number;
-    cfi: EpubCFI;
-    textContent: string;
-    color: number;
-}
-
-export async function getAnnotationsForBook(
+export function getAnnotationsForBook(
     bookId: number
 ): Promise<AnnotationDatabaseEntry[]> {
-    const annotations: AnnotationDatabaseEntryRaw[] = await invoke(
-        "get_annotations_for_book",
-        { bookId }
-    );
-
-    return annotations.map((ann) => {
-        return {
-            annotationId: ann.annotationId,
-            bookId: ann.bookId,
-            cfi: new EpubCFI(ann.cfi),
-            textContent: ann.textContent,
-            color: ann.color,
-        };
-    });
+    return invoke("get_annotations_for_book", { bookId });
 }
 
-export async function addAnnotation(
+export function getAnnotation(
+    annotationId: number
+): Promise<AnnotationDatabaseEntry> {
+    return invoke("get_annotation", { annotationId });
+}
+
+export function addAnnotation(
     bookId: number,
-    cfi: EpubCFI,
+    cfi: string,
     textContent: string,
     color: number
 ): Promise<AnnotationDatabaseEntry> {
-    const annotationId: number = await invoke("add_annotation", {
-        bookId,
-        cfi: cfi.toString(),
-        textContent,
-        color,
-    });
-
-    return {
-        annotationId,
-        bookId,
-        cfi,
-        textContent,
-        color,
-    };
+    return invoke("add_annotation", { bookId, cfi, textContent, color });
 }
 
 export function deleteAnnotation(annotationId: number): Promise<void> {

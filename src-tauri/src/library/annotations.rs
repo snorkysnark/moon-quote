@@ -26,7 +26,7 @@ pub fn add_annotation<'a>(
     cfi: &'a str,
     text_content: &'a str,
     color: i32,
-) -> SerializableResult<i32> {
+) -> SerializableResult<BookAnnotation<'a>> {
     use schema::annotations::dsl;
 
     let mut conn = db.get()?;
@@ -40,7 +40,13 @@ pub fn add_annotation<'a>(
         .returning(dsl::annotation_id)
         .get_result(&mut conn)?;
 
-    Ok(annotation_id)
+    Ok(BookAnnotation {
+        book_id,
+        annotation_id,
+        cfi: cfi.into(),
+        text_content: text_content.into(),
+        color,
+    })
 }
 
 #[tauri::command]
