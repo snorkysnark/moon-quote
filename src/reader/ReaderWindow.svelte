@@ -30,7 +30,7 @@
         <button id="goBack" on:click={() => dispatch("goBack")}>←</button>
         <WindowHeader>{bookEntry.metaTitle}</WindowHeader>
         {#if epub && annotations}
-            <ExportButton />
+            <ExportButton {epub} {annotations} />
         {/if}
     </svelte:fragment>
 

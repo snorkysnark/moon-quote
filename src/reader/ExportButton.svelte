@@ -1,14 +1,47 @@
 <script lang="ts">
+    import type { Book } from "epubjs";
+    import type { AnnotationDatabaseEntry } from "src/backend";
+    import { generateMarkdown } from "src/structure/markdown";
+    import { SectionedToC } from "src/structure/sectionedToc";
     import { clickOutside } from "src/utils";
+    import { save } from "@tauri-apps/api/dialog";
+    import { writeTextFile } from "@tauri-apps/api/fs";
+
+    export let epub: Book;
+    export let annotations: AnnotationDatabaseEntry[];
 
     let menuOpen = false;
+
+    async function saveMarkdown() {
+        const filePath = await save({
+            filters: [
+                {
+                    name: "Markdown",
+                    extensions: ["md"],
+                },
+            ],
+        });
+        if (filePath) {
+            writeTextFile(
+                filePath,
+                generateMarkdown(new SectionedToC(epub, annotations))
+            );
+        }
+    }
 </script>
 
-<div id="parent">
-    <button id="dropdown" on:click={() => (menuOpen = true)}>▼ export</button>
+<div id="parent" use:clickOutside on:clickOutside={() => (menuOpen = false)}>
+    <button id="dropdown" on:click={() => (menuOpen = !menuOpen)}
+        >{menuOpen ? "▲" : "▼"} export</button
+    >
     {#if menuOpen}
-        <menu use:clickOutside on:clickOutside={() => (menuOpen = false)}>
-            <menuitem>Markdown</menuitem>
+        <menu>
+            <menuitem
+                on:click={() => {
+                    menuOpen = false;
+                    saveMarkdown();
+                }}>Markdown</menuitem
+            >
         </menu>
     {/if}
 </div>

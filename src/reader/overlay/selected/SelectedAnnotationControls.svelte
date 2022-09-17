@@ -52,6 +52,11 @@
             clipboard.writeText(makeAnnotationURL(selectedAnnotation));
         }}>URL</button
     >
+    <button
+        on:click={() => {
+            clipboard.writeText(selectedAnnotation.textContent);
+        }}>Copy</button
+    >
 </div>
 
 <style>
