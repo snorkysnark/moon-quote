@@ -31,7 +31,7 @@ function docToString(xmlDoc: XMLDocument) {
 function navItemToXml(doc: XMLDocument, navItem: SectionedNavItem) {
     const chapterElement = doc.createElement("chapter");
     chapterElement.setAttribute("href", navItem.content.href);
-    chapterElement.textContent = navItem.content.label.trim();
+    chapterElement.setAttribute("label", navItem.content.label.trim());
 
     if (navItem.children) {
         for (const child of navItem.children) {
