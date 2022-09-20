@@ -88,6 +88,18 @@ export class SectionedToC {
                 }
                 lastNavItem = currentNavItem;
             }
+            // Sections after the last chapter
+            for (
+                let currentPos = lastNavItem.extra.spinePos;
+                currentPos < spineItems.length;
+                currentPos++
+            ) {
+                lastNavItem.extra.sections.push({
+                    section: spineItems[currentPos],
+                    spinePos: currentPos,
+                    annotations: [],
+                });
+            }
         }
 
         const annotationsBySpinePos = mapAnnotationsBySpinePos(annotations);
