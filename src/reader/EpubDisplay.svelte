@@ -20,6 +20,7 @@
     import type { Book, Contents, Rendition } from "epubjs";
     import type { AnnotationDatabaseEntry } from "src/backend";
     import { createEventDispatcher, onMount, setContext } from "svelte";
+    import CustomManager from "./customManager";
     import EpubOverlay from "./overlay/EpubOverlay.svelte";
     import type { NewHighlight } from "./overlay/HighlighterOverlay.svelte";
 
@@ -41,18 +42,20 @@
     }>();
 
     function onKeyDown(event: KeyboardEvent) {
-        function focusIframe() {
-            // @ts-ignore
-            const iframeView: any = rendition.views().first();
-            iframeView.iframe.focus();
-        }
-
         switch (event.key) {
+            case "PageUp":
             case "ArrowLeft":
-                controller.prev().then(focusIframe);
+                rendition.prev();
                 break;
+            case "PageDown":
             case "ArrowRight":
-                controller.next().then(focusIframe);
+                rendition.next();
+                break;
+            case "ArrowUp":
+                rendition.manager.scrollBy(0, -40, true);
+                break;
+            case "ArrowDown":
+                rendition.manager.scrollBy(0, 40, true);
                 break;
         }
     }
@@ -61,7 +64,9 @@
         rendition = book.renderTo(outerContainer, {
             height: "100%",
             width: "100%",
+            manager: CustomManager,
             flow: "scrolled-doc",
+            overflow: "hidden",
             allowScriptedContent: true, //Needed for arrow key navigation
         });
         rendition.hooks.content.register(
