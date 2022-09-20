@@ -46,28 +46,28 @@
 </script>
 
 {#if $currentMenuStore}
-    <menu
+    <div id="menu"
         bind:this={menuContainer}
         bind:clientWidth={clientWidth}
         bind:clientHeight={clientHeight}
         style={`left: ${position.x}px; top: ${position.y}px`}
     >
         {#each $currentMenuStore.items as menuItem}
-            <menuitem
+            <div class="menuitem"
                 class:disabled={menuItem.disabled === true}
                 on:click={() => {
                     if (!menuItem.disabled) onClickItem(menuItem);
-                }}>{menuItem.label}</menuitem
+                }}>{menuItem.label}</div
             >
         {/each}
-    </menu>
+    </div>
 {/if}
 <svelte:body
     on:click={(e) => onClickBody(e, false)}
     on:contextmenu={(e) => onClickBody(e, true)} />
 
 <style>
-    menu {
+    #menu {
         z-index: 10;
         position: absolute;
         display: flex;
@@ -86,7 +86,7 @@
         min-width: 100px;
     }
 
-    menuitem {
+    .menuitem {
         cursor: default;
         -webkit-user-select: none;
         -ms-user-select: none;
@@ -95,11 +95,11 @@
         padding: 0px 5px 0px 5px;
     }
 
-    menuitem:not(.disabled):hover {
+    .menuitem:not(.disabled):hover {
         background-color: lightblue;
     }
 
-    menuitem.disabled {
+    .menuitem.disabled {
         color: gray;
     }
 </style>

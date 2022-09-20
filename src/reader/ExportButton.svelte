@@ -35,14 +35,14 @@
         >{menuOpen ? "▲" : "▼"} export</button
     >
     {#if menuOpen}
-        <menu>
-            <menuitem
+        <div id="menu">
+            <div class="menuitem"
                 on:click={() => {
                     menuOpen = false;
                     saveMarkdown();
                 }}>Markdown</menuitem
             >
-        </menu>
+        </div>
     {/if}
 </div>
 
@@ -58,7 +58,7 @@
         height: 30px;
     }
 
-    menu {
+    #menu {
         margin: 0;
         padding: 5px;
         z-index: 10;
@@ -74,7 +74,7 @@
         user-select: none;
     }
 
-    menuitem:hover {
+    .menuitem:hover {
         background-color: lightblue;
     }
 </style>
