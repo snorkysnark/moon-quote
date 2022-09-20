@@ -40,6 +40,23 @@
         deleteAnnotation: AnnotationDatabaseEntry;
     }>();
 
+    function onKeyDown(event: KeyboardEvent) {
+        function focusIframe() {
+            // @ts-ignore
+            const iframeView: any = rendition.views().first();
+            iframeView.iframe.focus();
+        }
+
+        switch (event.key) {
+            case "ArrowLeft":
+                controller.prev().then(focusIframe);
+                break;
+            case "ArrowRight":
+                controller.next().then(focusIframe);
+                break;
+        }
+    }
+
     onMount(async () => {
         rendition = book.renderTo(outerContainer, {
             height: "100%",
@@ -53,6 +70,7 @@
         rendition.on("mousedown", (event: MouseEvent) => {
             dispatch("mousedown", event);
         });
+        rendition.on("keydown", onKeyDown);
         // @ts-ignore
         await rendition.display(displayTarget || 0);
 
@@ -112,6 +130,7 @@
     });
 </script>
 
+<svelte:window on:keydown={onKeyDown} />
 <div id="reader" bind:this={outerContainer}>
     <!--Only annotate when rendition fully loaded-->
     {#if innerContainer}
