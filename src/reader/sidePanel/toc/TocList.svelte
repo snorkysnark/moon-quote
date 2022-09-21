@@ -1,30 +1,33 @@
 <script lang="ts">
     import type { NavItem } from "epubjs";
+    import type { NavItemFoldable } from "src/structure/tocFoldable";
+    import type { TreeExtended } from "src/structure/tree";
     import { createEventDispatcher } from "svelte";
-    import type NavItemExtra from "src/structure/navItem";
 
-    export let items: NavItemExtra<boolean>[];
+    export let items: TreeExtended<NavItemFoldable>[];
 
     const dispatch = createEventDispatcher<{ navigate: NavItem }>();
 </script>
 
 <ul>
     {#each items as item}
-        {@const foldable = item.children !== null}
+        {@const foldable = item.subitems.length > 0}
         <li class:foldable>
             {#if foldable}
                 <button
                     class="toggle"
-                    on:click={() => (item.extra = !item.extra)}
-                    >{item.extra ? "▼" : "▶"}</button
+                    on:click={() => (item.data.isOpen = !item.data.isOpen)}
+                    >{item.data.isOpen ? "▼" : "▶"}</button
                 >
             {/if}
-            <span id="label" on:click={() => dispatch("navigate", item.content)}
-                >{item.content.label}</span
+            <span
+                id="label"
+                on:click={() => dispatch("navigate", item.data.nav)}
+                >{item.data.nav.label}</span
             >
         </li>
-        {#if item.children && item.extra}
-            <svelte:self items={item.children} on:navigate />
+        {#if foldable && item.data.isOpen}
+            <svelte:self items={item.subitems} on:navigate />
         {/if}
     {/each}
 </ul>
