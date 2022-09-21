@@ -21,6 +21,7 @@
     import type { AnnotationDatabaseEntry } from "src/backend";
     import { createEventDispatcher, onMount, setContext } from "svelte";
     import CustomManager from "./customManager";
+import CustomView from "./customView";
     import EpubOverlay from "./overlay/EpubOverlay.svelte";
     import type { NewHighlight } from "./overlay/HighlighterOverlay.svelte";
 
@@ -65,8 +66,8 @@
             height: "100%",
             width: "100%",
             manager: CustomManager,
+            view: CustomView,
             flow: "scrolled-doc",
-            overflow: "hidden",
             allowScriptedContent: true, //Needed for arrow key navigation
         });
         rendition.hooks.content.register(
