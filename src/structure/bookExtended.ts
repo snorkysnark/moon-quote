@@ -1,6 +1,7 @@
 import type { Book, NavItem } from "epubjs";
 import type Section from "epubjs/types/section";
 import type { BookDatabaseEntry } from "src/backend";
+import { iterTreesFlat } from "./tree";
 
 export interface Spine {
     spineByHref: { [href: string]: number };
@@ -8,63 +9,73 @@ export interface Spine {
     spineItems: Section[];
 }
 
-function* iterTocRecursive(chapters: NavItem[]): Generator<NavItem> {
-    for (const chapter of chapters) {
-        yield chapter;
-        if (chapter.subitems) {
-            yield* iterTocRecursive(chapter.subitems);
-        }
-    }
+export interface Chapter {
+    nav: NavItem | null;
+    sections: Section[];
 }
 
 export class BookExtended {
     epub: Book;
     dbEntry: BookDatabaseEntry;
-    chapterBySectionHref: Map<string, NavItem>;
+    chapters: Chapter[];
+    chapterByHref: Map<string, Chapter>;
 
     constructor(epub: Book, dbEntry: BookDatabaseEntry) {
         this.epub = epub;
         this.dbEntry = dbEntry;
-        this.chapterBySectionHref = this.mapSectionHrefToChapter();
-        console.log(this.chapterBySectionHref);
+        this.splitChaptersIntoSections();
     }
 
-    private mapSectionHrefToChapter() {
-        const chapterBySectionHref = new Map<string, NavItem>();
+    private splitChaptersIntoSections() {
         const spineItems = this.getSpine().spineItems;
-        const tocFlat = [...this.iterTocFlat()];
+        const navItems = [...iterTreesFlat(this.epub.navigation.toc)];
+        const chapters = [];
+        const chapterByHref = new Map<string, Chapter>();
 
-        if (tocFlat.length > 0) {
-            let lastChapter = tocFlat[0];
-
-            // Map sections that are between 2 chapters
-            for (const currentChapter of tocFlat.slice(1)) {
-                for (
-                    let spinePos = this.chapterSpinePos(lastChapter);
-                    spinePos < this.chapterSpinePos(currentChapter);
-                    spinePos++
-                ) {
-                    chapterBySectionHref.set(
-                        spineItems[spinePos].href,
-                        lastChapter
-                    );
+        if (navItems.length > 0) {
+            // sections preceding the first NavItem
+            const firstChapterPos = this.chapterSpinePos(navItems[0]);
+            if (firstChapterPos > 0) {
+                const chapter = { nav: null, sections: [] };
+                for (let pos = 0; pos < firstChapterPos; pos++) {
+                    const section = spineItems[pos];
+                    chapter.sections.push(section);
+                    chapterByHref.set(section.href, chapter);
                 }
-                lastChapter = currentChapter;
+                chapters.push(chapter);
             }
 
-            // Sections after the last chapter belong to that chapter
+            // sections between 2 NavItems
+            let lastNavItem = navItems[0];
+            for (const navItem of navItems.slice(1)) {
+                const chapter = { nav: lastNavItem, sections: [] };
+                for (
+                    let pos = this.chapterSpinePos(lastNavItem);
+                    pos < this.chapterSpinePos(navItem);
+                    pos++
+                ) {
+                    const section = spineItems[pos];
+                    chapter.sections.push(section);
+                    chapterByHref.set(section.href, chapter);
+                }
+                chapters.push(chapter);
+                lastNavItem = navItem;
+            }
+
+            // sections after the last NavItem
+            const finalChapter = { nav: lastNavItem, sections: [] };
             for (
-                let spinePos = this.chapterSpinePos(lastChapter);
-                spinePos < spineItems.length;
-                spinePos++
+                let pos = this.chapterSpinePos(lastNavItem);
+                pos < spineItems.length;
+                pos++
             ) {
-                chapterBySectionHref.set(
-                    spineItems[spinePos].href,
-                    lastChapter
-                );
+                const section = spineItems[pos];
+                finalChapter.sections.push(section);
+                chapterByHref.set(section.href, finalChapter);
             }
         }
-        return chapterBySectionHref;
+        this.chapters = chapters;
+        this.chapterByHref = chapterByHref;
     }
 
     getSpine(): Spine {
@@ -74,9 +85,5 @@ export class BookExtended {
 
     chapterSpinePos(chapter: NavItem) {
         return this.getSpine().spineByHref[chapter.href];
-    }
-
-    *iterTocFlat(): Generator<NavItem> {
-        yield* iterTocRecursive(this.epub.navigation.toc);
     }
 }

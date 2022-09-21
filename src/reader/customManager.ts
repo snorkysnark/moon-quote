@@ -6,7 +6,7 @@ export default class CustomManager extends DefaultViewManager {
         const newScrollTop = this.container.scrollTop + delta;
 
         if (newScrollTop < this.container.scrollHeight) {
-            this.scrollBy(0, delta, true);
+            this.scrollBy(0, delta, false);
         } else {
             super.next();
         }
@@ -16,9 +16,13 @@ export default class CustomManager extends DefaultViewManager {
         const delta = -this.container.clientHeight;
 
         if (this.container.scrollTop > 0) {
-            this.scrollBy(0, delta, true);
+            this.scrollBy(0, delta, false);
         } else {
             super.prev();
         }
+    }
+
+    scrollToBottom() {
+        this.scrollBy(0, this.container.scrollHeight, true);
     }
 }

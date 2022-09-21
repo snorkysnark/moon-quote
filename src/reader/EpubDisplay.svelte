@@ -44,6 +44,26 @@
     }>();
 
     function onKeyDown(event: KeyboardEvent) {
+        function toBeginningOfChapter() {
+            const chapter = book.chapterByHref.get(
+                rendition.location.start.href
+            );
+            if (chapter.sections.length > 0) {
+                rendition.display(chapter.sections[0].href);
+            }
+        }
+
+        function toEndOfChapter() {
+            const chapter = book.chapterByHref.get(
+                rendition.location.start.href
+            );
+            if (chapter.sections.length > 0) {
+                rendition.display(
+                    chapter.sections[chapter.sections.length - 1].href
+                ).then(() => rendition.manager.scrollToBottom());
+            }
+        }
+
         switch (event.key) {
             case "PageUp":
             case "ArrowLeft":
@@ -60,14 +80,10 @@
                 rendition.manager.scrollBy(0, 40, true);
                 break;
             case "Home":
-                const chapter = book.chapterBySectionHref.get(
-                    rendition.location.start.href
-                );
-                if (chapter) {
-                    rendition.display(chapter.href);
-                } else {
-                    rendition.display(0);
-                }
+                toBeginningOfChapter();
+                break;
+            case "End":
+                toEndOfChapter();
                 break;
         }
     }

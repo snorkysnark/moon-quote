@@ -1,5 +1,20 @@
 export interface Tree {
-    subitems?: Tree[];
+    subitems?: this[];
+}
+
+export function* iterTreeFlat<T extends Tree>(tree: T): Generator<T> {
+    yield tree;
+    if (tree.subitems) {
+        for (const subitem of tree.subitems) {
+            yield subitem;
+        }
+    }
+}
+
+export function* iterTreesFlat<T extends Tree>(trees: T[]): Generator<T> {
+    for (const tree of trees) {
+        yield* iterTreeFlat(tree);
+    }
 }
 
 export class TreeExtended<T> {
