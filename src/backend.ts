@@ -2,8 +2,9 @@ import { invoke } from "@tauri-apps/api";
 import type { BinaryFileContents } from "@tauri-apps/api/fs";
 import type { PackagingMetadataObject } from "epubjs/types/packaging";
 import * as fs from "@tauri-apps/api/fs";
-import ePub, { Book } from "epubjs";
+import ePub from "epubjs";
 import { sortAnnotations } from "./utils";
+import { BookExtended } from "./structure/bookExtended";
 
 export interface BookDatabaseEntry {
     bookId: number;
@@ -119,10 +120,10 @@ export function deleteAnnotation(annotationId: number): Promise<void> {
     return invoke("delete_annotation", { annotationId });
 }
 
-export async function loadEpub(entry: BookDatabaseEntry): Promise<Book> {
+export async function loadEpub(entry: BookDatabaseEntry): Promise<BookExtended> {
     const file = await fs.readBinaryFile(entry.epubPath);
     const book = ePub(file.buffer);
 
     await book.ready;
-    return book;
+    return new BookExtended(book, entry);
 }

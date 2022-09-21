@@ -1,23 +1,22 @@
 <script lang="ts">
     import type {
         AnnotationDatabaseEntry,
-        BookDatabaseEntry,
     } from "src/backend";
     import * as backend from "src/backend";
     import EpubAnnotation from "./EpubAnnotation.svelte";
     import EpubDisplay, {
         type EpubDisplayController,
     } from "./EpubDisplay.svelte";
-    import type { Book, NavItem } from "epubjs";
+    import type { NavItem } from "epubjs";
     import { sidePanelRight } from "../settings";
     import SidePanel from "./sidePanel/SidePanel.svelte";
     import NavItemExtra from "src/structure/navItem";
     import type { NewHighlight } from "./overlay/HighlighterOverlay.svelte";
     import { sortAnnotations } from "src/utils";
+    import type { BookExtended } from "src/structure/bookExtended";
 
-    export let epub: Book;
+    export let book: BookExtended;
     export let annotations: AnnotationDatabaseEntry[] = [];
-    export let bookEntry: BookDatabaseEntry;
     export let goToAnnotation: AnnotationDatabaseEntry;
 
     $: if (goToAnnotation && readerController) {
@@ -30,7 +29,7 @@
     async function highlight(event: CustomEvent<NewHighlight>) {
         const { cfi, range, color } = event.detail;
         const newAnnotation = await backend.addAnnotation(
-            bookEntry.bookId,
+            book.dbEntry.bookId,
             cfi.toString(),
             range.toString(),
             color
@@ -63,7 +62,7 @@
         readerController.display(event.detail.href);
     }
 
-    let toc = NavItemExtra.createList(epub.navigation.toc, () => false);
+    let toc = NavItemExtra.createList(book.epub.navigation.toc, () => false);
     let selectedAnnotation: AnnotationDatabaseEntry = null;
     let currentSidePanel: string = null;
 </script>
@@ -86,7 +85,7 @@
         >
         <div id="readerPage" on:mousedown={clearSelectedAnnotation}>
             <EpubDisplay
-                book={epub}
+                {book}
                 {selectedAnnotation}
                 bind:controller={readerController}
                 on:highlight={highlight}

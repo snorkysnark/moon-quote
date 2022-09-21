@@ -5,19 +5,19 @@
         loadEpub,
         getAnnotationsForBook,
     } from "../backend";
-    import type { Book } from "epubjs";
     import { createEventDispatcher } from "svelte";
     import ReaderMainView from "./ReaderMainView.svelte";
     import { Loading, Window, WindowHeader } from "src/decor";
     import ExportButton from "./ExportButton.svelte";
+    import type { BookExtended } from "src/structure/bookExtended";
 
     const dispatch = createEventDispatcher<{ goBack: void }>();
 
     export let bookEntry: BookDatabaseEntry;
     export let goToAnnotation: AnnotationDatabaseEntry = null;
 
-    let epub: Book;
-    loadEpub(bookEntry).then((loaded) => (epub = loaded));
+    let book: BookExtended;
+    loadEpub(bookEntry).then((loaded) => (book = loaded));
 
     let annotations: AnnotationDatabaseEntry[];
     getAnnotationsForBook(bookEntry.bookId).then(
@@ -29,17 +29,16 @@
     <svelte:fragment slot="top">
         <button id="goBack" on:click={() => dispatch("goBack")}>←</button>
         <WindowHeader>{bookEntry.metaTitle}</WindowHeader>
-        {#if epub && annotations}
-            <ExportButton {epub} {annotations} />
+        {#if book && annotations}
+            <ExportButton book={book} {annotations} />
         {/if}
     </svelte:fragment>
 
     <svelte:fragment slot="main">
-        {#if epub && annotations}
+        {#if book && annotations}
             <ReaderMainView
-                {epub}
+                book={book}
                 bind:annotations
-                {bookEntry}
                 {goToAnnotation}
             />
         {:else}

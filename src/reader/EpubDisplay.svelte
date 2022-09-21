@@ -17,15 +17,16 @@
 </script>
 
 <script lang="ts">
-    import type { Book, Contents, Rendition } from "epubjs";
+    import type { Contents, Rendition } from "epubjs";
     import type { AnnotationDatabaseEntry } from "src/backend";
+    import type { BookExtended } from "src/structure/bookExtended";
     import { createEventDispatcher, onMount, setContext } from "svelte";
     import CustomManager from "./customManager";
-import CustomView from "./customView";
+    import CustomView from "./customView";
     import EpubOverlay from "./overlay/EpubOverlay.svelte";
     import type { NewHighlight } from "./overlay/HighlighterOverlay.svelte";
 
-    export let book: Book;
+    export let book: BookExtended;
     export let selectedAnnotation: AnnotationDatabaseEntry = null;
 
     let outerContainer: HTMLElement; // Container created by this component
@@ -58,11 +59,21 @@ import CustomView from "./customView";
             case "ArrowDown":
                 rendition.manager.scrollBy(0, 40, true);
                 break;
+            case "Home":
+                const chapter = book.chapterBySectionHref.get(
+                    rendition.location.start.href
+                );
+                if (chapter) {
+                    rendition.display(chapter.href);
+                } else {
+                    rendition.display(0);
+                }
+                break;
         }
     }
 
     onMount(async () => {
-        rendition = book.renderTo(outerContainer, {
+        rendition = book.epub.renderTo(outerContainer, {
             height: "100%",
             width: "100%",
             manager: CustomManager,

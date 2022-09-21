@@ -1,25 +1,19 @@
 <script lang="ts">
-    import type { Book } from "epubjs";
     import type { AnnotationDatabaseEntry } from "src/backend";
-    import { generateMarkdown } from "src/structure/markdown";
-    import { SectionedToC } from "src/structure/sectionedToc";
     import { clickOutside } from "src/utils";
     import { save } from "@tauri-apps/api/dialog";
     import { writeTextFile } from "@tauri-apps/api/fs";
-import { generateXml } from "src/structure/xml";
+    import type { BookExtended } from "src/structure/bookExtended";
 
-    export let epub: Book;
+    export let book: BookExtended;
     export let annotations: AnnotationDatabaseEntry[];
-
-    let sectionedToc: SectionedToC;
-    $: sectionedToc = new SectionedToC(epub, annotations);
 
     let menuOpen = false;
 
     async function exportFile(
         name: string,
         extension: string,
-        generateFn: (toc: SectionedToC) => string
+        generateFn: (book: BookExtended, annotations: AnnotationDatabaseEntry[]) => string
     ) {
         const filePath = await save({
             filters: [
@@ -30,7 +24,7 @@ import { generateXml } from "src/structure/xml";
             ],
         });
         if (filePath) {
-            writeTextFile(filePath, generateFn(sectionedToc));
+            writeTextFile(filePath, generateFn(book, annotations));
         }
     }
 </script>
@@ -41,18 +35,15 @@ import { generateXml } from "src/structure/xml";
     >
     {#if menuOpen}
         <div id="menu">
-            <div class="menuitem"
+            <div
+                class="menuitem"
                 on:click={() => {
                     menuOpen = false;
-                    exportFile("Markdown", "md", generateMarkdown);
-                }}>Markdown</div
+                    /* exportFile("XML", "xml", generateXml); */
+                }}
             >
-            <div class="menuitem"
-                on:click={() => {
-                    menuOpen = false;
-                    exportFile("XML", "xml", generateXml)
-                }}>XML</div
-            >
+                XML
+            </div>
         </div>
     {/if}
 </div>
