@@ -77,10 +77,8 @@ import CustomView from "./customView";
             dispatch("mousedown", event);
         });
         rendition.on("keydown", onKeyDown);
-        // @ts-ignore
         await rendition.display(displayTarget || 0);
 
-        // @ts-ignore: type annotations missing for DefaultViewManager
         innerContainer = rendition.manager.container;
         overlay = new EpubOverlay({
             target: innerContainer,
@@ -105,8 +103,6 @@ import CustomView from "./customView";
         },
         display: async (target) => {
             if (rendition) {
-                // @ts-ignore: Overloaded method, display(string | number)
-                // should be the same as display(string) + display(number)
                 await rendition.display(target);
             } else {
                 displayTarget = target;
