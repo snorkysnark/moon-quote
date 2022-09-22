@@ -2,9 +2,7 @@
     import type { AnnotationDatabaseEntry } from "src/backend";
     import * as backend from "src/backend";
     import EpubAnnotation from "./EpubAnnotation.svelte";
-    import EpubDisplay, {
-        type EpubDisplayController,
-    } from "./EpubDisplay.svelte";
+    import EpubDisplay from "./EpubDisplay.svelte";
     import type { NavItem } from "epubjs";
     import { sidePanelRight } from "../settings";
     import SidePanel from "./sidePanel/SidePanel.svelte";
@@ -22,7 +20,7 @@
         readerController.display(goToAnnotation.cfi);
     }
 
-    let readerController: EpubDisplayController;
+    let readerController;
 
     async function highlight(event: CustomEvent<NewHighlight>) {
         const { cfi, range, color } = event.detail;
@@ -78,7 +76,7 @@
         <!--end-->
     {/if}
     <div id="readerView">
-        <button class="navButton" on:click={() => readerController.prev()}
+        <button class="navButton" on:click={() => readerController.prevPage()}
             >←</button
         >
         <div id="readerPage" on:mousedown={clearSelectedAnnotation}>
@@ -98,7 +96,7 @@
                 {/each}
             </EpubDisplay>
         </div>
-        <button class="navButton" on:click={() => readerController.next()}
+        <button class="navButton" on:click={() => readerController.nextPage()}
             >→</button
         >
     </div>

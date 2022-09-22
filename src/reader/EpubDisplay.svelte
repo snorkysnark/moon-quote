@@ -8,18 +8,13 @@
         ) => void;
         removeAnnotation: (cfi: string) => void;
     }
-
-    export interface EpubDisplayController {
-        next: () => Promise<void>;
-        prev: () => Promise<void>;
-        display: (target: string | number) => Promise<void>;
-    }
 </script>
 
 <script lang="ts">
     import type { Contents, Rendition } from "epubjs";
     import type { AnnotationDatabaseEntry } from "src/backend";
     import type { BookExtended } from "src/structure/bookExtended";
+    import { sleep } from "src/utils";
     import { createEventDispatcher, onMount, setContext } from "svelte";
     import CustomManager from "./customManager";
     import CustomView from "./customView";
@@ -44,34 +39,15 @@
     }>();
 
     function onKeyDown(event: KeyboardEvent) {
-        function toBeginningOfChapter() {
-            const chapter = book.chapterByHref.get(
-                rendition.location.start.href
-            );
-            if (chapter.sections.length > 0) {
-                rendition.display(chapter.sections[0].href);
-            }
-        }
-
-        function toEndOfChapter() {
-            const chapter = book.chapterByHref.get(
-                rendition.location.start.href
-            );
-            if (chapter.sections.length > 0) {
-                rendition.display(
-                    chapter.sections[chapter.sections.length - 1].href
-                ).then(() => rendition.manager.scrollToBottom());
-            }
-        }
-
+        if (!rendition) return;
         switch (event.key) {
             case "PageUp":
             case "ArrowLeft":
-                rendition.prev();
+                controller.prevPage();
                 break;
             case "PageDown":
             case "ArrowRight":
-                rendition.next();
+                controller.nextPage();
                 break;
             case "ArrowUp":
                 rendition.manager.scrollBy(0, -40, true);
@@ -80,10 +56,10 @@
                 rendition.manager.scrollBy(0, 40, true);
                 break;
             case "Home":
-                toBeginningOfChapter();
+                controller.startOfChapter();
                 break;
             case "End":
-                toEndOfChapter();
+                controller.endOfChapter();
                 break;
         }
     }
@@ -121,18 +97,73 @@
     $: if (overlay) overlay.$set({ contents });
     $: if (overlay) overlay.$set({ selectedAnnotation });
 
-    export const controller: EpubDisplayController = {
+    export const controller = {
         next: async () => {
-            if (rendition) await rendition.next();
+            await rendition.next();
         },
         prev: async () => {
-            if (rendition) await rendition.prev();
+            await rendition.prev();
+            await controller.scrollToBottom();
         },
-        display: async (target) => {
+        scrollToBottom: async () => {
+            await sleep(20);
+            rendition.manager.scrollBy(
+                0,
+                rendition.manager.container.scrollHeight,
+                true
+            );
+        },
+        nextPage: async () => {
+            const container = rendition.manager.container;
+            const delta = container.clientHeight;
+            const newScrollTop = container.scrollTop + delta;
+
+            if (newScrollTop < container.scrollHeight) {
+                rendition.manager.scrollBy(0, delta, false);
+            } else {
+                controller.next();
+            }
+        },
+        prevPage: async () => {
+            const container = rendition.manager.container;
+            const delta = -container.clientHeight;
+
+            if (container.scrollTop > 0) {
+                rendition.manager.scrollBy(0, delta, false);
+            } else {
+                await controller.prev();
+            }
+        },
+        display: async (target: string | number) => {
             if (rendition) {
                 await rendition.display(target);
             } else {
                 displayTarget = target;
+            }
+        },
+        scrollUp: () => {
+            rendition.manager.scrollBy(0, -40, true);
+        },
+        scrollDown: () => {
+            rendition.manager.scrollBy(0, 40, true);
+        },
+        startOfChapter: async () => {
+            const chapter = book.chapterByHref.get(
+                rendition.location.start.href
+            );
+            if (chapter.sections.length > 0) {
+                await rendition.display(chapter.sections[0].href);
+            }
+        },
+        endOfChapter: async () => {
+            const chapter = book.chapterByHref.get(
+                rendition.location.start.href
+            );
+            if (chapter.sections.length > 0) {
+                await rendition.display(
+                    chapter.sections[chapter.sections.length - 1].href
+                );
+                await controller.scrollToBottom();
             }
         },
     };
