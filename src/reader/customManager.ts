@@ -1,6 +1,8 @@
 import DefaultViewManager from "epubjs/lib/managers/default/index";
 import type Section from "epubjs/types/section";
 import { EVENTS } from "epubjs/lib/utils/constants";
+import { extend, defer, windowBounds, isNumber } from "epubjs/lib/utils/core";
+import type View from "epubjs/types/managers/view";
 
 export default class CustomManager extends DefaultViewManager {
     prepend(section: Section, forceRight: boolean) {
@@ -27,6 +29,86 @@ export default class CustomManager extends DefaultViewManager {
         });
 
         return view.display(this.request);
+    }
+
+    display(section, target) {
+        var displaying = new defer();
+        var displayed = displaying.promise;
+
+        // Check if moving to target is needed
+        if (target === section.href || isNumber(target)) {
+            target = undefined;
+        }
+
+        // Check to make sure the section we want isn't already shown
+        var visible = this.views.find(section);
+
+        // View is already shown, just move to correct location in view
+        if (visible && section && this.layout.name !== "pre-paginated") {
+            let offset = visible.offset();
+
+            if (this.settings.direction === "ltr") {
+                this.scrollTo(offset.left, offset.top, true);
+            } else {
+                let width = visible.width();
+                this.scrollTo(offset.left + width, offset.top, true);
+            }
+
+            if (target) {
+                let offset = visible.locationOf(target);
+                let width = visible.width();
+                this.moveTo(offset, width);
+            }
+
+            displaying.resolve();
+            return displayed;
+        }
+
+        // Hide all current views
+        this.clear();
+
+        let forceRight = false;
+        if (
+            this.layout.name === "pre-paginated" &&
+            this.layout.divisor === 2 &&
+            section.properties.includes("page-spread-right")
+        ) {
+            forceRight = true;
+        }
+
+        this.add(section, forceRight)
+            .then(
+                function (view: View) {
+                    // Move to correct place within the section, if needed
+                    if (target) {
+                        view.on(EVENTS.VIEWS.RESIZED, () => {
+                            let offset = view.locationOf(target);
+                            let width = view.width();
+                            this.moveTo(offset, width);
+                        });
+                    }
+                }.bind(this),
+                (err) => {
+                    displaying.reject(err);
+                }
+            )
+            .then(
+                function () {
+                    return this.handleNextPrePaginated(
+                        forceRight,
+                        section,
+                        this.add
+                    );
+                }.bind(this)
+            )
+            .then(
+                function () {
+                    this.views.show();
+
+                    displaying.resolve();
+                }.bind(this)
+            );
+        return displayed;
     }
 
     scrollToBottom() {
