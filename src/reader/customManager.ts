@@ -3,8 +3,17 @@ import type Section from "epubjs/types/section";
 import { EVENTS } from "epubjs/lib/utils/constants";
 import { defer, isNumber } from "epubjs/lib/utils/core";
 import type View from "epubjs/types/managers/view";
+import { EventEmitter } from "@tauri-apps/api/shell";
 
 export default class CustomManager extends DefaultViewManager {
+    createView(section: Section, forceRight: boolean): View {
+        const view = super.createView(section, forceRight);
+        view.on(EVENTS.VIEWS.RESIZED, (bounds) => {
+            this.emit("viewResized", bounds);
+        });
+        return view;
+    }
+
     prepend(section: Section, forceRight: boolean) {
         var view = this.createView(section, forceRight);
 

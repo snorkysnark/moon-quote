@@ -1,4 +1,3 @@
-
 declare module "epubjs/lib/managers/default/index" {
     import type Section from "epubjs/types/section";
     import type View from "epubjs/types/managers/view";
@@ -23,9 +22,11 @@ declare module "epubjs/lib/managers/default/index" {
         updateAxis(axis, forceUpdate?);
         updateWritingMode(mode);
         display(section: Section, target: string | number);
-        moveTo(offset: { top: number, left: number }, width: number);
+        moveTo(offset: { top: number; left: number }, width: number);
         clear();
         add(section: Section, forceRight: boolean);
+        emit(type: string, ...args: any[]);
+        on(type: string, listener: EventListener);
 
         scrollBy(x: number, y: number, silent: boolean);
         scrollTo(x: number, y: number, silent: boolean);

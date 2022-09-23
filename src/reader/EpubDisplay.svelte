@@ -76,6 +76,12 @@
         rendition.hooks.content.register(
             (newContents: Contents) => (contents = newContents)
         );
+        rendition.on("started", () => {
+            rendition.manager.on("viewResized", () => {
+                // Hacky: force the overlay to refresh when iframe is resized
+                contents = contents;
+            });
+        });
         rendition.on("mousedown", (event: MouseEvent) => {
             dispatch("mousedown", event);
         });
