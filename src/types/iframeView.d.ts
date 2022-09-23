@@ -3,6 +3,7 @@ declare module "epubjs/lib/managers/views/iframe" {
 
     export default class IframeView {
         contents: Contents;
+        iframe: HTMLIFrameElement;
 
         addListeners();
         removeListeners();
