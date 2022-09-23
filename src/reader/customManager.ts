@@ -7,6 +7,7 @@ import type View from "epubjs/types/managers/view";
 export default class CustomManager extends DefaultViewManager {
     createView(section: Section, forceRight: boolean): View {
         const view = super.createView(section, forceRight);
+        // Emit an event when view is resized
         view.on(EVENTS.VIEWS.RESIZED, (bounds) => {
             this.emit("viewResized", bounds);
         });
@@ -90,6 +91,7 @@ export default class CustomManager extends DefaultViewManager {
                     // Move to correct place within the section, if needed
                     if (target) {
                         view.on(EVENTS.VIEWS.RESIZED, () => {
+                            // When the view size becomes defined, jump to location
                             let offset = view.locationOf(target as string);
                             let width = view.width();
                             this.moveTo(offset, width);
