@@ -7,6 +7,8 @@ export interface Spine {
     spineByHref: { [href: string]: number };
     spineById: { [idref: string]: number };
     spineItems: Section[];
+
+    get(target: string | number): Section;
 }
 
 export interface Chapter {
@@ -84,6 +86,7 @@ export class BookExtended {
     }
 
     chapterSpinePos(chapter: NavItem) {
-        return this.getSpine().spineByHref[chapter.href];
+        const section = this.getSpine().get(chapter.href);
+        return this.getSpine().spineById[section.idref];
     }
 }
