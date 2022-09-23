@@ -3,7 +3,6 @@ import type Section from "epubjs/types/section";
 import { EVENTS } from "epubjs/lib/utils/constants";
 import { defer, isNumber } from "epubjs/lib/utils/core";
 import type View from "epubjs/types/managers/view";
-import { EventEmitter } from "@tauri-apps/api/shell";
 
 export default class CustomManager extends DefaultViewManager {
     createView(section: Section, forceRight: boolean): View {
