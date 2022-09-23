@@ -1,7 +1,7 @@
 import DefaultViewManager from "epubjs/lib/managers/default/index";
 import type Section from "epubjs/types/section";
 import { EVENTS } from "epubjs/lib/utils/constants";
-import { extend, defer, windowBounds, isNumber } from "epubjs/lib/utils/core";
+import { defer, isNumber } from "epubjs/lib/utils/core";
 import type View from "epubjs/types/managers/view";
 
 export default class CustomManager extends DefaultViewManager {
@@ -31,7 +31,7 @@ export default class CustomManager extends DefaultViewManager {
         return view.display(this.request);
     }
 
-    display(section, target) {
+    display(section: Section, target: string | number) {
         var displaying = new defer();
         var displayed = displaying.promise;
 
@@ -82,7 +82,7 @@ export default class CustomManager extends DefaultViewManager {
                     // Move to correct place within the section, if needed
                     if (target) {
                         view.on(EVENTS.VIEWS.RESIZED, () => {
-                            let offset = view.locationOf(target);
+                            let offset = view.locationOf(target as string);
                             let width = view.width();
                             this.moveTo(offset, width);
                         });
