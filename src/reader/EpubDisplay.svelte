@@ -14,8 +14,8 @@
     import type { Contents, Rendition } from "epubjs";
     import type { AnnotationDatabaseEntry } from "src/backend";
     import type { BookExtended } from "src/structure/bookExtended";
-    import { sleep } from "src/utils";
     import { createEventDispatcher, onMount, setContext } from "svelte";
+    import type { RenditionController } from "./controller";
     import CustomManager from "./customManager";
     import CustomView from "./customView";
     import EpubOverlay from "./overlay/EpubOverlay.svelte";
@@ -50,10 +50,10 @@
                 controller.nextPage();
                 break;
             case "ArrowUp":
-                rendition.manager.scrollBy(0, -40, true);
+                controller.scrollUp();
                 break;
             case "ArrowDown":
-                rendition.manager.scrollBy(0, 40, true);
+                controller.scrollDown();
                 break;
             case "Home":
                 controller.startOfChapter();
@@ -103,20 +103,12 @@
     $: if (overlay) overlay.$set({ contents });
     $: if (overlay) overlay.$set({ selectedAnnotation });
 
-    export const controller = {
+    export const controller: RenditionController = {
         next: async () => {
             await rendition.next();
         },
         prev: async () => {
             await rendition.prev();
-        },
-        scrollToBottom: async () => {
-            await sleep(20);
-            rendition.manager.scrollBy(
-                0,
-                rendition.manager.container.scrollHeight,
-                true
-            );
         },
         nextPage: async () => {
             const container = rendition.manager.container;
@@ -126,7 +118,7 @@
             if (newScrollTop < container.scrollHeight) {
                 rendition.manager.scrollBy(0, delta, false);
             } else {
-                controller.next();
+                await controller.next();
             }
         },
         prevPage: async () => {
@@ -152,25 +144,8 @@
         scrollDown: () => {
             rendition.manager.scrollBy(0, 40, true);
         },
-        startOfChapter: async () => {
-            const chapter = book.chapterByHref.get(
-                rendition.location.start.href
-            );
-            if (chapter.sections.length > 0) {
-                await rendition.display(chapter.sections[0].href);
-            }
-        },
-        endOfChapter: async () => {
-            const chapter = book.chapterByHref.get(
-                rendition.location.start.href
-            );
-            if (chapter.sections.length > 0) {
-                await rendition.display(
-                    chapter.sections[chapter.sections.length - 1].href
-                );
-                await controller.scrollToBottom();
-            }
-        },
+        startOfChapter: async () => {},
+        endOfChapter: async () => {},
     };
 
     setContext<EpubDisplayContext>("EpubDisplay", {

@@ -10,6 +10,7 @@
     import { sortAnnotations } from "src/utils";
     import type { BookExtended } from "src/structure/bookExtended";
     import { makeFoldable } from "src/structure/tocFoldable";
+    import type { RenditionController } from "./controller";
 
     export let book: BookExtended;
     export let annotations: AnnotationDatabaseEntry[] = [];
@@ -20,7 +21,7 @@
         readerController.display(goToAnnotation.cfi);
     }
 
-    let readerController;
+    let readerController: RenditionController;
 
     async function highlight(event: CustomEvent<NewHighlight>) {
         const { cfi, range, color } = event.detail;
