@@ -103,7 +103,6 @@
         },
         prev: async () => {
             await rendition.prev();
-            await controller.scrollToBottom();
         },
         scrollToBottom: async () => {
             await sleep(20);
