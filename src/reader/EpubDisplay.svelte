@@ -139,10 +139,10 @@
             }
         },
         scrollUp: () => {
-            rendition.manager.scrollBy(0, -20, true);
+            rendition.manager.scrollBy(0, -20, false);
         },
         scrollDown: () => {
-            rendition.manager.scrollBy(0, 20, true);
+            rendition.manager.scrollBy(0, 20, false);
         },
         startOfChapter: async () => {
             console.log(book.getChapter(rendition.location)?.nav);
