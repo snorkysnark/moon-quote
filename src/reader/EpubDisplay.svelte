@@ -144,7 +144,9 @@
         scrollDown: () => {
             rendition.manager.scrollBy(0, 20, true);
         },
-        startOfChapter: async () => {},
+        startOfChapter: async () => {
+            console.log(book.getChapter(rendition.location)?.nav);
+        },
         endOfChapter: async () => {},
     };
 

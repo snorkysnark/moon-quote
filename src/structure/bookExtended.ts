@@ -1,6 +1,7 @@
-import type { Book, NavItem } from "epubjs";
+import type { Book, Location, NavItem } from "epubjs";
 import type Section from "epubjs/types/section";
 import type { BookDatabaseEntry } from "src/backend";
+import { compareCfi } from "src/utils";
 import { iterTreesFlat } from "./tree";
 
 export interface Spine {
@@ -48,6 +49,19 @@ export class BookExtended {
             this.chapters.push(chapter);
         }
         return this;
+    }
+
+    getChapter(location: Location): Chapter {
+        const cfi = location.start.cfi;
+
+        let lastChapter = null;
+        for (const chapter of this.chapters) {
+            if (compareCfi(chapter.headerCfi, cfi) > 0) {
+                return lastChapter;
+            }
+            lastChapter = chapter;
+        }
+        return lastChapter;
     }
 
     getSpine(): Spine {

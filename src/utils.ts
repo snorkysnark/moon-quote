@@ -48,7 +48,7 @@ export function clickOutside(node: HTMLElement) {
 }
 
 // No idea why EpubCFI.compare isn't a static method
-const compareCfi = new EpubCFI().compare;
+export const compareCfi = new EpubCFI().compare;
 
 export function sortAnnotations(annotations: AnnotationDatabaseEntry[]) {
     annotations.sort((a, b) => compareCfi(a.cfi, b.cfi));
