@@ -145,7 +145,9 @@
             rendition.manager.scrollBy(0, 20, false);
         },
         startOfChapter: async () => {
-            console.log(book.getChapter(rendition.location)?.nav);
+            const chapter = book.getChapter(rendition.location);
+            const target = chapter ? chapter.nav.href : 0;
+            await rendition.display(target);
         },
         endOfChapter: async () => {},
     };
