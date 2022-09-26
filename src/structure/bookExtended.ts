@@ -12,81 +12,46 @@ export interface Spine {
 }
 
 export interface Chapter {
-    nav: NavItem | null;
-    sections: Section[];
+    nav: NavItem;
+    headerCfi: string;
 }
 
 export class BookExtended {
     epub: Book;
     dbEntry: BookDatabaseEntry;
     chapters: Chapter[];
-    chapterByHref: Map<string, Chapter>;
+    ready: Promise<BookExtended>;
 
     constructor(epub: Book, dbEntry: BookDatabaseEntry) {
         this.epub = epub;
         this.dbEntry = dbEntry;
-        this.splitChaptersIntoSections();
+        this.ready = this.findChapterHeaders();
     }
 
-    private splitChaptersIntoSections() {
-        const spineItems = this.getSpine().spineItems;
-        const navItems = [...iterTreesFlat(this.epub.navigation.toc)];
-        const chapters = [];
-        const chapterByHref = new Map<string, Chapter>();
+    private async findChapterHeaders() {
+        this.chapters = [];
 
-        if (navItems.length > 0) {
-            // sections preceding the first NavItem
-            const firstChapterPos = this.chapterSpinePos(navItems[0]);
-            if (firstChapterPos > 0) {
-                const chapter = { nav: null, sections: [] };
-                for (let pos = 0; pos < firstChapterPos; pos++) {
-                    const section = spineItems[pos];
-                    chapter.sections.push(section);
-                    chapterByHref.set(section.href, chapter);
-                }
-                chapters.push(chapter);
-            }
+        for (const navItem of iterTreesFlat(this.epub.navigation.toc)) {
+            const [sectionHref, headerId] = navItem.href.split("#");
+            const section = this.getSpine().get(sectionHref);
+            await section.load((path: string) => this.epub.load(path));
 
-            // sections between 2 NavItems
-            let lastNavItem = navItems[0];
-            for (const navItem of navItems.slice(1)) {
-                const chapter = { nav: lastNavItem, sections: [] };
-                for (
-                    let pos = this.chapterSpinePos(lastNavItem);
-                    pos < this.chapterSpinePos(navItem);
-                    pos++
-                ) {
-                    const section = spineItems[pos];
-                    chapter.sections.push(section);
-                    chapterByHref.set(section.href, chapter);
-                }
-                chapters.push(chapter);
-                lastNavItem = navItem;
-            }
+            const header = headerId
+                ? section.document.getElementById(headerId)
+                : section.document.body;
 
-            // sections after the last NavItem
-            const finalChapter = { nav: lastNavItem, sections: [] };
-            for (
-                let pos = this.chapterSpinePos(lastNavItem);
-                pos < spineItems.length;
-                pos++
-            ) {
-                const section = spineItems[pos];
-                finalChapter.sections.push(section);
-                chapterByHref.set(section.href, finalChapter);
-            }
+            const chapter = {
+                nav: navItem,
+                headerCfi: section.cfiFromElement(header),
+            };
+
+            this.chapters.push(chapter);
         }
-        this.chapters = chapters;
-        this.chapterByHref = chapterByHref;
+        return this;
     }
 
     getSpine(): Spine {
         // @ts-ignore: book.spine has wrong type definition
         return this.epub.spine;
-    }
-
-    chapterSpinePos(chapter: NavItem) {
-        const section = this.getSpine().get(chapter.href);
-        return this.getSpine().spineById[section.idref];
     }
 }

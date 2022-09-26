@@ -2,7 +2,7 @@ import { invoke } from "@tauri-apps/api";
 import type { BinaryFileContents } from "@tauri-apps/api/fs";
 import type { PackagingMetadataObject } from "epubjs/types/packaging";
 import * as fs from "@tauri-apps/api/fs";
-import ePub from "epubjs";
+import ePub, { Book } from "epubjs";
 import { sortAnnotations } from "./utils";
 import { BookExtended } from "./structure/bookExtended";
 
@@ -125,5 +125,8 @@ export async function loadEpub(entry: BookDatabaseEntry): Promise<BookExtended> 
     const book = ePub(file.buffer);
 
     await book.ready;
-    return new BookExtended(book, entry);
+    const bookExtended = new BookExtended(book, entry);
+    await bookExtended.ready;
+
+    return bookExtended;
 }
