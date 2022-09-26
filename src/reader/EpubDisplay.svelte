@@ -139,10 +139,10 @@
             }
         },
         scrollUp: () => {
-            rendition.manager.scrollBy(0, -40, true);
+            rendition.manager.scrollBy(0, -20, true);
         },
         scrollDown: () => {
-            rendition.manager.scrollBy(0, 40, true);
+            rendition.manager.scrollBy(0, 20, true);
         },
         startOfChapter: async () => {},
         endOfChapter: async () => {},
