@@ -59,7 +59,7 @@
                 controller.startOfChapter();
                 break;
             case "End":
-                controller.endOfChapter();
+                controller.nextChapter();
                 break;
         }
     }
@@ -149,7 +149,21 @@
             const target = chapter ? chapter.nav.href : 0;
             await rendition.display(target);
         },
-        endOfChapter: async () => {},
+        nextChapter: async () => {
+            const currentChapter = book.getChapter(rendition.location);
+            if (currentChapter) {
+                if (currentChapter.next) {
+                    await rendition.display(currentChapter.next.nav.href);
+                } else {
+                    // End of book
+                }
+            } else {
+                const first = book.chapters[0];
+                if (first) {
+                    await rendition.display(first.nav.href);
+                }
+            }
+        },
     };
 
     setContext<EpubDisplayContext>("EpubDisplay", {

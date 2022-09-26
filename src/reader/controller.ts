@@ -7,5 +7,5 @@ export interface RenditionController {
     scrollUp: () => void;
     scrollDown: () => void;
     startOfChapter: () => Promise<void>;
-    endOfChapter: () => Promise<void>;
+    nextChapter: () => Promise<void>;
 }

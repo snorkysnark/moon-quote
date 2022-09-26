@@ -15,6 +15,8 @@ export interface Spine {
 export interface Chapter {
     nav: NavItem;
     headerCfi: string;
+    prev: Chapter;
+    next: Chapter;
 }
 
 export class BookExtended {
@@ -44,9 +46,16 @@ export class BookExtended {
             const chapter = {
                 nav: navItem,
                 headerCfi: section.cfiFromElement(header),
+                prev: null,
+                next: null,
             };
 
             this.chapters.push(chapter);
+        }
+
+        for (const [index, chapter] of this.chapters.entries()) {
+            chapter.prev = this.chapters[index - 1] || null;
+            chapter.next = this.chapters[index + 1] || null;
         }
         return this;
     }
