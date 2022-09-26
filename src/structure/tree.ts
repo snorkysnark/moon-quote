@@ -6,7 +6,7 @@ export function* iterTreeFlat<T extends Tree>(tree: T): Generator<T> {
     yield tree;
     if (tree.subitems) {
         for (const subitem of tree.subitems) {
-            yield subitem;
+            yield* iterTreeFlat(subitem);
         }
     }
 }
