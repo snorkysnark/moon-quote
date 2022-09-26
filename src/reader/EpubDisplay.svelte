@@ -40,6 +40,7 @@
 
     function onKeyDown(event: KeyboardEvent) {
         if (!rendition) return;
+        console.log(event);
         switch (event.key) {
             case "PageUp":
             case "ArrowLeft":
@@ -56,10 +57,18 @@
                 controller.scrollDown();
                 break;
             case "Home":
-                controller.startOfChapter();
+                if (event.ctrlKey) {
+                    controller.startOfBook();
+                } else {
+                    controller.startOfChapter();
+                }
                 break;
             case "End":
-                controller.nextChapter();
+                if (event.ctrlKey) {
+                    controller.endOfBook();
+                } else {
+                    controller.nextChapter();
+                }
                 break;
         }
     }
@@ -155,7 +164,7 @@
                 if (currentChapter.next) {
                     await rendition.display(currentChapter.next.nav.href);
                 } else {
-                    // End of book
+                    await controller.endOfBook();
                 }
             } else {
                 const first = book.chapters[0];
@@ -163,6 +172,13 @@
                     await rendition.display(first.nav.href);
                 }
             }
+        },
+        startOfBook: async () => {
+            await rendition.display(0);
+        },
+        endOfBook: async () => {
+            await rendition.display(book.getSpine().spineItems.length - 1);
+            rendition.manager.scrollToBottom();
         },
     };
 

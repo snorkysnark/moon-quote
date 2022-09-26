@@ -8,4 +8,6 @@ export interface RenditionController {
     scrollDown: () => void;
     startOfChapter: () => Promise<void>;
     nextChapter: () => Promise<void>;
+    startOfBook: () => Promise<void>;
+    endOfBook: () => Promise<void>;
 }

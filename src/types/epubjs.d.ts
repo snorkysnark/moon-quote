@@ -1,10 +1,10 @@
 import "epubjs";
 
 declare module "epubjs" {
-    import type DefaultViewManager from "epubjs/lib/managers/default/index";
+    import type CustomManager from "src/reader/customManager";
 
     export class Rendition {
-        manager: DefaultViewManager;
+        manager: CustomManager;
 
         display(target?: string | number): Promise<void>;
     }
