@@ -26,7 +26,10 @@
         <ReaderWindow
             bookEntry={currentBook}
             {goToAnnotation}
-            on:goBack={() => (currentBook = null)}
+            on:goBack={() => {
+                currentBook = null;
+                goToAnnotation = null;
+            }}
         />
     {/key}
 {:else}
