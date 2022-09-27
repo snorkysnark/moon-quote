@@ -69,9 +69,10 @@
 
     #menu {
         margin: 0;
-        padding: 5px;
+        padding: 5px 0;
         z-index: 10;
         right: 0;
+        min-width: 65px;
         position: absolute;
         background-color: white;
         border: solid;
@@ -81,6 +82,10 @@
         -webkit-user-select: none;
         -ms-user-select: none;
         user-select: none;
+    }
+
+    .menuitem {
+        padding: 0 5px;
     }
 
     .menuitem:hover {
