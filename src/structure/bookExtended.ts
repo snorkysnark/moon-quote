@@ -1,6 +1,6 @@
-import type { Book, Location, NavItem } from "epubjs";
+import type { Book, NavItem } from "epubjs";
 import type Section from "epubjs/types/section";
-import type { BookDatabaseEntry } from "src/backend";
+import type { AnnotationDatabaseEntry, BookDatabaseEntry } from "src/backend";
 import { compareCfi } from "src/utils";
 import { TreeExtended } from "./tree";
 
@@ -17,6 +17,16 @@ export interface Chapter {
     headerCfi: string;
     prev: TreeExtended<Chapter>;
     next: TreeExtended<Chapter>;
+}
+
+export interface AnnotatedChapter {
+    nav: NavItem;
+    annotations: AnnotationDatabaseEntry[];
+}
+
+export interface AnnotatedToc {
+    preceding: AnnotationDatabaseEntry[];
+    chapters: TreeExtended<AnnotatedChapter>[];
 }
 
 export class BookExtended {
@@ -61,9 +71,7 @@ export class BookExtended {
         return this;
     }
 
-    getChapter(location: Location): TreeExtended<Chapter> {
-        const cfi = location.start.cfi;
-
+    getChapter(cfi: string): TreeExtended<Chapter> {
         let lastChapter: TreeExtended<Chapter> = null;
         for (const chapter of this.chaptersFlat) {
             if (compareCfi(chapter.data.headerCfi, cfi) > 0) {
@@ -72,6 +80,40 @@ export class BookExtended {
             lastChapter = chapter;
         }
         return lastChapter;
+    }
+
+    applyAnnotations(annotations: AnnotationDatabaseEntry[]): AnnotatedToc {
+        const preceding = [];
+        const annotationsByChapter = new Map<
+            TreeExtended<Chapter>,
+            AnnotationDatabaseEntry[]
+        >();
+
+        for (const annotation of annotations) {
+            const chapter = this.getChapter(annotation.cfi);
+            if (chapter) {
+                if (!annotationsByChapter.has(chapter)) {
+                    annotationsByChapter.set(chapter, []);
+                }
+                annotationsByChapter.get(chapter).push(annotation);
+            } else {
+                preceding.push(annotation);
+            }
+        }
+
+        const chapters = TreeExtended.mapTreeAll(
+            this.chapters,
+            (chapter: TreeExtended<Chapter>) => {
+                return {
+                    nav: chapter.data.nav,
+                    annotations: annotationsByChapter.get(chapter) || [],
+                };
+            }
+        );
+        return {
+            preceding,
+            chapters,
+        };
     }
 
     getSpine(): Spine {

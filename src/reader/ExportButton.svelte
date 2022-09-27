@@ -3,17 +3,24 @@
     import { clickOutside } from "src/utils";
     import { save } from "@tauri-apps/api/dialog";
     import { writeTextFile } from "@tauri-apps/api/fs";
-    import type { BookExtended } from "src/structure/bookExtended";
+    import type {
+        AnnotatedToc,
+        BookExtended,
+    } from "src/structure/bookExtended";
+    import { generateXml } from "src/structure/xml";
 
     export let book: BookExtended;
     export let annotations: AnnotationDatabaseEntry[];
+
+    let annotatedToc: AnnotatedToc;
+    $: annotatedToc = book.applyAnnotations(annotations);
 
     let menuOpen = false;
 
     async function exportFile(
         name: string,
         extension: string,
-        generateFn: (book: BookExtended, annotations: AnnotationDatabaseEntry[]) => string
+        generateFn: (annotatedToc: AnnotatedToc) => string
     ) {
         const filePath = await save({
             filters: [
@@ -24,7 +31,7 @@
             ],
         });
         if (filePath) {
-            writeTextFile(filePath, generateFn(book, annotations));
+            writeTextFile(filePath, generateFn(annotatedToc));
         }
     }
 </script>
@@ -39,7 +46,7 @@
                 class="menuitem"
                 on:click={() => {
                     menuOpen = false;
-                    /* exportFile("XML", "xml", generateXml); */
+                    exportFile("XML", "xml", generateXml);
                 }}
             >
                 XML

@@ -1,10 +1,7 @@
+import type { AnnotationDatabaseEntry } from "src/backend";
 import { makeAnnotationURL } from "src/deeplink";
-import NavItemExtra from "./navItem";
-import type {
-    AnnotatedSection,
-    SectionedNavItem,
-    SectionedToC,
-} from "./sectionedToc";
+import type { AnnotatedChapter, AnnotatedToc } from "./bookExtended";
+import type { TreeExtended } from "./tree";
 
 const DEFAULT_XSLT = new DOMParser().parseFromString(
     `\
@@ -28,66 +25,48 @@ function docToString(xmlDoc: XMLDocument) {
     return new XMLSerializer().serializeToString(prettyDoc);
 }
 
-function navItemToXml(doc: XMLDocument, navItem: SectionedNavItem) {
-    const chapterElement = doc.createElement("chapter");
-    chapterElement.setAttribute("href", navItem.content.href);
-    chapterElement.setAttribute("label", navItem.content.label.trim());
+function annotationToXml(
+    doc: XMLDocument,
+    annotation: AnnotationDatabaseEntry
+) {
+    const annotationElement = doc.createElement("annotation");
+    annotationElement.setAttribute("url", makeAnnotationURL(annotation));
+    annotationElement.textContent = annotation.textContent.trim();
 
-    if (navItem.children) {
-        for (const child of navItem.children) {
-            const childElement = navItemToXml(doc, child);
-            chapterElement.appendChild(childElement);
+    return annotationElement;
+}
+
+function chapterToXml(
+    doc: XMLDocument,
+    chapter: TreeExtended<AnnotatedChapter>
+) {
+    const chapterElement = doc.createElement("chapter");
+    chapterElement.setAttribute("label", chapter.data.nav.label.trim());
+
+    for (const annotation of chapter.data.annotations) {
+        chapterElement.appendChild(annotationToXml(doc, annotation));
+    }
+
+    if (chapter.subitems) {
+        for (const child of chapter.subitems) {
+            chapterElement.appendChild(chapterToXml(doc, child));
         }
     }
     return chapterElement;
 }
 
-function sectionToXml(
-    doc: XMLDocument,
-    section: AnnotatedSection,
-    parentHref?: string
-) {
-    const sectionElement = doc.createElement("section");
-    sectionElement.setAttribute("href", section.section.href);
-    if (parentHref) {
-        sectionElement.setAttribute("parentHref", parentHref);
+export function generateXml(toc: AnnotatedToc) {
+    const doc = document.implementation.createDocument(null, "root", null);
+    const root = doc.documentElement;
+
+    // preceding annotations
+    for (const annotation of toc.preceding) {
+        root.appendChild(annotationToXml(doc, annotation));
     }
 
-    for (const annotation of section.annotations) {
-        const annotationElement = doc.createElement("annotation");
-        annotationElement.setAttribute("url", makeAnnotationURL(annotation));
-        annotationElement.textContent = annotation.textContent.trim();
-
-        sectionElement.appendChild(annotationElement);
-    }
-    return sectionElement;
-}
-
-export function generateXml(structure: SectionedToC) {
-    const xmlDoc = document.implementation.createDocument(null, "root", null);
-
-    const tocElement = xmlDoc.createElement("toc");
-    xmlDoc.documentElement.appendChild(tocElement);
-
-    const spineElement = xmlDoc.createElement("spine");
-    xmlDoc.documentElement.appendChild(spineElement);
-
-    for (const navItem of structure.toc) {
-        tocElement.appendChild(navItemToXml(xmlDoc, navItem));
+    for (const chapter of toc.chapters) {
+        root.appendChild(chapterToXml(doc, chapter));
     }
 
-    // preceding sections
-    for (const section of structure.preciding) {
-        spineElement.appendChild(sectionToXml(xmlDoc, section));
-    }
-    // sections inside chapters
-    for (const navItem of NavItemExtra.iterEachRecursive(structure.toc)) {
-        for (const section of navItem.extra.sections) {
-            spineElement.appendChild(
-                sectionToXml(xmlDoc, section, navItem.content.href)
-            );
-        }
-    }
-
-    return docToString(xmlDoc);
+    return docToString(doc);
 }

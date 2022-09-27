@@ -40,7 +40,6 @@
 
     function onKeyDown(event: KeyboardEvent) {
         if (!rendition) return;
-        console.log(event);
         switch (event.key) {
             case "PageUp":
             case "ArrowLeft":
@@ -154,12 +153,12 @@
             rendition.manager.scrollBy(0, 20, false);
         },
         startOfChapter: async () => {
-            const chapter = book.getChapter(rendition.location);
+            const chapter = book.getChapter(rendition.location.start.cfi);
             const target = chapter ? chapter.data.nav.href : 0;
             await rendition.display(target);
         },
         nextChapter: async () => {
-            const currentChapter = book.getChapter(rendition.location)?.data;
+            const currentChapter = book.getChapter(rendition.location.start.cfi)?.data;
             if (currentChapter) {
                 if (currentChapter.next) {
                     await rendition.display(currentChapter.next.data.nav.href);
