@@ -20,7 +20,7 @@ export interface Chapter {
 }
 
 export interface AnnotationInChapter {
-    chapterHref: string;
+    chapterId: string;
     data: AnnotationDatabaseEntry;
 }
 
@@ -84,7 +84,7 @@ export class BookExtended {
             const chapter = this.getChapter(annotation.cfi);
 
             return {
-                chapterHref: chapter ? chapter.data.nav.href : null,
+                chapterId: chapter ? chapter.data.nav.id : null,
                 data: annotation,
             };
         });

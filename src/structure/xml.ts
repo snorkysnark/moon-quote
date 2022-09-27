@@ -29,8 +29,8 @@ function annotationToXml(doc: XMLDocument, annotation: AnnotationInChapter) {
     annotationElement.setAttribute("url", makeAnnotationURL(annotation.data));
     annotationElement.textContent = annotation.data.textContent.trim();
 
-    if (annotation.chapterHref) {
-        annotationElement.setAttribute("chapter", annotation.chapterHref);
+    if (annotation.chapterId) {
+        annotationElement.setAttribute("chapter", annotation.chapterId);
     }
 
     return annotationElement;
@@ -39,7 +39,7 @@ function annotationToXml(doc: XMLDocument, annotation: AnnotationInChapter) {
 function navItemToXml(doc: XMLDocument, chapter: NavItem) {
     const chapterElement = doc.createElement("chapter");
     chapterElement.setAttribute("label", chapter.label.trim());
-    chapterElement.setAttribute("href", chapter.href);
+    chapterElement.setAttribute("id", chapter.id);
 
     if (chapter.subitems) {
         for (const child of chapter.subitems) {
