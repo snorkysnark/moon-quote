@@ -90,11 +90,10 @@ export default class CustomManager extends DefaultViewManager {
                 function (view: View) {
                     // Move to correct place within the section, if needed
                     if (target) {
+                        this.moveToTarget(view, target as string);
+
                         view.on(EVENTS.VIEWS.RESIZED, () => {
-                            // When the view size becomes defined, jump to location
-                            let offset = view.locationOf(target as string);
-                            let width = view.width();
-                            this.moveTo(offset, width);
+                            this.moveToTarget(view, target as string);
                         });
                     }
                 }.bind(this),
@@ -119,6 +118,12 @@ export default class CustomManager extends DefaultViewManager {
                 }.bind(this)
             );
         return displayed;
+    }
+
+    private moveToTarget(view: View, target: string) {
+        let offset = view.locationOf(target as string);
+        let width = view.width();
+        this.moveTo(offset, width);
     }
 
     scrollToBottom() {
