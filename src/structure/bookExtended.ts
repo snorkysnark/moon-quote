@@ -19,14 +19,9 @@ export interface Chapter {
     next: TreeExtended<Chapter>;
 }
 
-export interface AnnotatedChapter {
-    nav: NavItem;
-    annotations: AnnotationDatabaseEntry[];
-}
-
-export interface AnnotatedToc {
-    preceding: AnnotationDatabaseEntry[];
-    chapters: TreeExtended<AnnotatedChapter>[];
+export interface AnnotationInChapter {
+    chapterHref: string;
+    data: AnnotationDatabaseEntry;
 }
 
 export class BookExtended {
@@ -82,38 +77,17 @@ export class BookExtended {
         return lastChapter;
     }
 
-    applyAnnotations(annotations: AnnotationDatabaseEntry[]): AnnotatedToc {
-        const preceding = [];
-        const annotationsByChapter = new Map<
-            TreeExtended<Chapter>,
-            AnnotationDatabaseEntry[]
-        >();
-
-        for (const annotation of annotations) {
+    findChaptersForAnnotations(
+        annotations: AnnotationDatabaseEntry[]
+    ): AnnotationInChapter[] {
+        return annotations.map((annotation) => {
             const chapter = this.getChapter(annotation.cfi);
-            if (chapter) {
-                if (!annotationsByChapter.has(chapter)) {
-                    annotationsByChapter.set(chapter, []);
-                }
-                annotationsByChapter.get(chapter).push(annotation);
-            } else {
-                preceding.push(annotation);
-            }
-        }
 
-        const chapters = TreeExtended.mapTreeAll(
-            this.chapters,
-            (chapter: TreeExtended<Chapter>) => {
-                return {
-                    nav: chapter.data.nav,
-                    annotations: annotationsByChapter.get(chapter) || [],
-                };
-            }
-        );
-        return {
-            preceding,
-            chapters,
-        };
+            return {
+                chapterHref: chapter ? chapter.data.nav.href : null,
+                data: annotation,
+            };
+        });
     }
 
     getSpine(): Spine {

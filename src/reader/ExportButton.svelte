@@ -4,7 +4,7 @@
     import { save } from "@tauri-apps/api/dialog";
     import { writeTextFile } from "@tauri-apps/api/fs";
     import type {
-        AnnotatedToc,
+        AnnotationInChapter,
         BookExtended,
     } from "src/structure/bookExtended";
     import { generateXml } from "src/structure/xml";
@@ -12,15 +12,15 @@
     export let book: BookExtended;
     export let annotations: AnnotationDatabaseEntry[];
 
-    let annotatedToc: AnnotatedToc;
-    $: annotatedToc = book.applyAnnotations(annotations);
+    let annotationsInChapters: AnnotationInChapter[];
+    $: annotationsInChapters = book.findChaptersForAnnotations(annotations);
 
     let menuOpen = false;
 
     async function exportFile(
         name: string,
         extension: string,
-        generateFn: (annotatedToc: AnnotatedToc) => string
+        generateFn: (book: BookExtended, annotations: AnnotationInChapter[]) => string
     ) {
         const filePath = await save({
             filters: [
@@ -31,7 +31,7 @@
             ],
         });
         if (filePath) {
-            writeTextFile(filePath, generateFn(annotatedToc));
+            writeTextFile(filePath, generateFn(book, annotationsInChapters));
         }
     }
 </script>
