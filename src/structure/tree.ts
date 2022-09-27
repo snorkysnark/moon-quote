@@ -36,11 +36,34 @@ export class TreeExtended<T> {
         return new TreeExtended(newData, newSubitems);
     }
 
+    static async mapTreeAsync<T>(
+        item: Tree,
+        mapFn: (item: Tree) => Promise<T>
+    ): Promise<TreeExtended<T>> {
+        const newData = await mapFn(item);
+        const newSubitems = item.subitems
+            ? item.subitems.map((subitem) =>
+                  TreeExtended.mapTreeAsync(subitem, mapFn)
+              )
+            : [];
+        return new TreeExtended(newData, await Promise.all(newSubitems));
+    }
+
     static mapTreeAll<T>(
         items: Tree[],
         mapFn: (item: Tree) => T
     ): TreeExtended<T>[] {
         return items.map((item) => TreeExtended.mapTree(item, mapFn));
+    }
+
+    static async mapTreeAsyncAll<T>(
+        items: Tree[],
+        mapFn: (item: Tree) => Promise<T>
+    ): Promise<TreeExtended<T>[]> {
+        const promises = items.map((item) =>
+            TreeExtended.mapTreeAsync(item, mapFn)
+        );
+        return Promise.all(promises);
     }
 
     map<O>(mapFn: (data: T) => O): TreeExtended<O> {

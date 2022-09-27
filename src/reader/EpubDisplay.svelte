@@ -155,21 +155,21 @@
         },
         startOfChapter: async () => {
             const chapter = book.getChapter(rendition.location);
-            const target = chapter ? chapter.nav.href : 0;
+            const target = chapter ? chapter.data.nav.href : 0;
             await rendition.display(target);
         },
         nextChapter: async () => {
-            const currentChapter = book.getChapter(rendition.location);
+            const currentChapter = book.getChapter(rendition.location)?.data;
             if (currentChapter) {
                 if (currentChapter.next) {
-                    await rendition.display(currentChapter.next.nav.href);
+                    await rendition.display(currentChapter.next.data.nav.href);
                 } else {
                     await controller.endOfBook();
                 }
             } else {
                 const first = book.chapters[0];
                 if (first) {
-                    await rendition.display(first.nav.href);
+                    await rendition.display(first.data.nav.href);
                 }
             }
         },

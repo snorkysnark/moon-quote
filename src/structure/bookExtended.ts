@@ -2,7 +2,7 @@ import type { Book, Location, NavItem } from "epubjs";
 import type Section from "epubjs/types/section";
 import type { BookDatabaseEntry } from "src/backend";
 import { compareCfi } from "src/utils";
-import { iterTreesFlat } from "./tree";
+import { TreeExtended } from "./tree";
 
 export interface Spine {
     spineByHref: { [href: string]: number };
@@ -15,14 +15,15 @@ export interface Spine {
 export interface Chapter {
     nav: NavItem;
     headerCfi: string;
-    prev: Chapter;
-    next: Chapter;
+    prev: TreeExtended<Chapter>;
+    next: TreeExtended<Chapter>;
 }
 
 export class BookExtended {
     epub: Book;
     dbEntry: BookDatabaseEntry;
-    chapters: Chapter[];
+    chapters: TreeExtended<Chapter>[];
+    chaptersFlat: TreeExtended<Chapter>[];
     ready: Promise<BookExtended>;
 
     constructor(epub: Book, dbEntry: BookDatabaseEntry) {
@@ -32,40 +33,40 @@ export class BookExtended {
     }
 
     private async findChapterHeaders() {
-        this.chapters = [];
+        this.chapters = await TreeExtended.mapTreeAsyncAll(
+            this.epub.navigation.toc,
+            async (navItem: NavItem) => {
+                const [sectionHref, headerId] = navItem.href.split("#");
+                const section = this.getSpine().get(sectionHref);
+                await section.load((path: string) => this.epub.load(path));
 
-        for (const navItem of iterTreesFlat(this.epub.navigation.toc)) {
-            const [sectionHref, headerId] = navItem.href.split("#");
-            const section = this.getSpine().get(sectionHref);
-            await section.load((path: string) => this.epub.load(path));
+                const header = headerId
+                    ? section.document.getElementById(headerId)
+                    : section.document.body;
 
-            const header = headerId
-                ? section.document.getElementById(headerId)
-                : section.document.body;
+                return {
+                    nav: navItem,
+                    headerCfi: section.cfiFromElement(header),
+                    prev: null,
+                    next: null,
+                };
+            }
+        );
 
-            const chapter = {
-                nav: navItem,
-                headerCfi: section.cfiFromElement(header),
-                prev: null,
-                next: null,
-            };
-
-            this.chapters.push(chapter);
-        }
-
-        for (const [index, chapter] of this.chapters.entries()) {
-            chapter.prev = this.chapters[index - 1] || null;
-            chapter.next = this.chapters[index + 1] || null;
+        this.chaptersFlat = [...TreeExtended.iterAllRecursive(this.chapters)];
+        for (const [index, chapter] of this.chaptersFlat.entries()) {
+            chapter.data.prev = this.chaptersFlat[index - 1] || null;
+            chapter.data.next = this.chaptersFlat[index + 1] || null;
         }
         return this;
     }
 
-    getChapter(location: Location): Chapter {
+    getChapter(location: Location): TreeExtended<Chapter> {
         const cfi = location.start.cfi;
 
-        let lastChapter = null;
-        for (const chapter of this.chapters) {
-            if (compareCfi(chapter.headerCfi, cfi) > 0) {
+        let lastChapter: TreeExtended<Chapter> = null;
+        for (const chapter of this.chaptersFlat) {
+            if (compareCfi(chapter.data.headerCfi, cfi) > 0) {
                 return lastChapter;
             }
             lastChapter = chapter;
