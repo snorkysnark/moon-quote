@@ -30,17 +30,13 @@
         <button id="goBack" on:click={() => dispatch("goBack")}>←</button>
         <WindowHeader>{bookEntry.metaTitle}</WindowHeader>
         {#if book && annotations}
-            <ExportButton book={book} {annotations} />
+            <ExportButton {book} {annotations} />
         {/if}
     </svelte:fragment>
 
     <svelte:fragment slot="main">
         {#if book && annotations}
-            <ReaderMainView
-                book={book}
-                bind:annotations
-                {goToAnnotation}
-            />
+            <ReaderMainView {book} bind:annotations {goToAnnotation} />
         {:else}
             <Loading />
         {/if}
