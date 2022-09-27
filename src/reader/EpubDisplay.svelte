@@ -15,7 +15,8 @@
     import type { AnnotationDatabaseEntry } from "src/backend";
     import type { BookExtended } from "src/structure/bookExtended";
     import { createEventDispatcher, onMount, setContext } from "svelte";
-    import type { RenditionController } from "./controller";
+    import type { RenditionController } from "./renditionExtension";
+    import * as renditionExtension from "./renditionExtension";
     import CustomManager from "./customManager";
     import CustomView from "./customView";
     import EpubOverlay from "./overlay/EpubOverlay.svelte";
@@ -37,40 +38,6 @@
         mousedown: MouseEvent;
         deleteAnnotation: AnnotationDatabaseEntry;
     }>();
-
-    function onKeyDown(event: KeyboardEvent) {
-        if (!rendition) return;
-        switch (event.key) {
-            case "PageUp":
-            case "ArrowLeft":
-                controller.prevPage();
-                break;
-            case "PageDown":
-            case "ArrowRight":
-                controller.nextPage();
-                break;
-            case "ArrowUp":
-                controller.scrollUp();
-                break;
-            case "ArrowDown":
-                controller.scrollDown();
-                break;
-            case "Home":
-                if (event.ctrlKey) {
-                    controller.startOfBook();
-                } else {
-                    controller.startOfChapter();
-                }
-                break;
-            case "End":
-                if (event.ctrlKey) {
-                    controller.endOfBook();
-                } else {
-                    controller.nextChapter();
-                }
-                break;
-        }
-    }
 
     onMount(async () => {
         rendition = book.epub.renderTo(outerContainer, {
@@ -111,76 +78,6 @@
     $: if (overlay) overlay.$set({ contents });
     $: if (overlay) overlay.$set({ selectedAnnotation });
 
-    export const controller: RenditionController = {
-        next: async () => {
-            await rendition.next();
-        },
-        prev: async () => {
-            await rendition.prev();
-        },
-        nextPage: async () => {
-            const container = rendition.manager.container;
-            const delta = container.clientHeight;
-            const newScrollTop = container.scrollTop + delta;
-
-            if (newScrollTop < container.scrollHeight) {
-                rendition.manager.scrollBy(0, delta, false);
-            } else {
-                await controller.next();
-            }
-        },
-        prevPage: async () => {
-            const container = rendition.manager.container;
-            const delta = -container.clientHeight;
-
-            if (container.scrollTop > 0) {
-                rendition.manager.scrollBy(0, delta, false);
-            } else {
-                await controller.prev();
-            }
-        },
-        display: async (target: string | number) => {
-            if (rendition) {
-                await rendition.display(target);
-            } else {
-                displayTarget = target;
-            }
-        },
-        scrollUp: () => {
-            rendition.manager.scrollBy(0, -20, false);
-        },
-        scrollDown: () => {
-            rendition.manager.scrollBy(0, 20, false);
-        },
-        startOfChapter: async () => {
-            const chapter = book.getChapter(rendition.location.start.cfi);
-            const target = chapter ? chapter.data.nav.href : 0;
-            await rendition.display(target);
-        },
-        nextChapter: async () => {
-            const currentChapter = book.getChapter(rendition.location.start.cfi)?.data;
-            if (currentChapter) {
-                if (currentChapter.next) {
-                    await rendition.display(currentChapter.next.data.nav.href);
-                } else {
-                    await controller.endOfBook();
-                }
-            } else {
-                const first = book.chapters[0];
-                if (first) {
-                    await rendition.display(first.data.nav.href);
-                }
-            }
-        },
-        startOfBook: async () => {
-            await rendition.display(0);
-        },
-        endOfBook: async () => {
-            await rendition.display(book.getSpine().spineItems.length - 1);
-            rendition.manager.scrollToBottom();
-        },
-    };
-
     setContext<EpubDisplayContext>("EpubDisplay", {
         // Allow components in the <slot/> to modify annotations
         addAnnotation: (
@@ -201,6 +98,72 @@
             rendition.annotations.remove(cfi, "highlight");
         },
     });
+
+    export const controller: RenditionController = {
+        next: () => rendition.next(),
+        prev: () => rendition.prev(),
+        nextPage: () => renditionExtension.nextPage(rendition),
+        prevPage: () => renditionExtension.prevPage(rendition),
+        display: async (target: string | number) => {
+            if (rendition) {
+                await rendition.display(target);
+            } else {
+                displayTarget = target;
+            }
+        },
+        scrollUp: () => {
+            rendition.manager.scrollBy(0, -20, false);
+        },
+        scrollDown: () => {
+            rendition.manager.scrollBy(0, 20, false);
+        },
+        startOfChapter: () =>
+            renditionExtension.startOfChapter(book, rendition),
+        nextChapter: () => renditionExtension.nextChapter(book, rendition),
+        prevChapter: () => renditionExtension.prevChapter(book, rendition),
+        startOfBook: () => renditionExtension.startOfBook(rendition),
+        endOfBook: () => renditionExtension.endOfBook(book, rendition),
+    };
+
+    function onKeyDown(event: KeyboardEvent) {
+        if (!rendition) return;
+        switch (event.key) {
+            case "PageUp":
+            case "ArrowLeft":
+                if (event.ctrlKey) {
+                    controller.prevChapter();
+                } else {
+                    controller.prevPage();
+                }
+                break;
+            case "PageDown":
+            case "ArrowRight":
+                if (event.ctrlKey) {
+                    controller.nextChapter();
+                } else {
+                    controller.nextPage();
+                }
+                break;
+            case "ArrowUp":
+                controller.scrollUp();
+                break;
+            case "ArrowDown":
+                controller.scrollDown();
+                break;
+            case "Home":
+                if (event.ctrlKey) {
+                    controller.startOfBook();
+                } else {
+                    controller.startOfChapter();
+                }
+                break;
+            case "End":
+                if (event.ctrlKey) {
+                    controller.endOfBook();
+                }
+                break;
+        }
+    }
 </script>
 
 <svelte:window on:keydown={onKeyDown} />
