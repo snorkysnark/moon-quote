@@ -17,21 +17,29 @@
 
     let menuOpen = false;
 
-    async function exportFile(
-        name: string,
-        extension: string,
-        generateFn: (book: BookExtended, annotations: AnnotationInChapter[]) => string
-    ) {
-        const filePath = await save({
+    async function saveDialog(
+        type: string,
+        extension: string
+    ): Promise<string> {
+        let filePath = await save({
             filters: [
                 {
-                    name,
+                    name: type,
                     extensions: [extension],
                 },
             ],
         });
-        if (filePath) {
-            writeTextFile(filePath, generateFn(book, annotationsInChapters));
+        return filePath;
+    }
+
+    async function exportFile(
+        type: string,
+        extension: string,
+        content: string
+    ) {
+        const path = await saveDialog(type, extension);
+        if (path) {
+            writeTextFile(path, content);
         }
     }
 </script>
@@ -46,7 +54,11 @@
                 class="menuitem"
                 on:click={() => {
                     menuOpen = false;
-                    exportFile("XML", "xml", generateXml);
+                    exportFile(
+                        "XML",
+                        "xml",
+                        generateXml(book, annotationsInChapters)
+                    );
                 }}
             >
                 XML
