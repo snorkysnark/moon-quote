@@ -8,7 +8,7 @@ export interface GoToAnnotation {
 }
 
 export function makeAnnotationURL(annotation: AnnotationDatabaseEntry) {
-    return `moonquote:///book/${annotation.bookId}/annotation/${annotation.annotationId}`;
+    return `moonquote:///book/${annotation.bookId}/annotation/${annotation.cfi}`;
 }
 
 export async function onAnnotationLink(

@@ -2,12 +2,12 @@ import { invoke } from "@tauri-apps/api";
 import type { BinaryFileContents } from "@tauri-apps/api/fs";
 import type { PackagingMetadataObject } from "epubjs/types/packaging";
 import * as fs from "@tauri-apps/api/fs";
-import ePub, { Book } from "epubjs";
+import ePub from "epubjs";
 import { sortAnnotations } from "./utils";
 import { BookExtended } from "./structure/bookExtended";
 
 export interface BookDatabaseEntry {
-    bookId: number;
+    bookId: string;
     epubPath: string;
     coverPath: string;
     metaTitle: string;
@@ -30,11 +30,11 @@ export function getBooks(): Promise<BookDatabaseEntry[]> {
     return invoke("get_books");
 }
 
-export function getBook(bookId: number): Promise<BookDatabaseEntry> {
+export function getBook(bookId: string): Promise<BookDatabaseEntry> {
     return invoke("get_book", { bookId });
 }
 
-export function deleteBook(bookId: number): Promise<void> {
+export function deleteBook(bookId: string): Promise<void> {
     return invoke("delete_book", { bookId });
 }
 
@@ -83,15 +83,14 @@ export async function uploadBook(bookPath: string): Promise<BookDatabaseEntry> {
 }
 
 export interface AnnotationDatabaseEntry {
-    annotationId: number;
-    bookId: number;
+    bookId: string;
     cfi: string;
     textContent: string;
     color: number;
 }
 
 export async function getAnnotationsForBook(
-    bookId: number
+    bookId: string
 ): Promise<AnnotationDatabaseEntry[]> {
     const annotations: AnnotationDatabaseEntry[] = await invoke(
         "get_annotations_for_book",
@@ -102,13 +101,14 @@ export async function getAnnotationsForBook(
 }
 
 export function getAnnotation(
-    annotationId: number
+    bookId: string,
+    cfi: string
 ): Promise<AnnotationDatabaseEntry> {
-    return invoke("get_annotation", { annotationId });
+    return invoke("get_annotation", { bookId, cfi });
 }
 
 export function addAnnotation(
-    bookId: number,
+    bookId: string,
     cfi: string,
     textContent: string,
     color: number
@@ -120,7 +120,9 @@ export function deleteAnnotation(annotationId: number): Promise<void> {
     return invoke("delete_annotation", { annotationId });
 }
 
-export async function loadEpub(entry: BookDatabaseEntry): Promise<BookExtended> {
+export async function loadEpub(
+    entry: BookDatabaseEntry
+): Promise<BookExtended> {
     const file = await fs.readBinaryFile(entry.epubPath);
     const book = ePub(file.buffer);
 
