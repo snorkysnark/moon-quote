@@ -1,7 +1,4 @@
-use std::borrow::Cow;
-
 use diesel::prelude::*;
-use serde::Serialize;
 use tauri::State;
 
 use crate::{
@@ -9,42 +6,32 @@ use crate::{
     error::SerializableResult,
 };
 
-#[derive(Clone, Queryable, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct BookAnnotation<'a> {
-    annotation_id: i32,
-    book_id: i32,
-    cfi: Cow<'a, str>,
-    text_content: Cow<'a, str>,
-    color: i32,
-}
+use super::data::BookAnnotation;
 
 #[tauri::command]
-pub fn add_annotation<'a>(
+pub fn add_annotation(
     db: State<SqlitePool>,
-    book_id: i32,
-    cfi: &'a str,
-    text_content: &'a str,
+    book_id: String,
+    cfi: String,
+    text_content: String,
     color: i32,
-) -> SerializableResult<BookAnnotation<'a>> {
+) -> SerializableResult<BookAnnotation> {
     use schema::annotations::dsl;
 
     let mut conn = db.get()?;
-    let annotation_id: i32 = diesel::insert_into(dsl::annotations)
+    diesel::insert_into(dsl::annotations)
         .values((
-            dsl::book_id.eq(book_id),
-            dsl::cfi.eq(cfi),
-            dsl::text_content.eq(text_content),
+            dsl::book_id.eq(&book_id),
+            dsl::cfi.eq(&cfi),
+            dsl::text_content.eq(&text_content),
             dsl::color.eq(color),
         ))
-        .returning(dsl::annotation_id)
-        .get_result(&mut conn)?;
+        .execute(&mut conn)?;
 
     Ok(BookAnnotation {
         book_id,
-        annotation_id,
-        cfi: cfi.into(),
-        text_content: text_content.into(),
+        cfi,
+        text_content,
         color,
     })
 }
@@ -52,7 +39,7 @@ pub fn add_annotation<'a>(
 #[tauri::command]
 pub fn get_annotations_for_book(
     db: State<SqlitePool>,
-    book_id: i32,
+    book_id: &str,
 ) -> SerializableResult<Vec<BookAnnotation>> {
     use schema::annotations::dsl;
 
@@ -67,24 +54,29 @@ pub fn get_annotations_for_book(
 #[tauri::command]
 pub fn get_annotation(
     db: State<SqlitePool>,
-    annotation_id: i32,
-) -> SerializableResult<BookAnnotation<'static>> {
+    book_id: &str,
+    cfi: &str,
+) -> SerializableResult<BookAnnotation> {
     use schema::annotations::dsl;
 
     let mut conn = db.get()?;
     let annotation = dsl::annotations
-        .filter(dsl::annotation_id.eq(annotation_id))
+        .filter(dsl::book_id.eq(book_id).and(dsl::cfi.eq(cfi)))
         .first(&mut conn)?;
 
     Ok(annotation)
 }
 
 #[tauri::command]
-pub fn delete_annotation(db: State<SqlitePool>, annotation_id: i32) -> SerializableResult<()> {
+pub fn delete_annotation(
+    db: State<SqlitePool>,
+    book_id: String,
+    cfi: String,
+) -> SerializableResult<()> {
     use schema::annotations::dsl;
 
     let mut conn = db.get()?;
-    diesel::delete(dsl::annotations.filter(dsl::annotation_id.eq(annotation_id)))
+    diesel::delete(dsl::annotations.filter(dsl::book_id.eq(book_id).and(dsl::cfi.eq(cfi))))
         .execute(&mut conn)?;
 
     Ok(())

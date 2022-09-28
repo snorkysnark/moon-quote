@@ -1,72 +1,138 @@
-use std::{borrow::Cow, path::PathBuf};
+use std::path::{Path, PathBuf};
 
+use diesel::{Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 
+use crate::db::schema;
+
 #[derive(Deserialize)]
-pub struct EpubMetadata<'a> {
-    pub title: Option<&'a str>,
-    pub creator: Option<&'a str>,
-    pub description: Option<&'a str>,
-    pub pubdate: Option<&'a str>,
-    pub publisher: Option<&'a str>,
-    pub identifier: Option<&'a str>,
-    pub language: Option<&'a str>,
-    pub rights: Option<&'a str>,
-    pub modified_date: Option<&'a str>,
-    pub layout: Option<&'a str>,
-    pub orientation: Option<&'a str>,
-    pub flow: Option<&'a str>,
-    pub viewport: Option<&'a str>,
-    pub spread: Option<&'a str>,
+pub struct EpubMetadata {
+    pub title: Option<String>,
+    pub creator: Option<String>,
+    pub description: Option<String>,
+    pub pubdate: Option<String>,
+    pub publisher: Option<String>,
+    pub identifier: Option<String>,
+    pub language: Option<String>,
+    pub rights: Option<String>,
+    pub modified_date: Option<String>,
+    pub layout: Option<String>,
+    pub orientation: Option<String>,
+    pub flow: Option<String>,
+    pub viewport: Option<String>,
+    pub spread: Option<String>,
+}
+
+#[derive(Insertable, Queryable)]
+#[diesel(table_name = schema::books)]
+pub struct BookRow {
+    pub book_id: String,
+    pub epub_file: String,
+    pub cover_file: Option<String>,
+    pub meta_title: Option<String>,
+    pub meta_creator: Option<String>,
+    pub meta_description: Option<String>,
+    pub meta_pubdate: Option<String>,
+    pub meta_publisher: Option<String>,
+    pub meta_identifier: Option<String>,
+    pub meta_language: Option<String>,
+    pub meta_rights: Option<String>,
+    pub meta_modified_date: Option<String>,
+    pub meta_layout: Option<String>,
+    pub meta_orientation: Option<String>,
+    pub meta_flow: Option<String>,
+    pub meta_viewport: Option<String>,
+    pub meta_spread: Option<String>,
+}
+
+impl BookRow {
+    pub fn from_parts(
+        book_id: String,
+        epub_file: String,
+        cover_file: Option<String>,
+        metadata: EpubMetadata,
+    ) -> Self {
+        BookRow {
+            book_id,
+            epub_file,
+            cover_file,
+            meta_title: metadata.title,
+            meta_creator: metadata.creator,
+            meta_description: metadata.description,
+            meta_pubdate: metadata.pubdate,
+            meta_publisher: metadata.publisher,
+            meta_identifier: metadata.identifier,
+            meta_language: metadata.language,
+            meta_rights: metadata.rights,
+            meta_modified_date: metadata.modified_date,
+            meta_layout: metadata.layout,
+            meta_orientation: metadata.orientation,
+            meta_flow: metadata.flow,
+            meta_viewport: metadata.viewport,
+            meta_spread: metadata.spread,
+        }
+    }
+
+    pub fn with_absolute_paths(self, epub_path: PathBuf, cover_path: Option<PathBuf>) -> Book {
+        Book {
+            book_id: self.book_id,
+            epub_path,
+            cover_path,
+            meta_title: self.meta_title,
+            meta_creator: self.meta_creator,
+            meta_description: self.meta_description,
+            meta_pubdate: self.meta_pubdate,
+            meta_publisher: self.meta_publisher,
+            meta_identifier: self.meta_identifier,
+            meta_language: self.meta_language,
+            meta_rights: self.meta_rights,
+            meta_modified_date: self.meta_modified_date,
+            meta_layout: self.meta_layout,
+            meta_orientation: self.meta_orientation,
+            meta_flow: self.meta_flow,
+            meta_viewport: self.meta_viewport,
+            meta_spread: self.meta_spread,
+        }
+    }
+    pub fn with_absolute_paths_auto(self, library_path: &Path) -> Book {
+        let container_path = library_path.join(&self.book_id);
+        let epub_path = container_path.join(&self.epub_file);
+        let cover_path = self
+            .cover_file
+            .as_ref()
+            .map(|cover_file| container_path.join(cover_file));
+
+        self.with_absolute_paths(epub_path, cover_path)
+    }
 }
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Book<'a> {
-    pub book_id: i32,
+pub struct Book {
+    pub book_id: String,
     pub epub_path: PathBuf,
     pub cover_path: Option<PathBuf>,
-    pub meta_title: Option<Cow<'a, str>>,
-    pub meta_creator: Option<Cow<'a, str>>,
-    pub meta_description: Option<Cow<'a, str>>,
-    pub meta_pubdate: Option<Cow<'a, str>>,
-    pub meta_publisher: Option<Cow<'a, str>>,
-    pub meta_identifier: Option<Cow<'a, str>>,
-    pub meta_language: Option<Cow<'a, str>>,
-    pub meta_rights: Option<Cow<'a, str>>,
-    pub meta_modified_date: Option<Cow<'a, str>>,
-    pub meta_layout: Option<Cow<'a, str>>,
-    pub meta_orientation: Option<Cow<'a, str>>,
-    pub meta_flow: Option<Cow<'a, str>>,
-    pub meta_viewport: Option<Cow<'a, str>>,
-    pub meta_spread: Option<Cow<'a, str>>,
+    pub meta_title: Option<String>,
+    pub meta_creator: Option<String>,
+    pub meta_description: Option<String>,
+    pub meta_pubdate: Option<String>,
+    pub meta_publisher: Option<String>,
+    pub meta_identifier: Option<String>,
+    pub meta_language: Option<String>,
+    pub meta_rights: Option<String>,
+    pub meta_modified_date: Option<String>,
+    pub meta_layout: Option<String>,
+    pub meta_orientation: Option<String>,
+    pub meta_flow: Option<String>,
+    pub meta_viewport: Option<String>,
+    pub meta_spread: Option<String>,
 }
 
-impl<'a> Book<'a> {
-    pub fn from_parts(
-        book_id: i32,
-        epub_path: PathBuf,
-        cover_path: Option<PathBuf>,
-        metadata: &EpubMetadata<'a>,
-    ) -> Self {
-        Book {
-            book_id,
-            epub_path,
-            cover_path,
-            meta_title: metadata.title.map(Into::into),
-            meta_creator: metadata.creator.map(Into::into),
-            meta_description: metadata.description.map(Into::into),
-            meta_pubdate: metadata.pubdate.map(Into::into),
-            meta_publisher: metadata.publisher.map(Into::into),
-            meta_identifier: metadata.identifier.map(Into::into),
-            meta_language: metadata.language.map(Into::into),
-            meta_rights: metadata.rights.map(Into::into),
-            meta_modified_date: metadata.modified_date.map(Into::into),
-            meta_layout: metadata.layout.map(Into::into),
-            meta_orientation: metadata.orientation.map(Into::into),
-            meta_flow: metadata.flow.map(Into::into),
-            meta_viewport: metadata.viewport.map(Into::into),
-            meta_spread: metadata.spread.map(Into::into),
-        }
-    }
+#[derive(Clone, Queryable, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BookAnnotation {
+    pub book_id: String,
+    pub cfi: String,
+    pub text_content: String,
+    pub color: i32,
 }
