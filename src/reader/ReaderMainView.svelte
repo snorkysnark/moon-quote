@@ -10,7 +10,7 @@
     import { sortAnnotations } from "src/utils";
     import type { BookExtended } from "src/structure/bookExtended";
     import { makeFoldable } from "src/structure/tocFoldable";
-    import type { RenditionController } from "./controller";
+    import type { RenditionController } from "./renditionExtension";
 
     export let book: BookExtended;
     export let annotations: AnnotationDatabaseEntry[] = [];
