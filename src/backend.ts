@@ -116,8 +116,8 @@ export function addAnnotation(
     return invoke("add_annotation", { bookId, cfi, textContent, color });
 }
 
-export function deleteAnnotation(annotationId: number): Promise<void> {
-    return invoke("delete_annotation", { annotationId });
+export function deleteAnnotation(bookId: string, cfi: string): Promise<void> {
+    return invoke("delete_annotation", { bookId, cfi });
 }
 
 export async function loadEpub(

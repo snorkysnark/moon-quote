@@ -39,11 +39,12 @@
     }
 
     function deleteAnnotation(event: CustomEvent<AnnotationDatabaseEntry>) {
-        const targetId = event.detail.annotationId;
-        annotations = sortAnnotations(
-            annotations.filter((value) => value.annotationId != targetId)
+        const target = event.detail;
+        annotations = annotations.filter(
+            (value) =>
+                value.bookId !== target.bookId || value.cfi !== target.cfi
         );
-        backend.deleteAnnotation(targetId);
+        backend.deleteAnnotation(target.bookId, target.cfi);
         selectedAnnotation = null;
     }
 
@@ -89,7 +90,7 @@
                 on:mousedown={clearSelectedAnnotation}
                 on:deleteAnnotation={deleteAnnotation}
             >
-                {#each annotations as annotation (annotation.annotationId)}
+                {#each annotations as annotation (annotation.cfi)}
                     <EpubAnnotation
                         {annotation}
                         on:click={() => (selectedAnnotation = annotation)}
