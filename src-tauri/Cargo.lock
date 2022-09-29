@@ -1599,6 +1599,7 @@ dependencies = [
  "libsqlite3-sys",
  "openssl",
  "paste",
+ "percent-encoding",
  "serde",
  "serde_json",
  "tauri",

@@ -28,6 +28,7 @@ libsqlite3-sys = { version = "0.25.1", features = ["bundled"] }
 url = "2.3.1"
 interprocess = { version = "1.1.1", features = [] }
 futures = "0.3.24"
+percent-encoding = "2.2.0"
 
 # Bundle openssl for Ubuntu support
 [target.'cfg(unix)'.dependencies]

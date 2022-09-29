@@ -20,6 +20,12 @@ pub struct AnnotationUrlLoaded {
     annotation: BookAnnotation,
 }
 
+fn percent_decode_utf8(string: &str) -> Result<String> {
+    Ok(percent_encoding::percent_decode_str(string)
+        .decode_utf8()?
+        .to_string())
+}
+
 impl FromStr for AnnotationUrl {
     type Err = anyhow::Error;
 
@@ -32,8 +38,8 @@ impl FromStr for AnnotationUrl {
 
                 if let Some(&["book", book_id, "annotation", cfi]) = path_segments.as_deref() {
                     Ok(AnnotationUrl {
-                        book_id: book_id.parse()?,
-                        cfi: cfi.parse()?,
+                        book_id: percent_decode_utf8(book_id)?,
+                        cfi: percent_decode_utf8(cfi)?,
                     })
                 } else {
                     Err(anyhow!("Unexpected url path: {:?}", path_segments))
