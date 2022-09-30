@@ -3,11 +3,13 @@
 <script lang="ts">
     import type { AnnotationDatabaseEntry } from "src/backend";
     import { createEventDispatcher, getContext, onMount } from "svelte";
-    import type { EpubDisplayContext } from "./EpubDisplay.svelte";
+    import type { RenditionControllerContext } from "./RenditionController.svelte";
 
     export let annotation: AnnotationDatabaseEntry;
 
-    const context = getContext<EpubDisplayContext>("EpubDisplay");
+    const context = getContext<RenditionControllerContext>(
+        "RenditionController"
+    );
     const dispatch = createEventDispatcher<{ click: MouseEvent }>();
 
     function onClick(source: MouseEvent) {
