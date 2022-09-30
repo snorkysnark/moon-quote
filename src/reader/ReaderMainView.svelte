@@ -10,18 +10,23 @@
     import { sortAnnotations } from "src/utils";
     import type { BookExtended } from "src/structure/bookExtended";
     import { makeFoldable } from "src/structure/tocFoldable";
-    import type { RenditionController } from "./renditionExtension";
+    import type RenditionController from "./RenditionController.svelte";
 
     export let book: BookExtended;
     export let annotations: AnnotationDatabaseEntry[] = [];
-    export let goToAnnotation: AnnotationDatabaseEntry;
+    export let goToAnnotation: AnnotationDatabaseEntry | string;
 
-    $: if (goToAnnotation && readerController) {
-        selectedAnnotation = goToAnnotation;
-        readerController.display(goToAnnotation.cfi);
+    $: if (goToAnnotation && renditionController) {
+        /* if (typeof goToAnnotation === "object") { */
+        /*     selectedAnnotation = goToAnnotation; */
+        /*     readerController.display(goToAnnotation.cfi); */
+        /* } else { */
+        /*     selectedAnnotation = null; */
+        /*     readerController.setSelection(goToAnnotation); */
+        /* } */
     }
 
-    let readerController: RenditionController;
+    let renditionController: RenditionController;
 
     async function highlight(event: CustomEvent<NewHighlight>) {
         const { cfi, range, color } = event.detail;
@@ -52,12 +57,12 @@
         event: CustomEvent<AnnotationDatabaseEntry>
     ) {
         const annotation = event.detail;
-        readerController.display(annotation.cfi);
+        renditionController.display(annotation.cfi);
         selectedAnnotation = annotation;
     }
 
     function tocItemClicked(event: CustomEvent<NavItem>) {
-        readerController.display(event.detail.href);
+        renditionController.display(event.detail.href);
     }
 
     let toc = makeFoldable(book.epub.navigation.toc);
@@ -78,14 +83,14 @@
         <!--end-->
     {/if}
     <div id="readerView">
-        <button class="navButton" on:click={() => readerController.prevPage()}
+        <button class="navButton" on:click={() => renditionController.prevPage()}
             >←</button
         >
         <div id="readerPage" on:mousedown={clearSelectedAnnotation}>
             <EpubDisplay
                 {book}
                 {selectedAnnotation}
-                bind:controller={readerController}
+                bind:controller={renditionController}
                 on:highlight={highlight}
                 on:mousedown={clearSelectedAnnotation}
                 on:deleteAnnotation={deleteAnnotation}
@@ -98,7 +103,7 @@
                 {/each}
             </EpubDisplay>
         </div>
-        <button class="navButton" on:click={() => readerController.nextPage()}
+        <button class="navButton" on:click={() => renditionController.nextPage()}
             >→</button
         >
     </div>
