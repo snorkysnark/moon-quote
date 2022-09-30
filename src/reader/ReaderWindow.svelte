@@ -14,7 +14,7 @@
     const dispatch = createEventDispatcher<{ goBack: void }>();
 
     export let bookEntry: BookDatabaseEntry;
-    export let goToAnnotation: AnnotationDatabaseEntry = null;
+    export let goToAnnotation: AnnotationDatabaseEntry | string = null;
 
     let book: BookExtended;
     loadEpub(bookEntry).then((loaded) => (book = loaded));

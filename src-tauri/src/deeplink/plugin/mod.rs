@@ -33,16 +33,13 @@ impl<R: Runtime> Plugin<R> for DeeplinkPlugin<R> {
         _: serde_json::Value,
     ) -> tauri::plugin::Result<()> {
         // If there was a URL argument, load that annotation from the database
-        let goto_annotation = self
-            .initial_url
-            .as_ref()
-            .and_then(|url| match url.load(app) {
-                Ok(goto_annotation) => Some(goto_annotation),
-                Err(err) => {
-                    eprintln!("Cannot load annotation from url: {err}");
-                    None
-                }
-            });
+        let goto_annotation = self.initial_url.take().and_then(|url| match url.load(app) {
+            Ok(goto_annotation) => Some(goto_annotation),
+            Err(err) => {
+                eprintln!("Cannot load annotation from url: {err}");
+                None
+            }
+        });
         app.manage(InitialUrlOnce::from(goto_annotation));
 
         // Start server in the background

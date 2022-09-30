@@ -7,7 +7,7 @@
     import { onDestroy } from "svelte";
 
     let currentBook: BookDatabaseEntry = null;
-    let goToAnnotation: AnnotationDatabaseEntry = null;
+    let goToAnnotation: AnnotationDatabaseEntry | string = null;
 
     const unsubscribe = onAnnotationLink((link) => {
         currentBook = link.book;

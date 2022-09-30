@@ -4,7 +4,7 @@ import type { AnnotationDatabaseEntry, BookDatabaseEntry } from "./backend";
 
 export interface GoToAnnotation {
     book: BookDatabaseEntry;
-    annotation: AnnotationDatabaseEntry;
+    annotation: AnnotationDatabaseEntry | string;
 }
 
 export function makeAnnotationURL(annotation: AnnotationDatabaseEntry) {

@@ -15,9 +15,16 @@ pub struct AnnotationUrl {
 }
 
 #[derive(Clone, Serialize)]
+#[serde(untagged)]
+pub enum AnnotationData {
+    Existing(BookAnnotation),
+    New(String),
+}
+
+#[derive(Clone, Serialize)]
 pub struct AnnotationUrlLoaded {
     book: Book,
-    annotation: BookAnnotation,
+    annotation: AnnotationData,
 }
 
 fn percent_decode_utf8(string: &str) -> Result<String> {
@@ -57,10 +64,17 @@ impl ToString for AnnotationUrl {
 }
 
 impl AnnotationUrl {
-    pub fn load<R: Runtime>(&self, app: &tauri::AppHandle<R>) -> Result<AnnotationUrlLoaded> {
+    pub fn load<R: Runtime>(self, app: &tauri::AppHandle<R>) -> Result<AnnotationUrlLoaded> {
         let book = library::get_book(app.state(), app.state(), &self.book_id)?;
-        let annotation = library::get_annotation(app.state(), &self.book_id, &self.cfi)?;
-
-        Ok(AnnotationUrlLoaded { book, annotation })
+        match library::get_annotation(app.state(), &self.book_id, &self.cfi) {
+            Ok(annotation) => Ok(AnnotationUrlLoaded {
+                book,
+                annotation: AnnotationData::Existing(annotation),
+            }),
+            Err(_) => Ok(AnnotationUrlLoaded {
+                book,
+                annotation: AnnotationData::New(self.cfi),
+            }),
+        }
     }
 }
