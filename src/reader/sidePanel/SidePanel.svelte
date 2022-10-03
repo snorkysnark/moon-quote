@@ -1,13 +1,14 @@
 <script lang="ts">
     import type { AnnotationDatabaseEntry } from "src/backend";
     import { sidePanelRight } from "src/settings";
-    import AddContextMenu from "src/AddContextMenu.svelte";
     import annotationsIcon from "src/decor/annotations.svg";
     import tocIcon from "src/decor/toc.svg";
     import SidePanelContent from "./SidePanelContent.svelte";
-    import type TocItem from "./toc/toc";
+    import type { TreeExtended } from "src/structure/tree";
+    import type { NavItemFoldable } from "src/structure/tocFoldable";
+    import { contextMenu } from "src/contextmenu";
 
-    export let toc: TocItem[];
+    export let toc: TreeExtended<NavItemFoldable>[];
     export let annotations: AnnotationDatabaseEntry[];
     export let currentSidePanel: string = null;
 
@@ -19,8 +20,6 @@
     function toggleSidePanel(name: string) {
         currentSidePanel = currentSidePanel === name ? null : name;
     }
-
-    let panel: HTMLElement;
 </script>
 
 {#if $sidePanelRight}
@@ -34,7 +33,21 @@
     />
     <!--end-->
 {/if}
-<div id="togglePanel" bind:this={panel}>
+<div
+    id="togglePanel"
+    use:contextMenu={[
+        {
+            label: "Left Side",
+            disabled: $sidePanelRight === false,
+            action: () => sidePanelRight.set(false),
+        },
+        {
+            label: "Right Side",
+            disabled: $sidePanelRight === true,
+            action: () => sidePanelRight.set(true),
+        },
+    ]}
+>
     {#each panelTypes as panelType}
         <button
             class="toggleButton"
@@ -50,24 +63,6 @@
 </div>
 {#if !$sidePanelRight}
     <!--repeat SidePanelContent-->
-{/if}
-
-{#if panel}
-    <AddContextMenu
-        target={panel}
-        items={[
-            {
-                label: "Left Side",
-                disabled: $sidePanelRight === false,
-                action: () => sidePanelRight.set(false),
-            },
-            {
-                label: "Right Side",
-                disabled: $sidePanelRight === true,
-                action: () => sidePanelRight.set(true),
-            },
-        ]}
-    />
 {/if}
 
 <style>

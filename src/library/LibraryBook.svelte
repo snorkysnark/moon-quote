@@ -1,7 +1,7 @@
 <script lang="ts">
     import { convertFileSrc } from "@tauri-apps/api/tauri";
     import { createEventDispatcher } from "svelte";
-    import AddContextMenu from "../AddContextMenu.svelte";
+    import { contextMenu } from "src/contextmenu";
     import type { BookDatabaseEntry } from "../backend";
 
     export let bookEntry: BookDatabaseEntry;
@@ -11,29 +11,24 @@
         ? convertFileSrc(bookEntry.coverPath)
         : null;
 
-    let button: HTMLElement;
     let dispatch = createEventDispatcher<{
         open: BookDatabaseEntry;
         delete: BookDatabaseEntry;
     }>();
 </script>
 
-<button bind:this={button} on:click={() => dispatch("open", bookEntry)}>
+<button
+    on:click={() => dispatch("open", bookEntry)}
+    use:contextMenu={[
+        { label: "Open Folder" },
+        { label: "Delete", action: () => dispatch("delete", bookEntry) },
+    ]}
+>
     {#if coverUrl}
         <img src={coverUrl} alt={bookEntry.metaTitle} draggable="false" />
     {/if}
     <p>{bookEntry.metaTitle}</p>
 </button>
-
-{#if button}
-    <AddContextMenu
-        target={button}
-        items={[
-            { label: "Open Folder" },
-            { label: "Delete", action: () => dispatch("delete", bookEntry) },
-        ]}
-    />
-{/if}
 
 <style>
     button {

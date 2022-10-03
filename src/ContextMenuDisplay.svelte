@@ -1,9 +1,5 @@
 <script lang="ts">
-    import {
-        currentMenuStore,
-        closeMenu,
-        type ContextMenuItem,
-    } from "./contextmenu";
+    import { menuState, closeMenu, type ContextMenuItem } from "./contextmenu";
 
     let menuContainer: HTMLElement;
     function onClickBody(event: MouseEvent, rightClick: boolean) {
@@ -29,36 +25,40 @@
     let clientWidth: number;
     let clientHeight: number;
 
-    let position: { x: number, y: number };
-    $: if ($currentMenuStore) {
-            let mousePos = { x: $currentMenuStore.x, y: $currentMenuStore.y };
+    let position: { x: number; y: number };
+    $: if ($menuState) {
+        let mousePos = { x: $menuState.x, y: $menuState.y };
 
-            // Don't go out of bounds
-            if (clientWidth && clientHeight) {
-                const overflowX = clientWidth - (window.innerWidth - mousePos.x);
-                const overflowY = clientHeight - (window.innerHeight - mousePos.y);
+        // Don't go out of bounds
+        if (clientWidth && clientHeight) {
+            const overflowX = clientWidth - (window.innerWidth - mousePos.x);
+            const overflowY = clientHeight - (window.innerHeight - mousePos.y);
 
-                if (overflowX > 0) mousePos.x -= overflowX;
-                if (overflowY > 0) mousePos.y -= overflowY;
-            }
-            position = mousePos;
+            if (overflowX > 0) mousePos.x -= overflowX;
+            if (overflowY > 0) mousePos.y -= overflowY;
         }
+        position = mousePos;
+    }
 </script>
 
-{#if $currentMenuStore}
-    <div id="menu"
+{#if $menuState}
+    <div
+        id="menu"
         bind:this={menuContainer}
-        bind:clientWidth={clientWidth}
-        bind:clientHeight={clientHeight}
+        bind:clientWidth
+        bind:clientHeight
         style={`left: ${position.x}px; top: ${position.y}px`}
     >
-        {#each $currentMenuStore.items as menuItem}
-            <div class="menuitem"
+        {#each $menuState.items as menuItem}
+            <div
+                class="menuitem"
                 class:disabled={menuItem.disabled === true}
                 on:click={() => {
                     if (!menuItem.disabled) onClickItem(menuItem);
-                }}>{menuItem.label}</div
+                }}
             >
+                {menuItem.label}
+            </div>
         {/each}
     </div>
 {/if}
