@@ -1,17 +1,20 @@
 <script lang="ts">
     import type { AnnotationDatabaseEntry } from "src/backend";
+    import type { BookExtended } from "src/structure/bookExtended";
+    import type { NavItemFoldable } from "src/structure/tocFoldable";
+    import type { TreeExtended } from "src/structure/tree";
     import AnnotationPanel from "./annotation/AnnotationPanel.svelte";
-    import type TocItem from "./toc/toc";
     import ToC from "./toc/ToC.svelte";
 
-    export let toc: TocItem[];
+    export let book: BookExtended;
+    export let toc: TreeExtended<NavItemFoldable>[];
     export let annotations: AnnotationDatabaseEntry[];
     export let currentSidePanel: string = null;
 </script>
 
 <div id="sidePanel">
     {#if currentSidePanel === "toc"}
-        <ToC items={toc} on:navigate />
+        <ToC {book} items={toc} on:navigate />
     {:else if currentSidePanel === "annotations"}
         <AnnotationPanel {annotations} on:annotationClick />
     {/if}

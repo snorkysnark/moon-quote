@@ -1,9 +1,10 @@
 <script lang="ts">
+    import type { BookExtended } from "src/structure/bookExtended";
     import type { NavItemFoldable } from "src/structure/tocFoldable";
     import { TreeExtended } from "src/structure/tree";
     import TocList from "./TocList.svelte";
-    import { contextMenu } from "src/contextmenu";
 
+    export let book: BookExtended;
     export let items: TreeExtended<NavItemFoldable>[];
 
     function setAllOpen(value: boolean) {
@@ -14,14 +15,13 @@
     }
 </script>
 
-<div
-    id="container"
-    use:contextMenu={[
-        { label: "Open All", action: () => setAllOpen(true) },
-        { label: "Fold All", action: () => setAllOpen(false) },
-    ]}
->
-    <TocList {items} on:navigate />
+<div id="container">
+    <TocList
+        {book}
+        {items}
+        on:navigate
+        on:foldAll={(event) => setAllOpen(event.detail)}
+    />
 </div>
 
 <style>

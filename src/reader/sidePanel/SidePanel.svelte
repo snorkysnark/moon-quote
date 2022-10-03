@@ -7,7 +7,9 @@
     import type { TreeExtended } from "src/structure/tree";
     import type { NavItemFoldable } from "src/structure/tocFoldable";
     import { contextMenu } from "src/contextmenu";
+    import type { BookExtended } from "src/structure/bookExtended";
 
+    export let book: BookExtended;
     export let toc: TreeExtended<NavItemFoldable>[];
     export let annotations: AnnotationDatabaseEntry[];
     export let currentSidePanel: string = null;
@@ -28,6 +30,7 @@
         {currentSidePanel}
         {annotations}
         {toc}
+        {book}
         on:annotationClick
         on:navigate
     />

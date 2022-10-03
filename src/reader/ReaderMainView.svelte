@@ -78,6 +78,7 @@
     {#if !$sidePanelRight}
         <!--reusable SidePanel-->
         <SidePanel
+            {book}
             {annotations}
             {toc}
             on:annotationClick={annotationLinkClicked}

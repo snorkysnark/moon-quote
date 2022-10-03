@@ -1,18 +1,37 @@
 <script lang="ts">
     import type { NavItem } from "epubjs";
+    import { contextMenu } from "src/contextmenu";
+    import * as clipboard from "@tauri-apps/api/clipboard";
     import type { NavItemFoldable } from "src/structure/tocFoldable";
     import type { TreeExtended } from "src/structure/tree";
     import { createEventDispatcher } from "svelte";
+    import { makeChapterURL } from "src/deeplink";
+    import type { BookExtended } from "src/structure/bookExtended";
 
+    export let book: BookExtended;
     export let items: TreeExtended<NavItemFoldable>[];
 
-    const dispatch = createEventDispatcher<{ navigate: NavItem }>();
+    const dispatch =
+        createEventDispatcher<{ navigate: NavItem; foldAll: boolean }>();
 </script>
 
 <ul>
-    {#each items as item}
+    {#each items as item (item)}
         {@const foldable = item.subitems.length > 0}
-        <li class:foldable>
+        <li
+            class:foldable
+            use:contextMenu={[
+                {
+                    label: "URL",
+                    action: () =>
+                        clipboard.writeText(
+                            makeChapterURL(book.dbEntry, item.data.nav)
+                        ),
+                },
+                { label: "Open All", action: () => dispatch("foldAll", true) },
+                { label: "Fold All", action: () => dispatch("foldAll", false) },
+            ]}
+        >
             {#if foldable}
                 <button
                     class="toggle"
@@ -27,7 +46,7 @@
             >
         </li>
         {#if foldable && item.data.isOpen}
-            <svelte:self items={item.subitems} on:navigate />
+            <svelte:self {book} items={item.subitems} on:navigate on:foldAll />
         {/if}
     {/each}
 </ul>
@@ -38,7 +57,8 @@
     }
 
     li {
-        margin: 2px 0;
+        margin: 0;
+        padding: 2px 0;
     }
 
     #label {

@@ -6,8 +6,8 @@ export interface NavItemFoldable {
     isOpen: boolean;
 }
 
-export function makeFoldable(toc: NavItem[]) {
-    return TreeExtended.mapTreeAll(toc, (item) => {
+export function makeFoldable(toc: NavItem[]): TreeExtended<NavItemFoldable>[] {
+    return TreeExtended.mapTreeAll(toc, (item: NavItem) => {
         return {
             nav: item,
             isOpen: false,
