@@ -64,9 +64,7 @@ export default class CustomManager extends DefaultViewManager {
             }
 
             if (target) {
-                let offset = visible.locationOf(target);
-                let width = visible.width();
-                this.moveTo(offset, width);
+                this.moveToTarget(visible, target as string);
             }
 
             displaying.resolve();
@@ -121,8 +119,11 @@ export default class CustomManager extends DefaultViewManager {
     }
 
     private moveToTarget(view: View, target: string) {
-        let offset = view.locationOf(target as string);
-        let width = view.width();
+        let offset = view.locationOf(target) as {
+            top: number;
+            left: number;
+        };
+        let width = view.width() as number;
         this.moveTo(offset, width);
     }
 
