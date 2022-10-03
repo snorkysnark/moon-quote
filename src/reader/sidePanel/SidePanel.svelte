@@ -32,6 +32,7 @@
         {toc}
         {book}
         on:annotationClick
+        on:annotationDelete
         on:navigate
     />
     <!--end-->

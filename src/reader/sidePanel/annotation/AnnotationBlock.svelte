@@ -3,18 +3,25 @@
     import * as clipboard from "@tauri-apps/api/clipboard";
     import { makeAnnotationURL } from "src/deeplink";
     import { contextMenu } from "src/contextmenu";
+    import { createEventDispatcher } from "svelte";
 
     export let annotation: AnnotationDatabaseEntry;
+
+    const dispatch = createEventDispatcher<{ delete: void }>();
 </script>
 
 <button
     on:click
     use:contextMenu={[
         {
-            label: "Copy Link",
+            label: "URL",
             action: () => {
                 clipboard.writeText(makeAnnotationURL(annotation));
             },
+        },
+        {
+            label: "Delete",
+            action: () => dispatch("delete"),
         },
     ]}
 >

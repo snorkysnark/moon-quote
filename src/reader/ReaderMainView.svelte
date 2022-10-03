@@ -82,6 +82,7 @@
             {annotations}
             {toc}
             on:annotationClick={annotationLinkClicked}
+            on:annotationDelete={deleteAnnotation}
             on:navigate={tocItemClicked}
             bind:currentSidePanel
         />

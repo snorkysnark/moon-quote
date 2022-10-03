@@ -225,6 +225,7 @@
         const currentChapter = book.getChapter(
             rendition.location.start.cfi
         )?.data;
+
         if (currentChapter && currentChapter.prev) {
             await rendition.display(currentChapter.prev.data.nav.href);
         } else {

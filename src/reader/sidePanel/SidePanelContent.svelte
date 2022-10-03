@@ -16,7 +16,7 @@
     {#if currentSidePanel === "toc"}
         <ToC {book} items={toc} on:navigate />
     {:else if currentSidePanel === "annotations"}
-        <AnnotationPanel {annotations} on:annotationClick />
+        <AnnotationPanel {annotations} on:annotationClick on:annotationDelete />
     {/if}
 </div>
 
