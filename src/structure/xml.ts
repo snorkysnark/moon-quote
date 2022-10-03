@@ -1,5 +1,5 @@
 import type { NavItem } from "epubjs";
-import { makeAnnotationURL } from "src/deeplink";
+import { makeAnnotationURL, makeChapterURL } from "src/deeplink";
 import type { AnnotationInChapter, BookExtended } from "./bookExtended";
 
 const DEFAULT_XSLT = new DOMParser().parseFromString(
@@ -36,14 +36,15 @@ function annotationToXml(doc: XMLDocument, annotation: AnnotationInChapter) {
     return annotationElement;
 }
 
-function navItemToXml(doc: XMLDocument, chapter: NavItem) {
+function navItemToXml(doc: XMLDocument, book: BookExtended, chapter: NavItem) {
     const chapterElement = doc.createElement("chapter");
     chapterElement.setAttribute("label", chapter.label.trim());
     chapterElement.setAttribute("id", chapter.id);
+    chapterElement.setAttribute("url", makeChapterURL(book.dbEntry, chapter));
 
     if (chapter.subitems) {
         for (const child of chapter.subitems) {
-            chapterElement.appendChild(navItemToXml(doc, child));
+            chapterElement.appendChild(navItemToXml(doc, book, child));
         }
     }
     return chapterElement;
@@ -59,7 +60,7 @@ export function generateXml(
     doc.documentElement.appendChild(tocElement);
 
     for (const navItem of book.epub.navigation.toc) {
-        tocElement.appendChild(navItemToXml(doc, navItem));
+        tocElement.appendChild(navItemToXml(doc, book, navItem));
     }
 
     const annotationsElement = doc.createElement("annotations");
