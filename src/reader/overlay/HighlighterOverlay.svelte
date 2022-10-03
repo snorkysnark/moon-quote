@@ -17,7 +17,9 @@
     let lastBookDocument: Document;
     $: bookDocument = contents.document;
 
+    let selectedRange: Range;
     $: {
+        selectedRange = null;
         if (lastBookDocument)
             lastBookDocument.removeEventListener(
                 "selectionchange",
@@ -27,8 +29,6 @@
         bookDocument.addEventListener("selectionchange", onSelectionChange);
         lastBookDocument = bookDocument;
     }
-
-    let selectedRange: Range = null;
 
     function onSelectionChange() {
         const selection = bookDocument.getSelection();
