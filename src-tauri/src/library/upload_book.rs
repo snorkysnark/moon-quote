@@ -57,12 +57,7 @@ pub fn upload_book<'a>(
             .ok_or_else(|| sanyhow!("Book path has non-utf8 symbols"))?
             .to_string();
 
-        let book_id = metadata
-            .identifier
-            .as_ref()
-            .ok_or_else(|| sanyhow!("Identifier missing in epub metadata"))?
-            .clone();
-
+        let book_id = sha256::digest_file(&book_path)?;
         let book_row = BookRow::from_parts(
             book_id.clone(),
             book_filename.clone(),
