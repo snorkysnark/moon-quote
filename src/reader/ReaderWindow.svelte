@@ -11,11 +11,10 @@
     import ExportButton from "./ExportButton.svelte";
     import type { BookExtended } from "src/structure/bookExtended";
 
-    const dispatch = createEventDispatcher<{ goBack: void }>();
-
     export let bookEntry: BookDatabaseEntry;
-    export let goToAnnotation: AnnotationDatabaseEntry | string = null;
+    export let mainView: ReaderMainView = null;
 
+    const dispatch = createEventDispatcher<{ goBack: void }>();
     let book: BookExtended;
     loadEpub(bookEntry).then((loaded) => (book = loaded));
 
@@ -36,7 +35,11 @@
 
     <svelte:fragment slot="main">
         {#if book && annotations}
-            <ReaderMainView {book} bind:annotations {goToAnnotation} />
+            <ReaderMainView
+                {book}
+                bind:this={mainView}
+                bind:annotations
+            />
         {:else}
             <Loading />
         {/if}

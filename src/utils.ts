@@ -1,5 +1,5 @@
 import * as path from "@tauri-apps/api/path";
-import { EpubCFI } from "epubjs";
+import { Contents, EpubCFI } from "epubjs";
 import type { AnnotationDatabaseEntry } from "./backend";
 
 export function sleep(ms: number): Promise<void> {
@@ -53,4 +53,11 @@ export const compareCfi = new EpubCFI().compare;
 export function sortAnnotations(annotations: AnnotationDatabaseEntry[]) {
     annotations.sort((a, b) => compareCfi(a.cfi, b.cfi));
     return annotations;
+}
+
+export function cfiToRangeSafe(contents: Contents, cfi: string) {
+    if (cfi.startsWith(`epubcfi(${contents.cfiBase}!`)) {
+        return new EpubCFI(cfi).toRange(contents.document);
+    }
+    return null;
 }

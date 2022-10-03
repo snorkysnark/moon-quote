@@ -4,18 +4,29 @@
     import type { AnnotationDatabaseEntry, BookDatabaseEntry } from "./backend";
     import ReaderWindow from "./reader/ReaderWindow.svelte";
     import { onAnnotationLink } from "./deeplink";
-    import { onDestroy } from "svelte";
+    import { onMount, tick } from "svelte";
+    import type ReaderMainView from "./reader/ReaderMainView.svelte";
 
     let currentBook: BookDatabaseEntry = null;
-    let goToAnnotation: AnnotationDatabaseEntry | string = null;
+    let bookView: ReaderMainView;
 
-    const unsubscribe = onAnnotationLink((link) => {
-        currentBook = link.book;
-        goToAnnotation = link.annotation;
-    });
+    let targetAnnotation: AnnotationDatabaseEntry | string = null;
+    $: if (bookView && targetAnnotation) {
+        bookView.goToAnnotation(targetAnnotation);
+        targetAnnotation = null;
+    }
 
-    onDestroy(async () => {
-        (await unsubscribe)();
+    onMount(() => {
+        const unsubscribe = onAnnotationLink((link) => {
+            currentBook = link.book;
+            tick().then(() => {
+                targetAnnotation = link.annotation;
+            });
+        });
+
+        return async () => {
+            (await unsubscribe)();
+        };
     });
 </script>
 
@@ -25,11 +36,10 @@
     {#key currentBook.bookId}
         <ReaderWindow
             bookEntry={currentBook}
-            {goToAnnotation}
             on:goBack={() => {
                 currentBook = null;
-                goToAnnotation = null;
             }}
+            bind:mainView={bookView}
         />
     {/key}
 {:else}
