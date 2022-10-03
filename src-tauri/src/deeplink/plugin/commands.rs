@@ -3,16 +3,16 @@ use std::{cell::Cell, sync::Mutex};
 use tauri::State;
 
 use crate::{
-    deeplink::url::AnnotationUrlLoaded,
+    deeplink::url::TargetUrlLoaded,
     error::{sanyhow, SerializableResult},
 };
 
 pub(super) struct InitialUrlOnce {
-    initial_url: Mutex<Cell<Option<AnnotationUrlLoaded>>>,
+    initial_url: Mutex<Cell<Option<TargetUrlLoaded>>>,
 }
 
-impl From<Option<AnnotationUrlLoaded>> for InitialUrlOnce {
-    fn from(initial_url: Option<AnnotationUrlLoaded>) -> Self {
+impl From<Option<TargetUrlLoaded>> for InitialUrlOnce {
+    fn from(initial_url: Option<TargetUrlLoaded>) -> Self {
         Self {
             initial_url: Mutex::new(Cell::new(initial_url)),
         }
@@ -23,7 +23,7 @@ impl From<Option<AnnotationUrlLoaded>> for InitialUrlOnce {
 #[tauri::command]
 pub(super) fn initial_url(
     state: State<InitialUrlOnce>,
-) -> SerializableResult<Option<AnnotationUrlLoaded>> {
+) -> SerializableResult<Option<TargetUrlLoaded>> {
     let url = state.initial_url.lock().map_err(|err| sanyhow!("{err}"))?;
     Ok(url.take())
 }

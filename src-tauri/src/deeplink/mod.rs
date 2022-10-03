@@ -6,7 +6,7 @@ mod server;
 mod plugin;
 mod client;
 
-pub use self::url::AnnotationUrl;
+pub use self::url::TargetUrl;
 pub use self::message::Message;
 pub use server::DeeplinkServer;
 pub use client::DeeplinkClient;

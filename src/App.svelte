@@ -1,26 +1,26 @@
 <script lang="ts">
     import LibraryWindow from "./library/LibraryWindow.svelte";
     import ContextMenuDisplay from "./ContextMenuDisplay.svelte";
-    import type { AnnotationDatabaseEntry, BookDatabaseEntry } from "./backend";
+    import type { BookDatabaseEntry } from "./backend";
     import ReaderWindow from "./reader/ReaderWindow.svelte";
-    import { onAnnotationLink } from "./deeplink";
+    import { onAnnotationLink, type Target } from "./deeplink";
     import { onMount, tick } from "svelte";
     import type ReaderMainView from "./reader/ReaderMainView.svelte";
 
     let currentBook: BookDatabaseEntry = null;
     let bookView: ReaderMainView;
 
-    let targetAnnotation: AnnotationDatabaseEntry | string = null;
-    $: if (bookView && targetAnnotation) {
-        bookView.goToAnnotation(targetAnnotation);
-        targetAnnotation = null;
+    let target: Target;
+    $: if (bookView && target) {
+        bookView.goToTarget(target);
+        target = null;
     }
 
     onMount(() => {
         const unsubscribe = onAnnotationLink((link) => {
             currentBook = link.book;
             tick().then(() => {
-                targetAnnotation = link.annotation;
+                target = link.target;
             });
         });
 

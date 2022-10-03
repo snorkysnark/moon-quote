@@ -10,21 +10,25 @@
     import { sortAnnotations } from "src/utils";
     import type { BookExtended } from "src/structure/bookExtended";
     import { makeFoldable } from "src/structure/tocFoldable";
+    import type { Target } from "src/deeplink";
 
     export let book: BookExtended;
     export let annotations: AnnotationDatabaseEntry[] = [];
 
     let epubDisplay: EpubDisplay = null;
 
-    export function goToAnnotation(
-        annotation: AnnotationDatabaseEntry | string
-    ) {
-        if (typeof annotation === "object") {
-            selectedAnnotation = annotation;
-            epubDisplay.display(annotation.cfi);
-        } else {
-            selectedAnnotation = null;
-            epubDisplay.display(annotation, true);
+    export function goToTarget(target: Target) {
+        switch (target.type) {
+            case "Annotation":
+                selectedAnnotation = target.value;
+                epubDisplay.display(target.value.cfi);
+                break;
+            case "Range":
+                selectedAnnotation = null;
+                epubDisplay.display(target.value, true);
+            case "Chapter":
+                selectedAnnotation = null;
+                epubDisplay.display(target.value);
         }
     }
 

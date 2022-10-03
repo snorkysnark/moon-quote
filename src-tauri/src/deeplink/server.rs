@@ -54,9 +54,9 @@ impl<R: Runtime> DeeplinkServer<R> {
     fn handle_message(&self, message: Message) -> Result<()> {
         match message {
             Message::Focus => self.app.set_window_focused("main")?,
-            Message::GoToAnnotation(link) => {
+            Message::GoToTarget(link) => {
                 let link_data = link.load(&self.app)?;
-                self.app.emit_all("goto_annotation", link_data)?;
+                self.app.emit_all("goto_url", link_data)?;
                 self.app.set_window_focused("main")?;
             }
         }

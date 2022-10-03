@@ -1,16 +1,16 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use super::url::AnnotationUrl;
+use super::url::TargetUrl;
 
 // Message used to communicate between app instances
 #[derive(Serialize, Deserialize)]
 pub enum Message {
     Focus,
-    GoToAnnotation(AnnotationUrl),
+    GoToTarget(TargetUrl),
 }
 
-impl From<AnnotationUrl> for Message {
-    fn from(link: AnnotationUrl) -> Self {
-        Message::GoToAnnotation(link)
+impl From<TargetUrl> for Message {
+    fn from(link: TargetUrl) -> Self {
+        Message::GoToTarget(link)
     }
 }

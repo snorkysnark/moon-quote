@@ -5,7 +5,7 @@
 
 use std::{fs, path::PathBuf};
 
-use deeplink::{AnnotationUrl, DeeplinkClient, Message};
+use deeplink::{TargetUrl, DeeplinkClient, Message};
 
 use crate::deeplink::DeeplinkPlugin;
 
@@ -19,7 +19,7 @@ pub struct Constants {
 }
 
 fn main() {
-    let goto_annotation: Option<AnnotationUrl> = std::env::args()
+    let goto_annotation: Option<TargetUrl> = std::env::args()
         .nth(1)
         .map(|url_string| url_string.parse().expect("Invalid URL"));
 
@@ -27,7 +27,7 @@ fn main() {
         Ok(mut client) => {
             eprintln!("Sending message to existing server");
             let message = match goto_annotation {
-                Some(goto_annotation) => Message::GoToAnnotation(goto_annotation),
+                Some(goto_annotation) => Message::GoToTarget(goto_annotation),
                 None => Message::Focus,
             };
             client
