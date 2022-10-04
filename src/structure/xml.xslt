@@ -1,13 +1,7 @@
-<?xml version="1.0"?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-    <xsl:strip-space elements="*"/>
-    <xsl:template match="para[content-style][not(text())]">
-        <xsl:value-of select="normalize-space(.)"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+    <xsl:output method="xml" indent="yes"/>
+    <xsl:template match="/">
+        <xsl:copy-of select="/"/>
     </xsl:template>
-    <xsl:template match="node()|@*">
-        <xsl:copy>
-            <xsl:apply-templates select="node()|@*"/>
-        </xsl:copy>
-    </xsl:template>
-    <xsl:output indent="yes"/>
-</xsl:stylesheet>
+</xsl:transform>

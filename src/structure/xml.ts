@@ -1,16 +1,36 @@
 import type { NavItem } from "epubjs";
 import { makeAnnotationURL, makeChapterURL } from "src/deeplink";
 import type { AnnotationInChapter, BookExtended } from "./bookExtended";
-import SaxonJS from 'saxon-js';
-import XML_XSLT from "./xml.xslt?raw";
-import MARKDOWN_XSLT from "./markdown.xslt?raw";
 
-function loadStylesheet(xslt: string) {
-    const processor = new XSLTProcessor();
-    processor.importStylesheet(
-        new DOMParser().parseFromString(xslt, "application/xml")
-    );
-    return processor;
+export class XSLStylesheet {
+    processor: XSLTProcessor;
+    outputMethod: string;
+
+    constructor(source: string) {
+        const doc = new DOMParser().parseFromString(source, "application/xml");
+        const outputMethod = doc.documentElement
+            .getElementsByTagName("xsl:output")[0]
+            ?.getAttribute("method");
+
+        const processor = new XSLTProcessor();
+        processor.importStylesheet(doc);
+
+        this.processor = processor;
+        this.outputMethod = outputMethod || "xml";
+    }
+
+    transform(doc: Document) {
+        const newDoc = this.processor.transformToDocument(doc);
+
+        switch (this.outputMethod) {
+            case "xml":
+                return new XMLSerializer().serializeToString(newDoc);
+            case "text":
+                return newDoc.body.getElementsByTagName("pre")[0].textContent;
+            default:
+                throw "Unsupported output method: " + this.outputMethod;
+        }
+    }
 }
 
 function annotationToXml(doc: XMLDocument, annotation: AnnotationInChapter) {
@@ -39,7 +59,10 @@ function navItemToXml(doc: XMLDocument, book: BookExtended, chapter: NavItem) {
     return chapterElement;
 }
 
-function generateXml(book: BookExtended, annotations: AnnotationInChapter[]) {
+export function generateXml(
+    book: BookExtended,
+    annotations: AnnotationInChapter[]
+) {
     const doc = document.implementation.createDocument(null, "root", null);
 
     const tocElement = doc.createElement("toc");
@@ -58,17 +81,3 @@ function generateXml(book: BookExtended, annotations: AnnotationInChapter[]) {
 
     return doc;
 }
-
-export function generateFormat(
-    book: BookExtended,
-    annotations: AnnotationInChapter[],
-    xsltProcessor: XSLTProcessor
-) {
-    const doc = generateXml(book, annotations);
-
-    const prettyDoc = xsltProcessor.transformToDocument(doc);
-    return new XMLSerializer().serializeToString(prettyDoc);
-}
-
-export const XML = loadStylesheet(XML_XSLT);
-export const MARKDOWN = loadStylesheet(MARKDOWN_XSLT);

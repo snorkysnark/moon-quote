@@ -7,7 +7,9 @@
         AnnotationInChapter,
         BookExtended,
     } from "src/structure/bookExtended";
-    import { generateFormat, XML, MARKDOWN } from "src/structure/xml";
+    import { generateXml, XSLStylesheet } from "src/structure/xml";
+    import XML from "src/structure/xml.xslt?raw";
+    import MARKDOWN from "src/structure/markdown.xslt?raw";
 
     export let book: BookExtended;
     export let annotations: AnnotationDatabaseEntry[];
@@ -35,10 +37,13 @@
     async function exportFile(
         type: string,
         extension: string,
-        content: string
+        stylesheet: string
     ) {
         const path = await saveDialog(type, extension);
         if (path) {
+            const content = new XSLStylesheet(stylesheet).transform(
+                generateXml(book, annotationsInChapters)
+            );
             writeTextFile(path, content);
         }
     }
@@ -54,11 +59,7 @@
                 class="menuitem"
                 on:click={() => {
                     menuOpen = false;
-                    exportFile(
-                        "XML",
-                        "xml",
-                        generateFormat(book, annotationsInChapters, XML)
-                    );
+                    exportFile("XML", "xml", XML);
                 }}
             >
                 XML
@@ -67,11 +68,7 @@
                 class="menuitem"
                 on:click={() => {
                     menuOpen = false;
-                    exportFile(
-                        "Markdown",
-                        "md",
-                        generateFormat(book, annotationsInChapters, MARKDOWN)
-                    );
+                    exportFile("Markdown", "md", MARKDOWN);
                 }}
             >
                 Markdown
