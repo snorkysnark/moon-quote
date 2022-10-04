@@ -8,8 +8,9 @@
     import { createEventDispatcher } from "svelte";
     import ReaderMainView from "./ReaderMainView.svelte";
     import { Loading, Window, WindowHeader } from "src/decor";
-    import ExportButton from "./ExportButton.svelte";
     import type { BookExtended } from "src/structure/bookExtended";
+    import Overlay from "src/decor/Overlay.svelte";
+    import ExportMenu from "./ExportMenu.svelte";
 
     export let bookEntry: BookDatabaseEntry;
     export let mainView: ReaderMainView = null;
@@ -22,24 +23,28 @@
     getAnnotationsForBook(bookEntry.bookId).then(
         (loaded) => (annotations = loaded)
     );
+
+    let exportMenu = false;
 </script>
+
+{#if exportMenu}
+    <Overlay on:close={() => (exportMenu = false)}>
+        <ExportMenu />
+    </Overlay>
+{/if}
 
 <Window>
     <svelte:fragment slot="top">
         <button id="goBack" on:click={() => dispatch("goBack")}>←</button>
         <WindowHeader>{bookEntry.metaTitle}</WindowHeader>
         {#if book && annotations}
-            <ExportButton {book} {annotations} />
+            <button on:click={() => (exportMenu = true)}>Export</button>
         {/if}
     </svelte:fragment>
 
     <svelte:fragment slot="main">
         {#if book && annotations}
-            <ReaderMainView
-                {book}
-                bind:this={mainView}
-                bind:annotations
-            />
+            <ReaderMainView {book} bind:this={mainView} bind:annotations />
         {:else}
             <Loading />
         {/if}
