@@ -7,7 +7,7 @@
         AnnotationInChapter,
         BookExtended,
     } from "src/structure/bookExtended";
-    import { generateXml } from "src/structure/xml";
+    import { generateFormat, XML, MARKDOWN } from "src/structure/xml";
 
     export let book: BookExtended;
     export let annotations: AnnotationDatabaseEntry[];
@@ -57,11 +57,24 @@
                     exportFile(
                         "XML",
                         "xml",
-                        generateXml(book, annotationsInChapters)
+                        generateFormat(book, annotationsInChapters, XML)
                     );
                 }}
             >
                 XML
+            </div>
+            <div
+                class="menuitem"
+                on:click={() => {
+                    menuOpen = false;
+                    exportFile(
+                        "Markdown",
+                        "md",
+                        generateFormat(book, annotationsInChapters, MARKDOWN)
+                    );
+                }}
+            >
+                Markdown
             </div>
         </div>
     {/if}

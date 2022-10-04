@@ -1,27 +1,16 @@
 import type { NavItem } from "epubjs";
 import { makeAnnotationURL, makeChapterURL } from "src/deeplink";
 import type { AnnotationInChapter, BookExtended } from "./bookExtended";
+import SaxonJS from 'saxon-js';
+import XML_XSLT from "./xml.xslt?raw";
+import MARKDOWN_XSLT from "./markdown.xslt?raw";
 
-const DEFAULT_XSLT = new DOMParser().parseFromString(
-    `\
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-  <xsl:strip-space elements="*"/>
-  <xsl:template match="para[content-style][not(text())]">
-    <xsl:value-of select="normalize-space(.)"/>
-  </xsl:template>
-  <xsl:template match="node()|@*">
-    <xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy>
-  </xsl:template>
-  <xsl:output indent="yes"/>
-</xsl:stylesheet>`,
-    "application/xml"
-);
-
-function docToString(xmlDoc: XMLDocument) {
-    const xsltProcessor = new XSLTProcessor();
-    xsltProcessor.importStylesheet(DEFAULT_XSLT);
-    const prettyDoc = xsltProcessor.transformToDocument(xmlDoc);
-    return new XMLSerializer().serializeToString(prettyDoc);
+function loadStylesheet(xslt: string) {
+    const processor = new XSLTProcessor();
+    processor.importStylesheet(
+        new DOMParser().parseFromString(xslt, "application/xml")
+    );
+    return processor;
 }
 
 function annotationToXml(doc: XMLDocument, annotation: AnnotationInChapter) {
@@ -50,10 +39,7 @@ function navItemToXml(doc: XMLDocument, book: BookExtended, chapter: NavItem) {
     return chapterElement;
 }
 
-export function generateXml(
-    book: BookExtended,
-    annotations: AnnotationInChapter[]
-) {
+function generateXml(book: BookExtended, annotations: AnnotationInChapter[]) {
     const doc = document.implementation.createDocument(null, "root", null);
 
     const tocElement = doc.createElement("toc");
@@ -70,5 +56,19 @@ export function generateXml(
         annotationsElement.appendChild(annotationToXml(doc, annotation));
     }
 
-    return docToString(doc);
+    return doc;
 }
+
+export function generateFormat(
+    book: BookExtended,
+    annotations: AnnotationInChapter[],
+    xsltProcessor: XSLTProcessor
+) {
+    const doc = generateXml(book, annotations);
+
+    const prettyDoc = xsltProcessor.transformToDocument(doc);
+    return new XMLSerializer().serializeToString(prettyDoc);
+}
+
+export const XML = loadStylesheet(XML_XSLT);
+export const MARKDOWN = loadStylesheet(MARKDOWN_XSLT);
