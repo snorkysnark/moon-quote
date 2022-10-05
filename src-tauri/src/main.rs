@@ -3,14 +3,15 @@
     windows_subsystem = "windows"
 )]
 
+mod commands;
 mod db;
 mod deeplink;
 mod error;
-mod library;
 
 use std::{fs, path::PathBuf};
 
 use deeplink::{DeeplinkClient, DeeplinkPlugin, Message, TargetUrl};
+use commands::library;
 
 pub struct Constants {
     library_path: PathBuf,
