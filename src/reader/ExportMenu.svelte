@@ -71,7 +71,7 @@
                 </label>
             {/each}
         </div>
-        <button on:click={() => openTemplatesFolder()}>Open folder</button>
+        <button on:click={() => openTemplatesFolder()}>Edit templates</button>
     </div>
     <div class="block" style:flex="2 1">
         {#if result}
