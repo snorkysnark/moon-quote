@@ -33,15 +33,9 @@ export class XSLTransformer {
         const newDoc = this.processor.transformToDocument(doc);
         if (!newDoc) {
             throw "Document transformation failed";
-
-        switch (this.outputMethod) {
-            case "xml":
-                return new XMLSerializer().serializeToString(newDoc);
-            case "text":
-                return newDoc.body.getElementsByTagName("pre")[0].textContent;
-            default:
-                throw "Unsupported output method: " + this.outputMethod;
         }
+
+        return new XMLSerializer().serializeToString(newDoc);
     }
 }
 
