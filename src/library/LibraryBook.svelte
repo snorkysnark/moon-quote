@@ -2,7 +2,7 @@
     import { convertFileSrc } from "@tauri-apps/api/tauri";
     import { createEventDispatcher } from "svelte";
     import { contextMenu } from "src/contextmenu";
-    import type { BookDatabaseEntry } from "../backend";
+    import { openFolder, type BookDatabaseEntry } from "../backend";
 
     export let bookEntry: BookDatabaseEntry;
 
@@ -20,7 +20,7 @@
 <button
     on:click={() => dispatch("open", bookEntry)}
     use:contextMenu={[
-        { label: "Open Folder" },
+        { label: "Open Folder", action: () => openFolder(bookEntry.epubPath) },
         { label: "Delete", action: () => dispatch("delete", bookEntry) },
     ]}
 >

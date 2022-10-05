@@ -11,3 +11,4 @@ macro_rules! pub_use_hidden {
 }
 
 pub(crate) use pub_use_hidden;
+pub_use_hidden!( open_folder => open_folder );

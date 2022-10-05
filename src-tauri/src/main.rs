@@ -65,6 +65,7 @@ fn main() {
                     library::get_annotations_for_book,
                     library::get_annotation,
                     library::delete_annotation,
+                    commands::open_folder
                 ])
                 .run(context)
                 .expect("error while running tauri application");

@@ -132,3 +132,7 @@ export async function loadEpub(
 
     return bookExtended;
 }
+
+export async function openFolder(path: string): Promise<void> {
+    return invoke("open_folder", { path });
+}
