@@ -92,8 +92,8 @@
         display: flex;
         flex-direction: row;
         padding: 5px;
-        width: min(80%, 800px);
-        height: min(60%, 600px);
+        width: 80%;
+        height: 80%;
     }
 
     .block {
