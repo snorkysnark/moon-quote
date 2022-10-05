@@ -41,6 +41,22 @@
         }
     }
 
+    function onKeyDown(event: KeyboardEvent) {
+        switch (event.key) {
+            case "ArrowUp":
+                event.preventDefault();
+                currentTemplate = Math.max(currentTemplate - 1, 0);
+                break;
+            case "ArrowDown":
+                event.preventDefault();
+                currentTemplate = Math.min(
+                    currentTemplate + 1,
+                    templates.length - 1
+                );
+                break;
+        }
+    }
+
     onMount(() => {
         loadTemplates().then((loaded) => {
             templates = loaded;
@@ -48,11 +64,12 @@
     });
 </script>
 
+<svelte:window on:keydown={onKeyDown} />
 <div id="window">
     <div class="block" style:flex="1 1">
         <div class="list">
             {#each templates as template, index}
-                <label>
+                <label class:checked={index === currentTemplate}>
                     <input
                         type="radio"
                         name="templates"
@@ -123,15 +140,11 @@
         align-items: center;
     }
 
-    label:has(input:checked) {
+    label.checked {
         background: orange;
     }
 
     label > span {
         flex: 1 1;
-    }
-
-    label > img {
-        height: 15px;
     }
 </style>
