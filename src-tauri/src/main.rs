@@ -3,19 +3,18 @@
     windows_subsystem = "windows"
 )]
 
-use std::{fs, path::PathBuf};
-
-use deeplink::{TargetUrl, DeeplinkClient, Message};
-
-use crate::deeplink::DeeplinkPlugin;
-
 mod db;
 mod deeplink;
 mod error;
 mod library;
 
+use std::{fs, path::PathBuf};
+
+use deeplink::{DeeplinkClient, DeeplinkPlugin, Message, TargetUrl};
+
 pub struct Constants {
     library_path: PathBuf,
+    templates_path: PathBuf,
 }
 
 fn main() {
@@ -38,17 +37,23 @@ fn main() {
             eprintln!("Can't connect to existing server: {err}");
 
             let context = tauri::generate_context!();
-            let library_path = tauri::api::path::data_dir()
+            let data_dir = tauri::api::path::data_dir()
                 .expect("Cannot find data directory")
-                .join(&context.config().tauri.bundle.identifier)
-                .join("library");
-            fs::create_dir_all(&library_path).expect("cannot create library folder");
+                .join(&context.config().tauri.bundle.identifier);
+
+            let library_path = data_dir.join("library");
+            let templates_path = data_dir.join("templates");
+            fs::create_dir_all(&library_path).expect("creating library folder");
+            fs::create_dir_all(&templates_path).expect("creating templates folder");
 
             let db_pool = db::init_db(&library_path.join("metadata.db"));
 
             tauri::Builder::default()
                 .plugin(DeeplinkPlugin::new(goto_annotation))
-                .manage(Constants { library_path })
+                .manage(Constants {
+                    library_path,
+                    templates_path,
+                })
                 .manage(db_pool)
                 .invoke_handler(tauri::generate_handler![
                     library::upload_book,
