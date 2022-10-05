@@ -1,4 +1,6 @@
 <script lang="ts">
+    import Counter from "src/Counter.svelte";
+    import { disableMainInput } from "src/inputGroup";
     import { createEventDispatcher } from "svelte";
 
     const dispatch = createEventDispatcher<{ close: void }>();
@@ -11,6 +13,7 @@
     }
 </script>
 
+<Counter store={disableMainInput} />
 <div class="overlay" bind:this={overlay} on:click={onClick}>
     <slot />
 </div>

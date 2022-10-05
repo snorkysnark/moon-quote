@@ -13,6 +13,7 @@
 <script lang="ts">
     import type { Contents, Rendition } from "epubjs";
     import type { AnnotationDatabaseEntry } from "src/backend";
+    import { disableMainInput } from "src/inputGroup";
     import type { BookExtended } from "src/structure/bookExtended";
     import { cfiToRangeSafe } from "src/utils";
     import { createEventDispatcher, onMount, setContext } from "svelte";
@@ -117,6 +118,7 @@
     });
 
     function onKeyDown(event: KeyboardEvent) {
+        if ($disableMainInput > 0) return;
         switch (event.key) {
             case "PageUp":
             case "ArrowLeft":
@@ -241,7 +243,7 @@
     }
 </script>
 
-<svelte:window on:keydown={onKeyDown}/>
+<svelte:window on:keydown={onKeyDown} />
 <div id="reader" bind:this={container}>
     <!--Only annotate when rendition fully loaded-->
     {#if mounted}
