@@ -26,7 +26,7 @@ pub fn get_templates(constants: State<Constants>) -> SerializableResult<HashMap<
         .into_iter()
         .flat_map(|result| result.ok())
         .map(|entry| entry.path())
-        .filter(|path| matches!(path.extension().and_then(|ext| ext.to_str()), Some("xsl")))
+        .filter(|path| matches!(path.extension().and_then(|ext| ext.to_str()), Some("xslt")))
     {
         if let Some(stem) = path
             .file_stem()
