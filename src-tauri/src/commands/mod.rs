@@ -1,4 +1,5 @@
-mod library;
+pub mod library;
+mod open_folder;
 
 // #[tauri::command] macro adds hidden exports to the module, so we have to reexport them
 macro_rules! pub_use_hidden {
@@ -10,4 +11,3 @@ macro_rules! pub_use_hidden {
 }
 
 pub(crate) use pub_use_hidden;
-pub use library;
