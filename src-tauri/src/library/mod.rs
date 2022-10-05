@@ -4,7 +4,7 @@ mod delete_book;
 mod get_books;
 mod upload_book;
 
-use super::pub_use_hidden;
+use crate::commands::pub_use_hidden;
 
 pub_use_hidden!( upload_book => upload_book );
 pub_use_hidden!( get_books => get_books, get_book );

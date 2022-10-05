@@ -7,11 +7,12 @@ mod commands;
 mod db;
 mod deeplink;
 mod error;
+mod library;
+mod xslt;
 
 use std::{fs, path::PathBuf};
 
 use deeplink::{DeeplinkClient, DeeplinkPlugin, Message, TargetUrl};
-use commands::library;
 
 pub struct Constants {
     library_path: PathBuf,
@@ -45,7 +46,7 @@ fn main() {
             let library_path = data_dir.join("library");
             let templates_path = data_dir.join("templates");
             fs::create_dir_all(&library_path).expect("creating library folder");
-            fs::create_dir_all(&templates_path).expect("creating templates folder");
+            xslt::create_templates_dir(&templates_path).expect("creating templates folder");
 
             let db_pool = db::init_db(&library_path.join("metadata.db"));
 

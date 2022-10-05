@@ -1,4 +1,3 @@
-pub mod library;
 mod open_folder;
 
 // #[tauri::command] macro adds hidden exports to the module, so we have to reexport them
