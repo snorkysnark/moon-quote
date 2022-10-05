@@ -1,6 +1,7 @@
-use std::{collections::HashMap, fs, io, path::Path};
+use std::{fs, io, path::Path};
 
 use include_dir::{include_dir, Dir};
+use serde::Serialize;
 use tauri::{
     plugin::{Builder, TauriPlugin},
     Runtime, State,
@@ -18,9 +19,15 @@ pub fn create_templates_dir(path: &Path) -> io::Result<()> {
     Ok(())
 }
 
+#[derive(Serialize)]
+pub struct Template {
+    name: String,
+    source: String,
+}
+
 #[tauri::command]
-pub fn get_templates(constants: State<Constants>) -> SerializableResult<HashMap<String, String>> {
-    let mut templates = HashMap::new();
+pub fn get_templates(constants: State<Constants>) -> SerializableResult<Vec<Template>> {
+    let mut templates = Vec::new();
 
     for path in fs::read_dir(&constants.templates_path)?
         .into_iter()
@@ -33,8 +40,8 @@ pub fn get_templates(constants: State<Constants>) -> SerializableResult<HashMap<
             .and_then(|stem| stem.to_str())
             .map(ToOwned::to_owned)
         {
-            let content = fs::read_to_string(&path)?;
-            templates.insert(stem, content);
+            let source = fs::read_to_string(&path)?;
+            templates.push(Template { name: stem, source });
         }
     }
 

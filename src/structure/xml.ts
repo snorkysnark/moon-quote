@@ -2,6 +2,13 @@ import type { NavItem } from "epubjs";
 import { makeAnnotationURL, makeChapterURL } from "src/deeplink";
 import type { AnnotationInChapter, BookExtended } from "./bookExtended";
 
+export class XmlParseError extends Error {
+    constructor(doc: XMLDocument) {
+        super(new XMLSerializer().serializeToString(doc));
+        this.name = "XmlParseError";
+    }
+}
+
 export class XSLTransformer {
     processor: XSLTProcessor;
     outputMethod: "xml" | "text";
@@ -10,7 +17,7 @@ export class XSLTransformer {
         const doc = new DOMParser().parseFromString(source, "application/xml");
         if (doc.querySelector("parsererror")) {
             // parsing errors are returned in the form of XML
-            throw new XMLSerializer().serializeToString(doc);
+            throw new XmlParseError(doc);
         }
 
         const outputMethod =
@@ -19,7 +26,7 @@ export class XSLTransformer {
                 ?.getAttribute("method") || "xml";
 
         if (outputMethod !== "xml" && outputMethod !== "text") {
-            throw `Unsupported output method "${outputMethod}"`;
+            throw new Error(`Unsupported output method "${outputMethod}"`);
         }
 
         const processor = new XSLTProcessor();
@@ -32,7 +39,7 @@ export class XSLTransformer {
     transform(doc: Document) {
         const newDoc = this.processor.transformToDocument(doc);
         if (!newDoc) {
-            throw "Document transformation failed";
+            throw new Error("Document transformation returned null");
         }
 
         switch (this.outputMethod) {
@@ -40,8 +47,6 @@ export class XSLTransformer {
                 return new XMLSerializer().serializeToString(newDoc);
             case "text":
                 return newDoc.body.getElementsByTagName("pre")[0].textContent;
-            default:
-                throw "Unsupported output method: " + this.outputMethod;
         }
     }
 }

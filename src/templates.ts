@@ -2,28 +2,38 @@ import { invoke } from "@tauri-apps/api";
 import type { Result } from "./result";
 import { XSLTransformer } from "./structure/xml";
 
-async function getTemplatesRaw(): Promise<{ [name: string]: string }> {
+export interface Template {
+    name: string;
+    source: string;
+}
+
+export interface TemplateLoaded {
+    name: string;
+    transformer: Result<XSLTransformer, Error>;
+}
+
+async function getTemplatesRaw(): Promise<Template[]> {
     return invoke("plugin:xslt_templates|get_templates");
 }
 
-export async function loadTemplates(): Promise<{
-    [name: string]: Result<XSLTransformer, any>;
-}> {
-    const loaded = {};
-
-    for (const [name, source] of Object.entries(await getTemplatesRaw())) {
+export async function loadTemplates(): Promise<TemplateLoaded[]> {
+    return (await getTemplatesRaw()).map((template) => {
+        let transformer: Result<XSLTransformer, Error>;
         try {
-            loaded[name] = {
+            transformer = {
                 status: "ok",
-                value: new XSLTransformer(source),
+                value: new XSLTransformer(template.source),
             };
         } catch (error) {
-            loaded[name] = {
+            transformer = {
                 status: "error",
                 error,
             };
         }
-    }
 
-    return loaded;
+        return {
+            name: template.name,
+            transformer,
+        };
+    });
 }

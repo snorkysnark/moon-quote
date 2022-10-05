@@ -1,10 +1,9 @@
 <script lang="ts">
     import { openTemplatesFolder } from "src/backend";
-    import { loadTemplates } from "src/templates";
+    import { loadTemplates, type TemplateLoaded } from "src/templates";
     import { onMount } from "svelte";
-    import errorIcon from "src/decor/error.png";
     import type { Result } from "src/result";
-    import { generateXml, type XSLTransformer } from "src/structure/xml";
+    import { generateXml } from "src/structure/xml";
     import type {
         AnnotationInChapter,
         BookExtended,
@@ -16,18 +15,18 @@
     let xml: XMLDocument;
     $: xml = generateXml(book, annotations);
 
-    let templates: { [name: string]: Result<XSLTransformer, any> } = {};
-    let selected: string = null;
+    let templates: TemplateLoaded[] = [];
+    let currentTemplate = 0;
 
-    let result: Result<string, any>;
+    let result: Result<string, Error>;
     $: {
-        if (selected && templates[selected]) {
-            const transformer = templates[selected];
-            if (transformer.status === "ok") {
+        const template = templates[currentTemplate];
+        if (template) {
+            if (template.transformer.status === "ok") {
                 try {
                     result = {
                         status: "ok",
-                        value: transformer.value.transform(xml),
+                        value: template.transformer.value.transform(xml),
                     };
                 } catch (error) {
                     result = {
@@ -37,7 +36,7 @@
                 }
             } else {
                 // There was an error during parsing
-                result = transformer;
+                result = template.transformer;
             }
         }
     }
@@ -45,10 +44,6 @@
     onMount(() => {
         loadTemplates().then((loaded) => {
             templates = loaded;
-            const names = Object.keys(templates);
-            if (names.length > 0) {
-                selected = names[0];
-            }
         });
     });
 </script>
@@ -56,18 +51,15 @@
 <div id="window">
     <div class="block" style:flex="1 1">
         <div class="list">
-            {#each Object.entries(templates) as [name, result]}
+            {#each templates as template, index}
                 <label>
                     <input
                         type="radio"
                         name="templates"
-                        bind:group={selected}
-                        value={name}
+                        bind:group={currentTemplate}
+                        value={index}
                     />
-                    <span>{name}</span>
-                    {#if result.status === "error"}
-                        <img src={errorIcon} alt="error" class="error" />
-                    {/if}
+                    <span>{template.name}</span>
                 </label>
             {/each}
         </div>
