@@ -10,7 +10,11 @@ mod error;
 mod library;
 mod xslt;
 
-use std::{fs, path::PathBuf};
+use notify::{RecommendedWatcher, RecursiveMode, Watcher};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use deeplink::{DeeplinkClient, DeeplinkPlugin, Message, TargetUrl};
 
@@ -47,6 +51,33 @@ fn main() {
             let templates_path = data_dir.join("templates");
             fs::create_dir_all(&library_path).expect("creating library folder");
             xslt::create_templates_dir(&templates_path).expect("creating templates folder");
+
+            let mut watcher = RecommendedWatcher::new(
+                |result: Result<notify::Event, notify::Error>| match result {
+                    Ok(event) => {
+                        let paths: Vec<_> = event
+                            .paths
+                            .into_iter()
+                            .filter(|path| {
+                                matches!(
+                                    path.extension().and_then(|ext| ext.to_str()),
+                                    Some("xslt")
+                                )
+                            })
+                            .collect();
+
+                        if paths.len() > 0 {
+                            println!("{:?}\n{:#?}", event.kind, paths);
+                        }
+                    }
+                    Err(err) => eprintln!("Error while watching template folder: {err}"),
+                },
+                notify::Config::default(),
+            )
+            .unwrap();
+            watcher
+                .watch(&templates_path, RecursiveMode::NonRecursive)
+                .unwrap();
 
             let db_pool = db::init_db(&library_path.join("metadata.db"));
 
