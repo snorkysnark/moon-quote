@@ -140,7 +140,3 @@ export async function openFolder(path: string): Promise<void> {
 export async function openTemplatesFolder(): Promise<void> {
     return invoke("open_templates_folder");
 }
-
-export async function getTemplates(): Promise<{ [name: string]: string }> {
-    return invoke("plugin:xslt_templates|get_templates");
-}
