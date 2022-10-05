@@ -10,11 +10,9 @@ mod error;
 mod library;
 mod xslt;
 
-use notify::{RecommendedWatcher, RecursiveMode, Watcher};
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
+use notify::RecursiveMode;
+use notify_debouncer_mini::new_debouncer;
+use std::{fs, path::PathBuf, time::Duration};
 
 use deeplink::{DeeplinkClient, DeeplinkPlugin, Message, TargetUrl};
 
@@ -52,30 +50,13 @@ fn main() {
             fs::create_dir_all(&library_path).expect("creating library folder");
             xslt::create_templates_dir(&templates_path).expect("creating templates folder");
 
-            let mut watcher = RecommendedWatcher::new(
-                |result: Result<notify::Event, notify::Error>| match result {
-                    Ok(event) => {
-                        let paths: Vec<_> = event
-                            .paths
-                            .into_iter()
-                            .filter(|path| {
-                                matches!(
-                                    path.extension().and_then(|ext| ext.to_str()),
-                                    Some("xslt")
-                                )
-                            })
-                            .collect();
-
-                        if paths.len() > 0 {
-                            println!("{:?}\n{:#?}", event.kind, paths);
-                        }
-                    }
-                    Err(err) => eprintln!("Error while watching template folder: {err}"),
-                },
-                notify::Config::default(),
-            )
+            let mut debouncer = new_debouncer(Duration::from_millis(500), None, |results| {
+                println!("{results:#?}");
+            })
             .unwrap();
-            watcher
+
+            debouncer
+                .watcher()
                 .watch(&templates_path, RecursiveMode::NonRecursive)
                 .unwrap();
 
