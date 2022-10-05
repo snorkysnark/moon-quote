@@ -33,6 +33,7 @@ export class XSLTransformer {
         const newDoc = this.processor.transformToDocument(doc);
         if (!newDoc) {
             throw "Document transformation failed";
+        }
 
         switch (this.outputMethod) {
             case "xml":
