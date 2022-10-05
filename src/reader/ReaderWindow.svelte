@@ -8,7 +8,10 @@
     import { createEventDispatcher } from "svelte";
     import ReaderMainView from "./ReaderMainView.svelte";
     import { Loading, Window, WindowHeader } from "src/decor";
-    import type { BookExtended } from "src/structure/bookExtended";
+    import type {
+        AnnotationInChapter,
+        BookExtended,
+    } from "src/structure/bookExtended";
     import Overlay from "src/decor/Overlay.svelte";
     import ExportMenu from "./ExportMenu.svelte";
 
@@ -24,12 +27,16 @@
         (loaded) => (annotations = loaded)
     );
 
+    let locatedAnnotations: AnnotationInChapter[];
+    $: if (book && annotations)
+        locatedAnnotations = book.findChaptersForAnnotations(annotations);
+
     let exportMenu = false;
 </script>
 
 {#if exportMenu}
     <Overlay on:close={() => (exportMenu = false)}>
-        <ExportMenu />
+        <ExportMenu {book} annotations={locatedAnnotations} />
     </Overlay>
 {/if}
 

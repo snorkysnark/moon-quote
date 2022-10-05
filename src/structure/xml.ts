@@ -2,21 +2,31 @@ import type { NavItem } from "epubjs";
 import { makeAnnotationURL, makeChapterURL } from "src/deeplink";
 import type { AnnotationInChapter, BookExtended } from "./bookExtended";
 
-export class XSLStylesheet {
+export class XSLTransformer {
     processor: XSLTProcessor;
-    outputMethod: string;
+    outputMethod: "xml" | "text";
 
     constructor(source: string) {
         const doc = new DOMParser().parseFromString(source, "application/xml");
-        const outputMethod = doc.documentElement
-            .getElementsByTagName("xsl:output")[0]
-            ?.getAttribute("method");
+        if (doc.querySelector("parsererror")) {
+            // parsing errors are returned in the form of XML
+            throw new XMLSerializer().serializeToString(doc);
+        }
+
+        const outputMethod =
+            doc.documentElement
+                .getElementsByTagName("xsl:output")[0]
+                ?.getAttribute("method") || "xml";
+
+        if (outputMethod !== "xml" && outputMethod !== "text") {
+            throw `Unsupported output method "${outputMethod}"`;
+        }
 
         const processor = new XSLTProcessor();
         processor.importStylesheet(doc);
 
         this.processor = processor;
-        this.outputMethod = outputMethod || "xml";
+        this.outputMethod = outputMethod;
     }
 
     transform(doc: Document) {

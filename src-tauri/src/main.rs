@@ -8,7 +8,7 @@ mod db;
 mod deeplink;
 mod error;
 mod library;
-mod xslt;
+mod xslt_templates;
 
 use std::{fs, path::PathBuf};
 
@@ -46,12 +46,12 @@ fn main() {
             let library_path = data_dir.join("library");
             let templates_path = data_dir.join("templates");
             fs::create_dir_all(&library_path).expect("creating library folder");
-            xslt::create_templates_dir(&templates_path).expect("creating templates folder");
+            xslt_templates::create_templates_dir(&templates_path)
+                .expect("creating templates folder");
 
             let db_pool = db::init_db(&library_path.join("metadata.db"));
 
             tauri::Builder::default()
-                .plugin(DeeplinkPlugin::new(goto_annotation))
                 .manage(Constants {
                     library_path,
                     templates_path,
@@ -69,6 +69,8 @@ fn main() {
                     commands::open_folder,
                     commands::open_templates_folder
                 ])
+                .plugin(DeeplinkPlugin::new(goto_annotation))
+                .plugin(xslt_templates::plugin())
                 .run(context)
                 .expect("error while running tauri application");
         }
