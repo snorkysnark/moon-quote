@@ -1,6 +1,11 @@
 use std::{path::Path, process::Command};
 
-use crate::error::{sanyhow, SerializableResult};
+use tauri::State;
+
+use crate::{
+    error::{sanyhow, SerializableResult},
+    Constants,
+};
 
 #[tauri::command]
 pub fn open_folder(path: &Path) -> SerializableResult<()> {
@@ -21,4 +26,9 @@ pub fn open_folder(path: &Path) -> SerializableResult<()> {
 
     Command::new(command).arg(folder).spawn()?;
     Ok(())
+}
+
+#[tauri::command]
+pub fn open_templates_folder(constants: State<Constants>) -> SerializableResult<()> {
+    open_folder(&constants.templates_path)
 }

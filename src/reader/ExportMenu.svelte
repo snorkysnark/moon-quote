@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { openTemplatesFolder } from "src/backend";
 </script>
 
 <div id="window">
@@ -13,7 +14,7 @@
                 Markdown
             </label>
         </div>
-        <button>Open folder</button>
+        <button on:click={() => openTemplatesFolder()}>Open folder</button>
     </div>
     <div class="block" style:flex="2 1">
         <div id="preview">Preview Text</div>
