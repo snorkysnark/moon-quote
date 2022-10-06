@@ -1,19 +1,25 @@
+<script lang="ts" context="module">
+    interface Template {
+        name: string;
+        transformer: Result<XSLTransformer, Error>;
+    }
+</script>
+
 <script lang="ts">
     import { openTemplatesFolder } from "src/backend";
     import {
         loadTemplates,
-        type TemplateLoaded,
-        type TemplatesReload,
+        onTemplatesReload,
+        type TemplatesLoaded,
     } from "src/templates";
-    import { onDestroy, onMount } from "svelte";
+    import { onMount } from "svelte";
     import type { Result } from "src/result";
-    import { generateXml } from "src/structure/xml";
+    import { generateXml, XSLTransformer } from "src/structure/xml";
     import type {
         AnnotationInChapter,
         BookExtended,
     } from "src/structure/bookExtended";
     import type { UnlistenFn } from "@tauri-apps/api/event";
-    import { listen } from "@tauri-apps/api/event";
 
     export let book: BookExtended;
     export let annotations: AnnotationInChapter[];
@@ -21,12 +27,30 @@
     let xml: XMLDocument;
     $: xml = generateXml(book, annotations);
 
-    let templates: TemplateLoaded[] = [];
+    let templates: TemplatesLoaded = {};
+    let templatesList: Template[] = [];
     let currentTemplate = 0;
 
-    let result: Result<string, Error>;
+    // Convert templates map to list, keeping the same template selected
     $: {
-        const template = templates[currentTemplate];
+        const currentTemplateName = templatesList[currentTemplate]?.name;
+
+        let newCurrentTemplate: number = null;
+        let i = 0;
+        templatesList = Object.entries(templates).map(([name, transformer]) => {
+            if (name == currentTemplateName) {
+                newCurrentTemplate = i;
+            }
+            i++;
+            return { name, transformer };
+        });
+        currentTemplate = newCurrentTemplate || 0;
+    }
+
+    let result: Result<string, Error>;
+    // Render result / display error
+    $: {
+        const template = templatesList[currentTemplate];
         if (template) {
             if (template.transformer.status === "ok") {
                 try {
@@ -57,25 +81,33 @@
                 event.preventDefault();
                 currentTemplate = Math.min(
                     currentTemplate + 1,
-                    templates.length - 1
+                    templatesList.length - 1
                 );
                 break;
         }
     }
 
-    let unlisten: UnlistenFn;
-    onMount(async () => {
-        templates = await loadTemplates();
-        unlisten = await listen<TemplatesReload>(
-            "templates_reload",
-            (event) => {
-                console.log(event.payload);
-            }
-        );
-    });
+    onMount(() => {
+        let unlisten: UnlistenFn;
 
-    onDestroy(() => {
-        if (unlisten) unlisten();
+        (async () => {
+            templates = await loadTemplates();
+            unlisten = await onTemplatesReload((message) => {
+                for (const deleted of message.deleted) {
+                    delete templates[deleted];
+                }
+                for (const [name, transformer] of Object.entries(
+                    message.updated
+                )) {
+                    templates[name] = transformer;
+                }
+                templates = templates;
+            });
+        })();
+
+        return () => {
+            if (unlisten) unlisten();
+        };
     });
 </script>
 
@@ -83,7 +115,7 @@
 <div id="window">
     <div class="block" style:flex="1 1">
         <div class="list">
-            {#each templates as template, index}
+            {#each templatesList as template, index}
                 <label class:checked={index === currentTemplate}>
                     <input
                         type="radio"

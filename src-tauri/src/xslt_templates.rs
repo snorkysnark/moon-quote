@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     fs, io,
     path::{Path, PathBuf},
     time::Duration,
@@ -25,12 +26,6 @@ pub fn create_templates_dir(path: &Path) -> io::Result<()> {
     Ok(())
 }
 
-#[derive(Serialize, Clone)]
-pub struct Template {
-    name: String,
-    source: String,
-}
-
 fn named_xslt_path(path: PathBuf) -> Option<(String, PathBuf)> {
     match (
         path.file_stem()
@@ -44,8 +39,8 @@ fn named_xslt_path(path: PathBuf) -> Option<(String, PathBuf)> {
 }
 
 #[tauri::command]
-pub fn get_templates(constants: State<Constants>) -> SerializableResult<Vec<Template>> {
-    let mut templates = Vec::new();
+pub fn get_templates(constants: State<Constants>) -> SerializableResult<HashMap<String, String>> {
+    let mut templates = HashMap::new();
 
     for (stem, path) in fs::read_dir(&constants.templates_path)?
         .into_iter()
@@ -54,7 +49,7 @@ pub fn get_templates(constants: State<Constants>) -> SerializableResult<Vec<Temp
         .filter_map(named_xslt_path)
     {
         let source = fs::read_to_string(&path)?;
-        templates.push(Template { name: stem, source });
+        templates.insert(stem, source);
     }
 
     Ok(templates)
@@ -67,7 +62,7 @@ struct TemplateChangeListener<R: Runtime> {
 #[derive(Serialize, Clone, Default)]
 struct TemplateReloadMessage {
     deleted: Vec<String>,
-    updated: Vec<Template>,
+    updated: HashMap<String, String>,
 }
 
 impl<R: Runtime> DebounceEventHandler for TemplateChangeListener<R> {
@@ -85,7 +80,7 @@ impl<R: Runtime> DebounceEventHandler for TemplateChangeListener<R> {
             {
                 if path.exists() {
                     let source = fs::read_to_string(&path)?;
-                    message.updated.push(Template { name: stem, source });
+                    message.updated.insert(stem, source);
                 } else {
                     message.deleted.push(stem);
                 }
