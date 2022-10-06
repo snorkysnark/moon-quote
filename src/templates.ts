@@ -12,6 +12,11 @@ export interface TemplateLoaded {
     transformer: Result<XSLTransformer, Error>;
 }
 
+export interface TemplatesReload {
+    deleted: string[];
+    updated: Template;
+}
+
 async function getTemplatesRaw(): Promise<Template[]> {
     return invoke("plugin:xslt_templates|get_templates");
 }

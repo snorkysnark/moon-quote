@@ -1,13 +1,19 @@
 <script lang="ts">
     import { openTemplatesFolder } from "src/backend";
-    import { loadTemplates, type TemplateLoaded } from "src/templates";
-    import { onMount } from "svelte";
+    import {
+        loadTemplates,
+        type TemplateLoaded,
+        type TemplatesReload,
+    } from "src/templates";
+    import { onDestroy, onMount } from "svelte";
     import type { Result } from "src/result";
     import { generateXml } from "src/structure/xml";
     import type {
         AnnotationInChapter,
         BookExtended,
     } from "src/structure/bookExtended";
+    import type { UnlistenFn } from "@tauri-apps/api/event";
+    import { listen } from "@tauri-apps/api/event";
 
     export let book: BookExtended;
     export let annotations: AnnotationInChapter[];
@@ -57,10 +63,19 @@
         }
     }
 
-    onMount(() => {
-        loadTemplates().then((loaded) => {
-            templates = loaded;
-        });
+    let unlisten: UnlistenFn;
+    onMount(async () => {
+        templates = await loadTemplates();
+        unlisten = await listen<TemplatesReload>(
+            "templates_reload",
+            (event) => {
+                console.log(event.payload);
+            }
+        );
+    });
+
+    onDestroy(() => {
+        if (unlisten) unlisten();
     });
 </script>
 

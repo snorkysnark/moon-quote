@@ -4,9 +4,12 @@ use std::{
     time::Duration,
 };
 
+use anyhow::Result;
 use include_dir::{include_dir, Dir};
 use notify::{RecommendedWatcher, RecursiveMode};
-use notify_debouncer_mini::{new_debouncer, DebounceEventHandler, DebounceEventResult, Debouncer};
+use notify_debouncer_mini::{
+    new_debouncer, DebounceEventHandler, DebounceEventResult, DebouncedEvent, Debouncer,
+};
 use serde::Serialize;
 use tauri::{plugin::Plugin, AppHandle, Invoke, Manager, Runtime, State};
 
@@ -22,7 +25,7 @@ pub fn create_templates_dir(path: &Path) -> io::Result<()> {
     Ok(())
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct Template {
     name: String,
     source: String,
@@ -61,16 +64,41 @@ struct TemplateChangeListener<R: Runtime> {
     app: AppHandle<R>,
 }
 
+#[derive(Serialize, Clone, Default)]
+struct TemplateReloadMessage {
+    deleted: Vec<String>,
+    updated: Vec<Template>,
+}
+
 impl<R: Runtime> DebounceEventHandler for TemplateChangeListener<R> {
     fn handle_event(&mut self, result: DebounceEventResult) {
+        fn try_handle_events<R: Runtime>(
+            app: &AppHandle<R>,
+            events: Vec<DebouncedEvent>,
+        ) -> Result<()> {
+            let mut message = TemplateReloadMessage::default();
+
+            for (stem, path) in events
+                .into_iter()
+                .map(|event| event.path)
+                .filter_map(named_xslt_path)
+            {
+                if path.exists() {
+                    let source = fs::read_to_string(&path)?;
+                    message.updated.push(Template { name: stem, source });
+                } else {
+                    message.deleted.push(stem);
+                }
+            }
+
+            app.emit_all("templates_reload", message)?;
+            Ok(())
+        }
+
         match result {
             Ok(events) => {
-                for (stem, path) in events
-                    .into_iter()
-                    .map(|event| event.path)
-                    .filter_map(named_xslt_path)
-                {
-                    println!("{stem}: {}", path.display());
+                if let Err(error) = try_handle_events(&self.app, events) {
+                    eprintln!("{error}");
                 }
             }
             Err(errors) => errors
