@@ -31,6 +31,8 @@ futures = "0.3.24"
 percent-encoding = "2.2.0"
 sha256 = "1.0.3"
 include_dir = "0.7.2"
+notify = "5.0.0"
+notify-debouncer-mini = "0.2.1"
 
 # Bundle openssl for Ubuntu support
 [target.'cfg(unix)'.dependencies]

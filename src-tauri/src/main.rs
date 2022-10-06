@@ -14,6 +14,8 @@ use std::{fs, path::PathBuf};
 
 use deeplink::{DeeplinkClient, DeeplinkPlugin, Message, TargetUrl};
 
+use crate::xslt_templates::XsltTemplatesPlugin;
+
 pub struct Constants {
     library_path: PathBuf,
     templates_path: PathBuf,
@@ -70,7 +72,7 @@ fn main() {
                     commands::open_templates_folder
                 ])
                 .plugin(DeeplinkPlugin::new(goto_annotation))
-                .plugin(xslt_templates::plugin())
+                .plugin(XsltTemplatesPlugin::new())
                 .run(context)
                 .expect("error while running tauri application");
         }
