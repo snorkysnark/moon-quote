@@ -4,8 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use notify::RecommendedWatcher;
-use notify_debouncer_mini::{DebounceEventResult, DebouncedEvent, Debouncer};
+use notify_debouncer_mini::{DebounceEventResult, DebouncedEvent};
 use serde::Serialize;
 use tauri::{AppHandle, Manager, Runtime, State};
 

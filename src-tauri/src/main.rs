@@ -10,12 +10,9 @@ mod error;
 mod exporters;
 mod library;
 
-use std::{fs, path::PathBuf, time::Duration};
+use std::{fs, path::PathBuf};
 
 use deeplink::{DeeplinkClient, DeeplinkPlugin, Message, TargetUrl};
-use notify::RecursiveMode;
-use notify_debouncer_mini::new_debouncer;
-use tauri::Manager;
 
 use crate::exporters::ExportersPlugin;
 
