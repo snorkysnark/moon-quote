@@ -6,9 +6,15 @@
     export let language: string = null;
 
     let html: string;
-    $: html = language
-        ? Highight.highlight(content, { language }).value
-        : content;
+    $: {
+        try {
+            html = language
+                ? Highight.highlight(content, { language }).value
+                : content;
+        } catch {
+            html = content;
+        }
+    }
 </script>
 
 <pre>{@html html}</pre>
