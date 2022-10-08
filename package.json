@@ -12,6 +12,7 @@
     "devDependencies": {
         "@sveltejs/vite-plugin-svelte": "^1.0.1",
         "@tsconfig/svelte": "^3.0.0",
+        "@types/highlightjs": "^9.12.2",
         "svelte": "^3.49.0",
         "svelte-check": "^2.8.0",
         "svelte-preprocess": "^4.10.7",
@@ -22,6 +23,7 @@
     "dependencies": {
         "@tauri-apps/api": "^1.0.2",
         "epubjs": "^0.3.93",
+        "highlight.js": "^11.6.0",
         "svelte-local-storage-store": "^0.3.1"
     }
 }

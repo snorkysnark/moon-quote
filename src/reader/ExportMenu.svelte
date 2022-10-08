@@ -25,6 +25,7 @@
         generateExportData,
         type BookExportData,
     } from "src/structure/json";
+    import Code from "src/decor/Code.svelte";
     import { onMount } from "svelte";
 
     export let book: BookExtended;
@@ -123,10 +124,12 @@
     <div class="block" style:flex="2 1">
         {#if result}
             {#await result then output}
-                <pre id="preview">{output.content}</pre>
+                <div id="preview">
+                    <Code content={output.content} language={output.language} />
+                </div>
                 <button class="save">Save</button>
             {:catch error}
-                <pre id="preview">{error.message}</pre>
+                <div id="preview">{error.message}</div>
             {/await}
         {/if}
     </div>
