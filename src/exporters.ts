@@ -1,6 +1,5 @@
 import { invoke } from "@tauri-apps/api";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
-import type { Result } from "./result";
 import type { BookExportData } from "./structure/json";
 
 export interface ExporterOutput {
@@ -14,32 +13,22 @@ export interface Exporter {
 }
 
 type ExportersRaw = { [name: string]: string };
-export type ExportersLoaded = { [name: string]: Result<Exporter, Error> };
+export type ExportersLoaded = { [name: string]: Promise<Exporter> };
 
 function getExportersRaw(): Promise<ExportersRaw> {
     return invoke("plugin:exporters|get_exporters");
 }
 
-async function loadExporters(sources: ExportersRaw): Promise<ExportersLoaded> {
+function loadExporters(sources: ExportersRaw): ExportersLoaded {
     const exporters = sources as object;
     for (const [name, source] of Object.entries(exporters)) {
-        try {
-            exporters[name] = {
-                status: "ok",
-                value: await import(/* @vite-ignore */ source),
-            };
-        } catch (error) {
-            exporters[name] = {
-                status: "error",
-                error,
-            };
-        }
+        exporters[name] = import(/* @vite-ignore */ source);
     }
     return exporters as ExportersLoaded;
 }
 
 export async function getExportersLoaded(): Promise<ExportersLoaded> {
-    return await loadExporters(await getExportersRaw());
+    return loadExporters(await getExportersRaw());
 }
 
 export interface UpdateMessageRaw {
@@ -58,8 +47,19 @@ export async function onExportersReload(
     return listen<UpdateMessageRaw>("update_exporters", async (event) => {
         const message = {
             deleted: event.payload.deleted,
-            updated: await loadExporters(event.payload.updated),
+            updated: loadExporters(event.payload.updated),
         };
         callback(message);
     });
+}
+
+export function verifyOutput(output: any): ExporterOutput {
+    if (typeof output !== "object" || output.content === undefined) {
+        throw new Error(`Expected object {
+    content: string;
+    language?: string;
+    extension?: string;
+}, got ${output}`);
+    }
+    return output as ExporterOutput;
 }

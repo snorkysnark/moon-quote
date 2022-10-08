@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
     interface NamedExporter {
         name: string;
-        module: Result<Exporter, Error>;
+        loaded: Promise<Exporter>;
     }
 </script>
 
@@ -12,11 +12,11 @@
     import {
         getExportersLoaded,
         onExportersReload,
+        verifyOutput,
         type Exporter,
         type ExporterOutput,
         type ExportersLoaded,
     } from "src/exporters";
-    import type { Result } from "src/result";
     import type {
         AnnotationInChapter,
         BookExtended,
@@ -43,37 +43,24 @@
 
         let newCurrentExporter: number = null;
         let i = 0;
-        exportersList = Object.entries(exporters).map(([name, module]) => {
+        exportersList = Object.entries(exporters).map(([name, loaded]) => {
             if (name == currentExporterName) {
                 newCurrentExporter = i;
             }
             i++;
-            return { name, module };
+            return { name, loaded };
         });
         currentExporter = newCurrentExporter || 0;
     }
 
-    let result: Result<ExporterOutput, Error>;
+    let result: Promise<ExporterOutput>;
     // Render result / display error
     $: {
         const exporter = exportersList[currentExporter];
         if (exporter) {
-            if (exporter.module.status === "ok") {
-                try {
-                    result = {
-                        status: "ok",
-                        value: exporter.module.value.serialize(exportData),
-                    };
-                } catch (error) {
-                    result = {
-                        status: "error",
-                        error,
-                    };
-                }
-            } else {
-                // There was an error during parsing
-                result = exporter.module;
-            }
+            result = exporter.loaded.then((module) => {
+                return verifyOutput(module.serialize(exportData));
+            });
         }
     }
 
@@ -102,10 +89,8 @@
                 for (const deleted of message.deleted) {
                     delete exporters[deleted];
                 }
-                for (const [name, transformer] of Object.entries(
-                    message.updated
-                )) {
-                    exporters[name] = transformer;
+                for (const [name, loaded] of Object.entries(message.updated)) {
+                    exporters[name] = loaded;
                 }
                 exporters = exporters;
             });
@@ -137,12 +122,12 @@
     </div>
     <div class="block" style:flex="2 1">
         {#if result}
-            {#if result.status === "ok"}
-                <pre id="preview">{result.value.content}</pre>
+            {#await result then output}
+                <pre id="preview">{output.content}</pre>
                 <button class="save">Save</button>
-            {:else}
-                <pre id="preview">{result.error}</pre>
-            {/if}
+            {:catch error}
+                <pre id="preview">{error.message}</pre>
+            {/await}
         {/if}
     </div>
 </div>
