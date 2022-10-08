@@ -1,62 +1,65 @@
 <script lang="ts" context="module">
-    interface Template {
+    interface NamedExporter {
         name: string;
-        transformer: Result<XSLTransformer, Error>;
+        module: Result<Exporter, Error>;
     }
 </script>
 
 <script lang="ts">
-    import { openTemplatesFolder } from "src/backend";
+    import { openExportersFolder } from "src/backend";
     import {
-        loadTemplates,
-        onTemplatesReload,
-        type TemplatesLoaded,
-    } from "src/templates";
-    import { onMount } from "svelte";
+        getExportersLoaded,
+        type Exporter,
+        type ExporterOutput,
+        type ExportersLoaded,
+    } from "src/exporters";
     import type { Result } from "src/result";
-    import { generateXml, XSLTransformer } from "src/structure/xml";
     import type {
         AnnotationInChapter,
         BookExtended,
     } from "src/structure/bookExtended";
-    import type { UnlistenFn } from "@tauri-apps/api/event";
+    import {
+        generateExportData,
+        type BookExportData,
+    } from "src/structure/json";
+    import { onMount } from "svelte";
 
     export let book: BookExtended;
     export let annotations: AnnotationInChapter[];
 
-    let xml: XMLDocument;
-    $: xml = generateXml(book, annotations);
+    let exportData: BookExportData;
+    $: exportData = generateExportData(book, annotations);
 
-    let templates: TemplatesLoaded = {};
-    let templatesList: Template[] = [];
-    let currentTemplate = 0;
+    let exporters: ExportersLoaded = {};
+    let exportersList: NamedExporter[] = [];
+    let currentExporter = 0;
 
     // Convert templates map to list, keeping the same template selected
     $: {
-        const currentTemplateName = templatesList[currentTemplate]?.name;
+        const currentExporterName = exportersList[currentExporter]?.name;
 
-        let newCurrentTemplate: number = null;
+        let newCurrentExporter: number = null;
         let i = 0;
-        templatesList = Object.entries(templates).map(([name, transformer]) => {
-            if (name == currentTemplateName) {
-                newCurrentTemplate = i;
+        exportersList = Object.entries(exporters).map(([name, module]) => {
+            if (name == currentExporterName) {
+                newCurrentExporter = i;
             }
             i++;
-            return { name, transformer };
+            return { name, module };
         });
-        currentTemplate = newCurrentTemplate || 0;
+        currentExporter = newCurrentExporter || 0;
     }
 
-    let result: Result<string, Error>;
+    let result: Result<ExporterOutput, Error>;
     // Render result / display error
     $: {
-        const template = templatesList[currentTemplate];
-        if (template) {
-            if (template.transformer.status === "ok") {
+        const exporter = exportersList[currentExporter];
+        if (exporter) {
+            if (exporter.module.status === "ok") {
                 try {
                     result = {
                         status: "ok",
-                        value: template.transformer.value.transform(xml),
+                        value: exporter.module.value.serialize(exportData),
                     };
                 } catch (error) {
                     result = {
@@ -66,7 +69,7 @@
                 }
             } else {
                 // There was an error during parsing
-                result = template.transformer;
+                result = exporter.module;
             }
         }
     }
@@ -75,39 +78,22 @@
         switch (event.key) {
             case "ArrowUp":
                 event.preventDefault();
-                currentTemplate = Math.max(currentTemplate - 1, 0);
+                currentExporter = Math.max(currentExporter - 1, 0);
                 break;
             case "ArrowDown":
                 event.preventDefault();
-                currentTemplate = Math.min(
-                    currentTemplate + 1,
-                    templatesList.length - 1
+                currentExporter = Math.min(
+                    currentExporter + 1,
+                    exportersList.length - 1
                 );
                 break;
         }
     }
 
     onMount(() => {
-        let unlisten: UnlistenFn;
-
         (async () => {
-            templates = await loadTemplates();
-            unlisten = await onTemplatesReload((message) => {
-                for (const deleted of message.deleted) {
-                    delete templates[deleted];
-                }
-                for (const [name, transformer] of Object.entries(
-                    message.updated
-                )) {
-                    templates[name] = transformer;
-                }
-                templates = templates;
-            });
+            exporters = await getExportersLoaded();
         })();
-
-        return () => {
-            if (unlisten) unlisten();
-        };
     });
 </script>
 
@@ -115,24 +101,24 @@
 <div id="window">
     <div class="block" style:flex="1 1">
         <div class="list">
-            {#each templatesList as template, index}
-                <label class:checked={index === currentTemplate}>
+            {#each exportersList as exporter, index}
+                <label class:checked={index === currentExporter}>
                     <input
                         type="radio"
                         name="templates"
-                        bind:group={currentTemplate}
+                        bind:group={currentExporter}
                         value={index}
                     />
-                    <span>{template.name}</span>
+                    <span>{exporter.name}</span>
                 </label>
             {/each}
         </div>
-        <button on:click={() => openTemplatesFolder()}>Edit templates</button>
+        <button on:click={() => openExportersFolder()}>Edit scripts</button>
     </div>
     <div class="block" style:flex="2 1">
         {#if result}
             {#if result.status === "ok"}
-                <pre id="preview">{result.value}</pre>
+                <pre id="preview">{result.value.content}</pre>
                 <button class="save">Save</button>
             {:else}
                 <pre id="preview">{result.error}</pre>

@@ -7,18 +7,16 @@ mod commands;
 mod db;
 mod deeplink;
 mod error;
+mod exporters;
 mod library;
-mod xslt_templates;
 
 use std::{fs, path::PathBuf};
 
 use deeplink::{DeeplinkClient, DeeplinkPlugin, Message, TargetUrl};
 
-use crate::xslt_templates::XsltTemplatesPlugin;
-
 pub struct Constants {
     library_path: PathBuf,
-    templates_path: PathBuf,
+    exporters_path: PathBuf,
 }
 
 fn main() {
@@ -46,17 +44,16 @@ fn main() {
                 .join(&context.config().tauri.bundle.identifier);
 
             let library_path = data_dir.join("library");
-            let templates_path = data_dir.join("templates");
+            let exporters_path = data_dir.join("exporters");
             fs::create_dir_all(&library_path).expect("creating library folder");
-            xslt_templates::create_templates_dir(&templates_path)
-                .expect("creating templates folder");
+            exporters::create_exporters_dir(&exporters_path).expect("creating exporters folder");
 
             let db_pool = db::init_db(&library_path.join("metadata.db"));
 
             tauri::Builder::default()
                 .manage(Constants {
                     library_path,
-                    templates_path,
+                    exporters_path,
                 })
                 .manage(db_pool)
                 .invoke_handler(tauri::generate_handler![
@@ -69,10 +66,10 @@ fn main() {
                     library::get_annotation,
                     library::delete_annotation,
                     commands::open_folder,
-                    commands::open_templates_folder
+                    commands::open_exporters_folder,
+                    exporters::get_exporters
                 ])
                 .plugin(DeeplinkPlugin::new(goto_annotation))
-                .plugin(XsltTemplatesPlugin::new())
                 .run(context)
                 .expect("error while running tauri application");
         }

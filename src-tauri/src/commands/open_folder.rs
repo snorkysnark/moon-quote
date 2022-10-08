@@ -29,6 +29,6 @@ pub fn open_folder(path: &Path) -> SerializableResult<()> {
 }
 
 #[tauri::command]
-pub fn open_templates_folder(constants: State<Constants>) -> SerializableResult<()> {
-    open_folder(&constants.templates_path)
+pub fn open_exporters_folder(constants: State<Constants>) -> SerializableResult<()> {
+    open_folder(&constants.exporters_path)
 }

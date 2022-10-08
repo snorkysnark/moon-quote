@@ -1696,6 +1696,7 @@ name = "moon-quote"
 version = "0.1.4"
 dependencies = [
  "anyhow",
+ "base64",
  "diesel",
  "diesel_migrations",
  "futures",
