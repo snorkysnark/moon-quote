@@ -1,7 +1,6 @@
-mod default;
-mod get_exporters;
+mod default_scripts;
+mod get_scripts;
+mod plugin;
 
-use crate::commands::pub_use_hidden;
-
-pub use default::create_exporters_dir;
-pub_use_hidden!(get_exporters => get_exporters);
+pub use default_scripts::create_exporters_dir;
+pub use plugin::ExportersPlugin;

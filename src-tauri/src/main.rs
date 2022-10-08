@@ -10,9 +10,14 @@ mod error;
 mod exporters;
 mod library;
 
-use std::{fs, path::PathBuf};
+use std::{fs, path::PathBuf, time::Duration};
 
 use deeplink::{DeeplinkClient, DeeplinkPlugin, Message, TargetUrl};
+use notify::RecursiveMode;
+use notify_debouncer_mini::new_debouncer;
+use tauri::Manager;
+
+use crate::exporters::ExportersPlugin;
 
 pub struct Constants {
     library_path: PathBuf,
@@ -67,9 +72,9 @@ fn main() {
                     library::delete_annotation,
                     commands::open_folder,
                     commands::open_exporters_folder,
-                    exporters::get_exporters
                 ])
                 .plugin(DeeplinkPlugin::new(goto_annotation))
+                .plugin(ExportersPlugin::new())
                 .run(context)
                 .expect("error while running tauri application");
         }

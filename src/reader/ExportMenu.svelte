@@ -6,9 +6,12 @@
 </script>
 
 <script lang="ts">
+    import type { UnlistenFn } from "@tauri-apps/api/event";
+
     import { openExportersFolder } from "src/backend";
     import {
         getExportersLoaded,
+        onExportersReload,
         type Exporter,
         type ExporterOutput,
         type ExportersLoaded,
@@ -91,9 +94,26 @@
     }
 
     onMount(() => {
+        let unlisten: UnlistenFn;
+
         (async () => {
             exporters = await getExportersLoaded();
+            unlisten = await onExportersReload((message) => {
+                for (const deleted of message.deleted) {
+                    delete exporters[deleted];
+                }
+                for (const [name, transformer] of Object.entries(
+                    message.updated
+                )) {
+                    exporters[name] = transformer;
+                }
+                exporters = exporters;
+            });
         })();
+
+        return () => {
+            if (unlisten) unlisten();
+        };
     });
 </script>
 
