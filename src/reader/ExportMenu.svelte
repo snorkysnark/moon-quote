@@ -7,7 +7,8 @@
 
 <script lang="ts">
     import type { UnlistenFn } from "@tauri-apps/api/event";
-
+    import * as dialog from "@tauri-apps/api/dialog";
+    import * as fs from "@tauri-apps/api/fs";
     import { openExportersFolder } from "src/backend";
     import {
         getExportersLoaded,
@@ -65,6 +66,26 @@
         }
     }
 
+    async function save() {
+        if (!result) return;
+        const output = await result;
+
+        const filePath = await dialog.save({
+            filters: output.extension
+                ? [
+                      {
+                          name: output.language || output.extension,
+                          extensions: [output.extension],
+                      },
+                  ]
+                : undefined,
+        });
+
+        if (filePath) {
+            await fs.writeTextFile(filePath, output.content);
+        }
+    }
+
     function onKeyDown(event: KeyboardEvent) {
         switch (event.key) {
             case "ArrowUp":
@@ -77,6 +98,10 @@
                     currentExporter + 1,
                     exportersList.length - 1
                 );
+                break;
+            case "s":
+                event.preventDefault();
+                save();
                 break;
         }
     }
@@ -127,7 +152,7 @@
                 <div id="preview">
                     <Code content={output.content} language={output.language} />
                 </div>
-                <button class="save">Save</button>
+                <button class="save" on:click={save}>Save</button>
             {:catch error}
                 <div id="preview">{error.message}</div>
             {/await}
