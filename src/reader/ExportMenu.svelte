@@ -28,6 +28,7 @@
     } from "src/structure/json";
     import Code from "src/decor/Code.svelte";
     import { onMount } from "svelte";
+import { Loading } from "src/decor";
 
     export let book: BookExtended;
     export let annotations: AnnotationInChapter[];
@@ -148,7 +149,9 @@
     </div>
     <div class="block" style:flex="2 1">
         {#if result}
-            {#await result then output}
+            {#await result}
+                <Loading />
+            {:then output}
                 <div id="preview">
                     <Code content={output.content} language={output.language} />
                 </div>
