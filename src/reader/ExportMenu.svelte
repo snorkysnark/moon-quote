@@ -29,6 +29,8 @@
     import Code from "src/decor/Code.svelte";
     import { onMount } from "svelte";
 import { Loading } from "src/decor";
+import OkView from "src/decor/OkView.svelte";
+import ErrorView from "src/decor/ErrorView.svelte";
 
     export let book: BookExtended;
     export let annotations: AnnotationInChapter[];
@@ -153,11 +155,17 @@ import { Loading } from "src/decor";
                 <Loading />
             {:then output}
                 <div id="preview">
-                    <Code content={output.content} language={output.language} />
+                    <OkView>
+                        <Code content={output.content} language={output.language} />
+                    </OkView>
                 </div>
                 <button class="save" on:click={save}>Save</button>
             {:catch error}
-                <div id="preview">{error.message}</div>
+                <div id="preview">
+                    <ErrorView>
+                        <pre>{error.message}</pre>
+                    </ErrorView>
+                </div>
             {/await}
         {/if}
     </div>
@@ -188,8 +196,9 @@ import { Loading } from "src/decor";
 
     #preview {
         flex: 1 1;
-        border: inset;
-        overflow: scroll;
+        min-height: 0;
+        min-width: 0;
+        margin: 5px;
     }
 
     button.save {
