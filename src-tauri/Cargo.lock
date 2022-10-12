@@ -1693,7 +1693,7 @@ dependencies = [
 
 [[package]]
 name = "moon-quote"
-version = "0.1.4"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "base64",
