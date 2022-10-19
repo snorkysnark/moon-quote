@@ -42,7 +42,7 @@ export class BookExtended {
             this.epub.navigation.toc,
             async (navItem: NavItem) => {
                 const [sectionHref, headerId] = navItem.href.split("#");
-                const section = this.getSpine().get(sectionHref);
+                const section = this.epub.spine.get(sectionHref);
                 await section.load((path: string) => this.epub.load(path));
 
                 const header = headerId
@@ -88,10 +88,5 @@ export class BookExtended {
                 data: annotation,
             };
         });
-    }
-
-    getSpine(): Spine {
-        // @ts-ignore: book.spine has wrong type definition
-        return this.epub.spine;
     }
 }

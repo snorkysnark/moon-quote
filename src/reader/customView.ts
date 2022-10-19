@@ -1,4 +1,4 @@
-import IframeView from "epubjs/lib/managers/views/iframe";
+import IframeView from "epubjs/src/managers/views/iframe";
 
 function stopEvent(event: Event) {
     event.preventDefault();

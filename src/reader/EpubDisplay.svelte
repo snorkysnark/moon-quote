@@ -17,7 +17,6 @@
     import type { BookExtended } from "src/structure/bookExtended";
     import { cfiToRangeSafe } from "src/utils";
     import { createEventDispatcher, onMount, setContext } from "svelte";
-    import CustomManager from "./customManager";
     import CustomView from "./customView";
     import EpubOverlay from "./overlay/EpubOverlay.svelte";
     import type { NewHighlight } from "./overlay/HighlighterOverlay.svelte";
@@ -55,7 +54,6 @@
         rendition = book.epub.renderTo(container, {
             height: "100%",
             width: "100%",
-            manager: CustomManager,
             view: CustomView,
             flow: "scrolled-doc",
             allowScriptedContent: true, //Needed for arrow key navigation
@@ -66,11 +64,9 @@
                 nextSelectionCfi = null;
             }
         });
-        rendition.on("started", () => {
-            rendition.manager.on("viewResized", () => {
-                // Hacky: force the overlay to refresh when iframe is resized
-                contents = contents;
-            });
+        rendition.on("viewResized", () => {
+            // Force the overlay to refresh when iframe is resized
+            contents = contents;
         });
         rendition.on("mousedown", (event: MouseEvent) => {
             dispatch("mousedown", event);
@@ -79,7 +75,7 @@
 
         await rendition.display(0);
 
-        const innerContainer = rendition.manager.container;
+        const innerContainer = rendition.container;
         overlay = new EpubOverlay({
             target: innerContainer,
         });
@@ -166,9 +162,10 @@
     }
     export async function display(
         target: string | number,
-        select: boolean = false
+        select: boolean = false,
+        position: "top" | "center" = "top"
     ) {
-        await rendition.display(target);
+        await rendition.display(target, position);
         if (select && typeof target === "string") {
             if (!setSelectionCfi(target)) {
                 nextSelectionCfi = target;
@@ -176,28 +173,28 @@
         }
     }
     export function scrollUp() {
-        rendition.manager.scrollBy(0, -20, false);
+        rendition.scrollBy(0, -20);
     }
     export function scrollDown() {
-        rendition.manager.scrollBy(0, 20, false);
+        rendition.scrollBy(0, 20);
     }
     export async function nextPage() {
-        const container = rendition.manager.container;
+        const container = rendition.container
         const delta = container.clientHeight;
         const newScrollTop = container.scrollTop + delta;
 
         if (newScrollTop < container.scrollHeight) {
-            rendition.manager.scrollBy(0, delta, false);
+            rendition.scrollBy(0, delta);
         } else {
             await rendition.next();
         }
     }
     export async function prevPage() {
-        const container = rendition.manager.container;
+        const container = rendition.container;
         const delta = -container.clientHeight;
 
         if (container.scrollTop > 0) {
-            rendition.manager.scrollBy(0, delta, false);
+            rendition.scrollBy(0, delta);
         } else {
             await rendition.prev();
         }
@@ -238,8 +235,8 @@
         await rendition.display(0);
     }
     export async function endOfBook() {
-        await rendition.display(book.getSpine().spineItems.length - 1);
-        rendition.manager.scrollToBottom();
+        await rendition.display(book.epub.spine.spineItems.length - 1);
+        rendition.scrollTo(0, "MAX");
     }
 </script>
 

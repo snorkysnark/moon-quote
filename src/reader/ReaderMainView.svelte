@@ -21,14 +21,16 @@
         switch (target.type) {
             case "Annotation":
                 selectedAnnotation = target.value;
-                epubDisplay.display(target.value.cfi);
+                epubDisplay.display(target.value.cfi, false, "center");
                 break;
             case "Range":
                 selectedAnnotation = null;
-                epubDisplay.display(target.value, true);
+                epubDisplay.display(target.value, true, "center");
+                break;
             case "Chapter":
                 selectedAnnotation = null;
                 epubDisplay.display(target.value);
+                break;
         }
     }
 
@@ -61,7 +63,7 @@
         event: CustomEvent<AnnotationDatabaseEntry>
     ) {
         const annotation = event.detail;
-        epubDisplay.display(annotation.cfi);
+        epubDisplay.display(annotation.cfi, false, "center");
         selectedAnnotation = annotation;
     }
 
