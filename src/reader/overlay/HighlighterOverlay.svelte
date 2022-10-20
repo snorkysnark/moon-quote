@@ -57,7 +57,7 @@
 </script>
 
 {#if selectedRange}
-    <div id="box" style="left: {position.x}px; top: {position.y}px;">
+    <div id="box" style:left="{position.x}px" style:top="{position.y}px">
         {#each [1, 2, 3, 4, 5] as color}
             <button
                 class="highlightButton"
