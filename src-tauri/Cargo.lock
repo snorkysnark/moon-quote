@@ -1699,7 +1699,6 @@ dependencies = [
  "base64",
  "diesel",
  "diesel_migrations",
- "futures",
  "include_dir",
  "interprocess",
  "libsqlite3-sys",

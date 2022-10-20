@@ -1,6 +1,7 @@
+use std::io::{prelude::*, BufReader};
+
 use anyhow::{anyhow, Context, Result};
-use futures::{io::BufReader, prelude::*};
-use interprocess::nonblocking::local_socket::{LocalSocketListener, LocalSocketStream};
+use interprocess::local_socket::{LocalSocketListener, LocalSocketStream};
 use tauri::{AppHandle, Manager, Runtime};
 
 use super::message::Message;
@@ -15,34 +16,30 @@ impl<R: Runtime> DeeplinkServer<R> {
         Ok(Self { app })
     }
 
-    pub async fn run(&self) {
-        let listener = LocalSocketListener::bind(super::socket_name())
-            .await
-            .expect("Can't bind to socket");
+    pub fn run(&self) {
+        let listener =
+            LocalSocketListener::bind(super::socket_name()).expect("Can't bind to socket");
 
         listener
             .incoming()
-            .filter_map(|result| async move {
-                match result {
-                    Ok(conn) => Some(conn),
-                    Err(err) => {
-                        eprintln!("Incoming connection failed: {err}");
-                        None
-                    }
+            .filter_map(|result| match result {
+                Ok(conn) => Some(conn),
+                Err(err) => {
+                    eprintln!("Incoming connection failed: {err}");
+                    None
                 }
             })
-            .for_each(|conn| async move {
-                if let Err(err) = self.handle_connection(conn).await {
+            .for_each(|conn| {
+                if let Err(err) = self.handle_connection(conn) {
                     eprintln!("Error while handling connection: {}", err);
                 }
-            })
-            .await;
+            });
     }
 
-    async fn handle_connection(&self, conn: LocalSocketStream) -> Result<()> {
+    fn handle_connection(&self, conn: LocalSocketStream) -> Result<()> {
         let mut conn = BufReader::new(conn);
         let mut buffer = String::new();
-        conn.read_line(&mut buffer).await?;
+        conn.read_line(&mut buffer)?;
 
         let message: Message =
             serde_json::from_str(&buffer).with_context(|| format!("Invalid message: {buffer}"))?;
