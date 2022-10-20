@@ -8,31 +8,29 @@
 
 <script lang="ts">
     import { EpubCFI, type Contents } from "epubjs";
-
-    import { createEventDispatcher, onDestroy } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
 
     export let contents: Contents;
 
     let bookDocument: Document;
-    let lastBookDocument: Document;
+    let lastDocument: Document;
+    let selectedRange: Range;
     $: bookDocument = contents.document;
 
-    let selectedRange: Range;
     $: {
-        selectedRange = null;
-        if (lastBookDocument)
-            lastBookDocument.removeEventListener(
+        if (lastDocument) {
+            lastDocument.removeEventListener(
                 "selectionchange",
                 onSelectionChange
             );
-
+        }
         bookDocument.addEventListener("selectionchange", onSelectionChange);
-        lastBookDocument = bookDocument;
+        lastDocument = bookDocument;
     }
 
     function onSelectionChange() {
         const selection = bookDocument.getSelection();
-        if (selection.type == "Range") {
+        if (selection && selection.type == "Range") {
             selectedRange = selection.getRangeAt(0);
         } else {
             selectedRange = null;
@@ -48,8 +46,7 @@
     }
     $: if (selectedRange) position = computePosition(selectedRange);
 
-    const dispatch =
-        createEventDispatcher<{ highlight: NewHighlight }>();
+    const dispatch = createEventDispatcher<{ highlight: NewHighlight }>();
 
     function highlight(color: number) {
         dispatch("highlight", {
@@ -60,8 +57,15 @@
         bookDocument.getSelection().removeAllRanges();
     }
 
-    onDestroy(() => {
-        bookDocument.removeEventListener("selectionchange", onSelectionChange);
+    onMount(() => {
+        onSelectionChange();
+
+        return () => {
+            bookDocument.removeEventListener(
+                "selectionchange",
+                onSelectionChange
+            );
+        };
     });
 </script>
 
