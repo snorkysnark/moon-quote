@@ -8,24 +8,15 @@
 
 <script lang="ts">
     import { EpubCFI, type Contents } from "epubjs";
-    import { createEventDispatcher, onMount } from "svelte";
+    import { createEventDispatcher, onDestroy, onMount } from "svelte";
 
     export let contents: Contents;
 
     let bookDocument: Document;
-    let lastDocument: Document;
     let selectedRange: Range;
-    $: bookDocument = contents.document;
-
     $: {
-        if (lastDocument) {
-            lastDocument.removeEventListener(
-                "selectionchange",
-                onSelectionChange
-            );
-        }
+        bookDocument = contents.document;
         bookDocument.addEventListener("selectionchange", onSelectionChange);
-        lastDocument = bookDocument;
     }
 
     function onSelectionChange() {
@@ -59,13 +50,9 @@
 
     onMount(() => {
         onSelectionChange();
-
-        return () => {
-            bookDocument.removeEventListener(
-                "selectionchange",
-                onSelectionChange
-            );
-        };
+    });
+    onDestroy(() => {
+        bookDocument.removeEventListener("selectionchange", onSelectionChange);
     });
 </script>
 
