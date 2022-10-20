@@ -34,6 +34,8 @@
     let nextSelectionCfi: string = null;
     function setSelectionCfi(target: string) {
         if (contents) {
+            contents.window.focus();
+
             const range = cfiToRangeSafe(contents, target);
             if (range) {
                 contents.document.getSelection().removeAllRanges();
