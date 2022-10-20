@@ -26,9 +26,11 @@
             case "Range":
                 selectedAnnotation = null;
                 epubDisplay.display(target.value, true);
+                break;
             case "Chapter":
                 selectedAnnotation = null;
                 epubDisplay.display(target.value);
+                break;
         }
     }
 
