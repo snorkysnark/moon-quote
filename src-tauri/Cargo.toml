@@ -27,7 +27,6 @@ diesel_migrations = "2.0.0"
 libsqlite3-sys = { version = "0.25.1", features = ["bundled"] }
 url = "2.3.1"
 interprocess = { version = "1.1.1", features = [] }
-futures = "0.3.24"
 percent-encoding = "2.2.0"
 sha256 = "1.0.3"
 include_dir = "0.7.2"
