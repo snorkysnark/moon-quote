@@ -71,10 +71,10 @@
         "windows": [
             {
                 "fullscreen": false,
-                "height": 600,
+                "height": 800,
                 "resizable": true,
                 "title": "Moon Quote",
-                "width": 800
+                "width": 1300
             }
         ]
     }
