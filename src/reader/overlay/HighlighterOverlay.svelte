@@ -15,6 +15,12 @@
     let bookDocument: Document;
     let selectedRange: Range;
     $: {
+        if (bookDocument) {
+            bookDocument.removeEventListener(
+                "selectionchange",
+                onSelectionChange
+            );
+        }
         bookDocument = contents.document;
         bookDocument.addEventListener("selectionchange", onSelectionChange);
     }
