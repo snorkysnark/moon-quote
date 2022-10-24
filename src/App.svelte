@@ -1,47 +1,22 @@
 <script lang="ts">
-    import LibraryWindow from "./library/LibraryWindow.svelte";
-    import ContextMenuDisplay from "./ContextMenuDisplay.svelte";
-    import type { BookDatabaseEntry } from "./backend";
-    import ReaderWindow from "./reader/ReaderWindow.svelte";
-    import { onAnnotationLink, type Target } from "./deeplink";
-    import { onMount, tick } from "svelte";
-    import type ReaderMainView from "./reader/ReaderMainView.svelte";
+    import { asyncReadable } from "@square/svelte-store";
+    import { getBooks } from "./backend";
+    import type { BookDatabaseEntry } from "./backend/library";
 
-    let currentBook: BookDatabaseEntry = null;
-    let bookView: ReaderMainView;
-
-    let target: Target;
-    $: if (bookView && target) {
-        bookView.goToTarget(target);
-        target = null;
+    const bookQuery = asyncReadable(null, getBooks);
+    let bookList: BookDatabaseEntry[] = [];
+    $: if ($bookQuery) {
+        bookList = $bookQuery;
     }
-
-    onMount(() => {
-        const unsubscribe = onAnnotationLink((link) => {
-            currentBook = link.book;
-            tick().then(() => {
-                target = link.target;
-            });
-        });
-
-        return async () => {
-            (await unsubscribe)();
-        };
-    });
 </script>
 
-<ContextMenuDisplay />
-
-{#if currentBook}
-    {#key currentBook.bookId}
-        <ReaderWindow
-            bookEntry={currentBook}
-            on:goBack={() => {
-                currentBook = null;
-            }}
-            bind:mainView={bookView}
-        />
-    {/key}
-{:else}
-    <LibraryWindow on:open={(e) => (currentBook = e.detail)} />
-{/if}
+<div class="flex flex-col h-screen">
+    <div class="bg-orange-400 h-10" />
+    <div class="flex-1">
+        <div class="p-4 grid gap-4 grid-cols-fit-40 auto-rows-fr">
+            {#each bookList as book (book.bookId)}
+                <button class="bg-cyan-200">{book.metaTitle}</button>
+            {/each}
+        </div>
+    </div>
+</div>
