@@ -1,1 +1,7 @@
-export { type BookDatabaseEntry, getBooks } from "./backend/library";
+export {
+    type BookDatabaseEntry,
+    getBooks,
+    getBook,
+    deleteBook,
+} from "./backend/library";
+export { openFolder, openExportersFolder } from "./backend/system";

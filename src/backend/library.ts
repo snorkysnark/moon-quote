@@ -23,3 +23,11 @@ export interface BookDatabaseEntry {
 export function getBooks(): Promise<BookDatabaseEntry[]> {
     return invoke("get_books");
 }
+
+export function getBook(bookId: string): Promise<BookDatabaseEntry> {
+    return invoke("get_book", { bookId });
+}
+
+export function deleteBook(bookId: string): Promise<void> {
+    return invoke("delete_book", { bookId });
+}

@@ -3,6 +3,7 @@
     import type { BookDatabaseEntry } from "src/backend/library";
     import { createEventDispatcher } from "svelte";
     import { contextMenu } from "src/contextmenu";
+    import { openFolder } from "src/backend";
 
     export let bookEntry: BookDatabaseEntry;
 
@@ -17,10 +18,13 @@
         : null;
 </script>
 
-<button class="bg-gray-100" use:contextMenu={[
-    { label: "Open Folder" },
-    { label: "Delete" },
-]}>
+<button
+    class="bg-gray-100"
+    use:contextMenu={[
+        { label: "Open Folder", action: () => openFolder(bookEntry.epubPath) },
+        { label: "Delete", action: () => dispatch("delete") },
+    ]}
+>
     {#if coverUrl}
         <img
             class="h-52 object-contain mx-auto"
