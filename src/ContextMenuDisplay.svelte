@@ -3,16 +3,18 @@
 
     let menuContainer: HTMLElement;
     function onClickBody(event: MouseEvent, rightClick: boolean) {
-        if (
-            !rightClick &&
-            (event.target === menuContainer ||
-                menuContainer.contains(event.target as Node))
-        ) {
-            return;
-        }
+        if (menuContainer) {
+            if (
+                !rightClick &&
+                (event.target === menuContainer ||
+                    menuContainer.contains(event.target as Node))
+            ) {
+                return;
+            }
 
-        event.preventDefault();
-        closeMenu();
+            event.preventDefault();
+            closeMenu();
+        }
     }
 
     function onClickItem(item: MenuItem) {
