@@ -1,8 +1,8 @@
 <script lang="ts">
     import { convertFileSrc } from "@tauri-apps/api/tauri";
-
     import type { BookDatabaseEntry } from "src/backend/library";
     import { createEventDispatcher } from "svelte";
+    import { contextMenu } from "src/contextmenu";
 
     export let bookEntry: BookDatabaseEntry;
 
@@ -17,7 +17,10 @@
         : null;
 </script>
 
-<button class="bg-gray-100">
+<button class="bg-gray-100" use:contextMenu={[
+    { label: "Open Folder" },
+    { label: "Delete" },
+]}>
     {#if coverUrl}
         <img
             class="h-52 object-contain mx-auto"
