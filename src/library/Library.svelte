@@ -6,6 +6,8 @@
     import * as path from "@tauri-apps/api/path";
     import * as dialog from "@tauri-apps/api/dialog";
     import Loading from "src/decor/Loading.svelte";
+    import FileDropHandler from "src/FileDropHandler.svelte";
+    import FileDropSplash from "src/decor/FileDropSplash.svelte";
 
     const bookQuery = asyncReadable(null, getBooks);
     let bookList: BookDatabaseEntry[] = null;
@@ -51,6 +53,14 @@
     $: enableButtons = bookList !== null && uploadingBook === null && !hovering;
 </script>
 
+{#if enableFiledrop}
+    <FileDropHandler
+        bind:hovering
+        allowedExtensions={["epub"]}
+        on:fileDrop={(e) => uploadBooks(e.detail)}
+    />
+{/if}
+
 <div class="flex flex-col h-screen select-none">
     <div class="bg-orange-400 h-10 flex pl-1">
         <h1 class="text-2xl font-bold self-center flex-auto cursor-default">
@@ -65,7 +75,9 @@
     <div class="flex-1 overflow-y-scroll">
         {#if uploadingBook}
             <Loading message={`Uploading\n${uploadingBook}`} />
-        {:else if hovering}{:else if bookList}
+        {:else if hovering}
+            <FileDropSplash message={"Drag and Drop\nto upload books"} />
+        {:else if bookList}
             <div class="p-2 grid gap-2 grid-cols-fit-40 auto-rows-fr">
                 {#each bookList as bookEntry (bookEntry.bookId)}
                     <Book {bookEntry} on:delete={() => deleteBook(bookEntry)} />
