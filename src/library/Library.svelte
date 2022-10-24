@@ -22,15 +22,16 @@
     let uploadingBook: string = null;
 
     async function uploadBooks(bookPaths: string[]) {
-        try {
-            for (const bookPath of bookPaths) {
+        for (const bookPath of bookPaths) {
+            try {
                 uploadingBook = await path.basename(bookPath);
                 const newBook = await backend.uploadBook(bookPath);
                 bookList = [...bookList, newBook];
+            } catch (error) {
+                console.error(error);
             }
-        } finally {
-            uploadingBook = null;
         }
+        uploadingBook = null;
     }
 
     async function openUploadDialog() {
@@ -62,17 +63,16 @@
         >
     </div>
     <div class="flex-1 overflow-y-scroll">
-            {#if uploadingBook}
-                <Loading message={`Uploading\n${uploadingBook}`} />
-            {:else if hovering}
-            {:else if bookList}
-                <div class="p-2 grid gap-2 grid-cols-fit-40 auto-rows-fr">
-                    {#each bookList as bookEntry (bookEntry.bookId)}
-                        <Book {bookEntry} on:delete={() => deleteBook(bookEntry)} />
-                    {/each}
-                </div>
-            {:else}
-                <Loading />
-            {/if}
+        {#if uploadingBook}
+            <Loading message={`Uploading\n${uploadingBook}`} />
+        {:else if hovering}{:else if bookList}
+            <div class="p-2 grid gap-2 grid-cols-fit-40 auto-rows-fr">
+                {#each bookList as bookEntry (bookEntry.bookId)}
+                    <Book {bookEntry} on:delete={() => deleteBook(bookEntry)} />
+                {/each}
+            </div>
+        {:else}
+            <Loading />
+        {/if}
     </div>
 </div>
