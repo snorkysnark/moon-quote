@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { asyncReadable } from "@square/svelte-store";
+    import { asyncWritable } from "@square/svelte-store";
     import { type BookDatabaseEntry, getBooks } from "../backend";
     import Book from "./Book.svelte";
     import * as backend from "src/backend";
@@ -10,14 +10,12 @@
     import FileDropSplash from "src/decor/FileDropSplash.svelte";
     import { createEventDispatcher } from "svelte";
 
-    const bookQuery = asyncReadable(null, getBooks);
-    let bookList: BookDatabaseEntry[] = null;
-    $: if ($bookQuery) {
-        bookList = $bookQuery;
-    }
+    const bookEntries = asyncWritable([], getBooks);
 
     function deleteBook(target: BookDatabaseEntry) {
-        bookList = bookList.filter((other) => other.bookId !== target.bookId);
+        bookEntries.update((books) =>
+            books.filter((other) => other.bookId !== target.bookId)
+        );
         backend.deleteBook(target.bookId);
     }
 
@@ -29,7 +27,7 @@
             try {
                 uploadingBook = await path.basename(bookPath);
                 const newBook = await backend.uploadBook(bookPath);
-                bookList = [...bookList, newBook];
+                bookEntries.update((books) => [...books, newBook]);
             } catch (error) {
                 console.error(error);
             }
@@ -48,10 +46,11 @@
     }
 
     let enableFiledrop: boolean;
-    $: enableFiledrop = bookList !== null && uploadingBook === null;
+    $: enableFiledrop = bookEntries !== null && uploadingBook === null;
 
     let enableButtons: boolean;
-    $: enableButtons = bookList !== null && uploadingBook === null && !hovering;
+    $: enableButtons =
+        bookEntries !== null && uploadingBook === null && !hovering;
 
     const dispatch = createEventDispatcher<{ open: BookDatabaseEntry }>();
 </script>
@@ -80,9 +79,9 @@
             <Loading message={`Uploading\n${uploadingBook}`} />
         {:else if hovering}
             <FileDropSplash message={"Drag and Drop\nto upload books"} />
-        {:else if bookList}
+        {:else if $bookEntries}
             <div class="p-2 grid gap-2 grid-cols-fit-40 auto-rows-fr">
-                {#each bookList as bookEntry (bookEntry.bookId)}
+                {#each $bookEntries as bookEntry (bookEntry.bookId)}
                     <Book
                         {bookEntry}
                         on:open={() => dispatch("open", bookEntry)}
