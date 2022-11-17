@@ -20,6 +20,7 @@
 
 <button
     class="bg-gray-100"
+    on:click={() => dispatch("open")}
     use:contextMenu={[
         { label: "Open Folder", action: () => openFolder(bookEntry.epubPath) },
         { label: "Delete", action: () => dispatch("delete") },

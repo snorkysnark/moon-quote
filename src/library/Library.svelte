@@ -8,6 +8,7 @@
     import Loading from "src/decor/Loading.svelte";
     import FileDropHandler from "src/FileDropHandler.svelte";
     import FileDropSplash from "src/decor/FileDropSplash.svelte";
+    import { createEventDispatcher } from "svelte";
 
     const bookQuery = asyncReadable(null, getBooks);
     let bookList: BookDatabaseEntry[] = null;
@@ -51,6 +52,8 @@
 
     let enableButtons: boolean;
     $: enableButtons = bookList !== null && uploadingBook === null && !hovering;
+
+    const dispatch = createEventDispatcher<{ open: BookDatabaseEntry }>();
 </script>
 
 {#if enableFiledrop}
@@ -80,7 +83,11 @@
         {:else if bookList}
             <div class="p-2 grid gap-2 grid-cols-fit-40 auto-rows-fr">
                 {#each bookList as bookEntry (bookEntry.bookId)}
-                    <Book {bookEntry} on:delete={() => deleteBook(bookEntry)} />
+                    <Book
+                        {bookEntry}
+                        on:open={() => dispatch("open", bookEntry)}
+                        on:delete={() => deleteBook(bookEntry)}
+                    />
                 {/each}
             </div>
         {:else}
