@@ -25,7 +25,7 @@
     },
     "dependencies": {
         "@square/svelte-store": "^1.0.1",
-        "@tauri-apps/api": "^1.0.2",
+        "@tauri-apps/api": "1.0.2",
         "epubjs": "github:snorkysnark/epub.js#moon-quote",
         "highlight.js": "^11.6.0",
         "svelte-local-storage-store": "^0.3.1"
