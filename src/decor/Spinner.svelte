@@ -1,3 +1,6 @@
+<script lang="ts">
+</script>
+
 <!--https://loading.io/css/-->
 <div class="lds-spinner">
     <div />
