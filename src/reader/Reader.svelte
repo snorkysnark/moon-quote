@@ -42,7 +42,7 @@
         </h1>
     </div>
     {#if $epub && $annotations}
-        <ReaderView epub={$epub} annotations={$annotations} />
+        <ReaderView epub={$epub} bind:annotations={$annotations} />
     {:else}
         <Loading />
     {/if}
