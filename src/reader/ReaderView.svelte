@@ -3,11 +3,10 @@
     import type { AnnotationDatabaseEntry } from "src/backend/library";
     import { sidePanelRight } from "src/settings";
     import { contextMenu } from "src/contextmenu";
+    import { resizableWidth } from "src/resizableWidth";
 
     export let epub: Book;
     export let annotations: AnnotationDatabaseEntry[];
-
-    let pageWidth = 800;
 </script>
 
 <div class="flex w-full h-full" class:flex-row-reverse={$sidePanelRight}>
@@ -29,8 +28,14 @@
     <div class="bg-blue-200 w-10 shrink-0" />
     <div class="flex-auto bg-gray-300 flex overflow-hidden">
         <button class="flex-auto text-4xl">←</button>
-        <div class="h-full py-3" style:width={pageWidth + "px"}>
-            <div class="bg-white h-full" ></div>
+        <div
+            class="h-full py-3 relative"
+            use:resizableWidth={{
+                initial: 800,
+                min: 300,
+            }}
+        >
+            <div class="bg-white h-full shadow-lg shadow-neutral-500" />
         </div>
         <button class="flex-auto text-4xl">→</button>
     </div>
