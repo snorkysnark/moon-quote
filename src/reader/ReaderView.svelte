@@ -6,11 +6,13 @@
 
     export let epub: Book;
     export let annotations: AnnotationDatabaseEntry[];
+
+    let pageWidth = 800;
 </script>
 
 <div class="flex w-full h-full" class:flex-row-reverse={$sidePanelRight}>
     <div
-        class="bg-gray-100 w-10"
+        class="bg-gray-100 w-10 shrink-0"
         use:contextMenu={[
             {
                 label: "Left Side",
@@ -24,6 +26,12 @@
             },
         ]}
     />
-    <div class="bg-blue-200 w-10" />
-    <div class="flex-auto bg-gray-300" />
+    <div class="bg-blue-200 w-10 shrink-0" />
+    <div class="flex-auto bg-gray-300 flex overflow-hidden">
+        <button class="flex-auto text-4xl">←</button>
+        <div class="h-full py-3" style:width={pageWidth + "px"}>
+            <div class="bg-white h-full" ></div>
+        </div>
+        <button class="flex-auto text-4xl">→</button>
+    </div>
 </div>
