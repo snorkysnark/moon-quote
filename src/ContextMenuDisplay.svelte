@@ -56,7 +56,9 @@
     >
         {#each $state.items as menuItem}
             <div
-                class="cursor-default select-none hover:bg-blue-100 px-2"
+                class="cursor-default select-none px-2"
+                class:text-gray-500={menuItem.disabled === true}
+                class:hover:bg-blue-100={!menuItem.disabled}
                 on:click={() => {
                     if (!menuItem.disabled) onClickItem(menuItem);
                 }}

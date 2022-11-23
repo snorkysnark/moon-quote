@@ -9,6 +9,7 @@
     import Loading from "src/decor/Loading.svelte";
     import { createEventDispatcher } from "svelte";
     import { writable } from "svelte/store";
+    import ReaderView from "./ReaderView.svelte";
 
     export let bookEntry: BookDatabaseEntry;
     let bookEntryStore = writable<BookDatabaseEntry>(bookEntry);
@@ -41,9 +42,7 @@
         </h1>
     </div>
     {#if $epub && $annotations}
-        {#each $annotations as annotation}
-            <p>{annotation.cfi}</p>
-        {/each}
+        <ReaderView epub={$epub} annotations={$annotations} />
     {:else}
         <Loading />
     {/if}
