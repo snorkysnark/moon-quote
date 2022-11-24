@@ -19,6 +19,7 @@ interface Drag {
 export interface ResizableWidthParams {
     initial: number;
     min?: number;
+    onResize?: (width: number) => void;
 }
 
 export function resizableWidth(
@@ -68,6 +69,9 @@ export function resizableWidth(
         }
 
         element.style.width = `${newWidth}px`;
+        if (params.onResize) {
+            params.onResize(newWidth);
+        }
     }
 
     window.addEventListener("mousemove", onMouseMove);

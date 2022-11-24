@@ -12,4 +12,8 @@ export default class ReaderController {
     prev() {
         this.rendition.prev();
     }
+    resize(width: string | number, height: string | number) {
+        // @ts-ignore: wrong type annotations
+        this.rendition.resize(width, height);
+    }
 }

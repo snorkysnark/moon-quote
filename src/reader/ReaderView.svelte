@@ -13,7 +13,10 @@
     let controller: ReaderController;
 </script>
 
-<div class="flex w-full h-full min-h-0" class:flex-row-reverse={$sidePanelRight}>
+<div
+    class="flex w-full h-full min-h-0"
+    class:flex-row-reverse={$sidePanelRight}
+>
     <div
         class="bg-gray-100 w-10 shrink-0"
         use:contextMenu={[
@@ -37,6 +40,7 @@
             use:resizableWidth={{
                 initial: 800,
                 min: 300,
+                onResize: () => controller.resize("100%", "100%"),
             }}
         >
             <div class="bg-white h-full shadow-lg shadow-neutral-500">
