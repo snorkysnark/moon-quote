@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { Book, Rendition } from "epubjs";
+import BlockInputView from "./blockInputView";
     import ReaderController from "./controller";
 
     export let epub: Book;
@@ -16,6 +17,7 @@
                 height: "100%",
                 width: "100%",
                 flow: "scrolled-doc",
+                view: BlockInputView,
                 allowScriptedContent: true, //Needed for arrow key navigation
             });
             rendition.display(0);
