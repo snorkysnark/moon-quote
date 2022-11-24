@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { Book, Rendition } from "epubjs";
+    import ReaderController from "./controller";
 
     export let epub: Book;
 
@@ -19,6 +20,11 @@
             });
             rendition.display(0);
         }
+    }
+
+    export let controller: ReaderController = null;
+    $: if (rendition) {
+        controller = new ReaderController(rendition);
     }
 </script>
 
