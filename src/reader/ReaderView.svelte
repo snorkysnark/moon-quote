@@ -4,6 +4,7 @@
     import { sidePanelRight } from "src/settings";
     import { contextMenu } from "src/contextmenu";
     import { resizableWidth } from "src/resizableWidth";
+import EpubDisplay from "./EpubDisplay.svelte";
 
     export let epub: Book;
     export let annotations: AnnotationDatabaseEntry[];
@@ -27,7 +28,7 @@
     />
     <div class="bg-blue-200 w-10 shrink-0" />
     <div class="flex-auto bg-gray-300 flex overflow-hidden">
-        <button class="flex-auto text-4xl">←</button>
+        <button class="navButton">←</button>
         <div
             class="h-full py-3 relative"
             use:resizableWidth={{
@@ -35,8 +36,16 @@
                 min: 300,
             }}
         >
-            <div class="bg-white h-full shadow-lg shadow-neutral-500" />
+            <div class="bg-white h-full shadow-lg shadow-neutral-500">
+                <EpubDisplay {epub}></EpubDisplay>
+            </div>
         </div>
-        <button class="flex-auto text-4xl">→</button>
+        <button class="navButton">→</button>
     </div>
 </div>
+
+<style lang="postcss">
+    .navButton {
+        @apply flex-auto text-4xl;
+    }
+</style>
