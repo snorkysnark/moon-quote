@@ -12,7 +12,6 @@
     "devDependencies": {
         "@sveltejs/vite-plugin-svelte": "^1.0.1",
         "@tsconfig/svelte": "^3.0.0",
-        "@types/highlightjs": "^9.12.2",
         "autoprefixer": "^10.4.12",
         "postcss": "^8.4.18",
         "svelte": "^3.49.0",
@@ -26,8 +25,7 @@
     "dependencies": {
         "@square/svelte-store": "^1.0.1",
         "@tauri-apps/api": "1.0.2",
-        "epubjs": "github:snorkysnark/epub.js#moon-quote",
-        "highlight.js": "^11.6.0",
+        "epubjs": "^0.3.93",
         "svelte-local-storage-store": "^0.3.1"
     }
 }
