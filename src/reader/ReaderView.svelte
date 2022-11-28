@@ -42,7 +42,7 @@
             use:resizableWidth={{
                 initial: 800,
                 min: 300,
-                onResize: () => controller.resize("100%", "100%"),
+                onResizeFinished: () => controller.resize("100%", "100%"),
             }}
         >
             <div class="bg-white h-full shadow-lg shadow-neutral-500">
