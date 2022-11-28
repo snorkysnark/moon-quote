@@ -1,6 +1,5 @@
 <script lang="ts">
     import type { Book } from "epubjs";
-    import type { AnnotationDatabaseEntry } from "src/backend/library";
     import { sidePanelRight } from "src/settings";
     import { contextMenu } from "src/contextmenu";
     import { resizableWidth } from "src/resizableWidth";
@@ -8,7 +7,6 @@
     import type ReaderController from "./controller";
 
     export let epub: Book;
-    export let annotations: AnnotationDatabaseEntry[];
 
     let controller: ReaderController;
 </script>
@@ -34,13 +32,13 @@
     />
     <div class="bg-blue-200 w-10 shrink-0" />
     <div class="flex-auto bg-gray-300 flex overflow-hidden">
-        <button class="navButton" on:click={() => controller.prevPage()}
+        <button class="navButton" on:click={() => controller.prev()}
             >←</button
         >
         <div
             class="h-full py-3 relative"
             use:resizableWidth={{
-                initial: 800,
+                initial: 795,
                 min: 300,
                 onResizeFinished: () => controller.resize("100%", "100%"),
             }}
@@ -49,7 +47,7 @@
                 <EpubDisplay {epub} bind:controller />
             </div>
         </div>
-        <button class="navButton" on:click={() => controller.nextPage()}
+        <button class="navButton" on:click={() => controller.next()}
             >→</button
         >
     </div>

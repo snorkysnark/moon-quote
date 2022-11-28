@@ -18,12 +18,12 @@
     const epub = asyncDerived([bookEntryStore], async ([$bookEntry]) => {
         return loadEpub($bookEntry.epubPath);
     });
-    const annotations = asyncWritable(
-        [bookEntryStore],
-        async ([$bookEntry]) => {
-            return getAnnotationsForBook($bookEntry.bookId);
-        }
-    );
+    /* const annotations = asyncWritable( */
+    /*     [bookEntryStore], */
+    /*     async ([$bookEntry]) => { */
+    /*         return getAnnotationsForBook($bookEntry.bookId); */
+    /*     } */
+    /* ); */
 
     const dispatch = createEventDispatcher<{ close: void }>();
 </script>
@@ -41,8 +41,8 @@
             {bookEntry.metaTitle}
         </h1>
     </div>
-    {#if $epub && $annotations}
-        <ReaderView epub={$epub} bind:annotations={$annotations} />
+    {#if $epub}
+        <ReaderView epub={$epub} />
     {:else}
         <Loading />
     {/if}

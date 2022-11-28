@@ -16,7 +16,6 @@
             rendition = epub.renderTo(container, {
                 height: "100%",
                 width: "100%",
-                flow: "scrolled-doc",
                 view: BlockInputView,
                 allowScriptedContent: true, //Needed for arrow key navigation
             });
@@ -35,11 +34,11 @@
         switch (event.key) {
             case "PageUp":
             case "ArrowLeft":
-                controller.prevPage();
+                controller.prev();
                 break;
             case "PageDown":
             case "ArrowRight":
-                controller.nextPage();
+                controller.next();
                 break;
         }
     }
