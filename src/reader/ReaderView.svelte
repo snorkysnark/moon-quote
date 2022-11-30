@@ -32,24 +32,26 @@
     />
     <div class="bg-blue-200 w-10 shrink-0" />
     <div class="flex-auto bg-gray-300 flex overflow-hidden">
-        <button class="navButton" on:click={() => controller.prev()}
-            >←</button
-        >
+        <button class="navButton" on:click={() => controller.prev()}>←</button>
         <div
             class="h-full py-3 relative"
             use:resizableWidth={{
                 initial: 795,
                 min: 300,
-                onResizeFinished: () => controller.resize("100%", "100%"),
+                onResizeStart: () => {
+                    controller.setPointerEventsEnabled(false);
+                },
+                onResizeEnd: () => {
+                    controller.resize("100%", "100%");
+                    controller.setPointerEventsEnabled(true);
+                },
             }}
         >
             <div class="bg-white h-full shadow-lg shadow-neutral-500">
                 <EpubDisplay {epub} bind:controller />
             </div>
         </div>
-        <button class="navButton" on:click={() => controller.next()}
-            >→</button
-        >
+        <button class="navButton" on:click={() => controller.next()}>→</button>
     </div>
 </div>
 

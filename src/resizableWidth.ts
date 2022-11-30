@@ -19,7 +19,8 @@ interface Drag {
 export interface ResizableWidthParams {
     initial: number;
     min?: number;
-    onResizeFinished?: (width: number) => void;
+    onResizeStart?: () => void;
+    onResizeEnd?: (width: number) => void;
 }
 
 export function resizableWidth(
@@ -53,11 +54,15 @@ export function resizableWidth(
             startX: event.pageX,
             startWidth: element.clientWidth,
         };
+
+        if (params.onResizeStart) {
+            params.onResizeStart();
+        }
     }
 
     function onMouseUp() {
-        if (params.onResizeFinished) {
-            params.onResizeFinished(element.clientWidth);
+        if (params.onResizeEnd) {
+            params.onResizeEnd(element.clientWidth);
         }
         drag = null;
     }

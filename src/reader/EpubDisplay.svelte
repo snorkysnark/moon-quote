@@ -1,7 +1,8 @@
 <script lang="ts">
     import type { Book, Rendition } from "epubjs";
-    import BlockInputView from "./blockInputView";
     import ReaderController from "./controller";
+    import MoonQuoteView from "./customView";
+    import MoonQuoteManager from "./customManager";
 
     export let epub: Book;
 
@@ -16,11 +17,11 @@
             rendition = epub.renderTo(container, {
                 height: "100%",
                 width: "100%",
-                view: BlockInputView,
+                view: MoonQuoteView,
+                manager: MoonQuoteManager,
                 allowScriptedContent: true, //Needed for arrow key navigation
             });
             rendition.display(0);
-            rendition.on("keydown", onKeyDown);
         }
     }
 
@@ -28,21 +29,6 @@
     $: if (rendition) {
         controller = new ReaderController(rendition);
     }
-
-    function onKeyDown(event: KeyboardEvent) {
-        if (!controller) return;
-        switch (event.key) {
-            case "PageUp":
-            case "ArrowLeft":
-                controller.prev();
-                break;
-            case "PageDown":
-            case "ArrowRight":
-                controller.next();
-                break;
-        }
-    }
 </script>
 
-<svelte:window on:keydown={onKeyDown} />
 <div class="w-full h-full" bind:this={container} />

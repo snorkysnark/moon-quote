@@ -38,4 +38,7 @@ export default class ReaderController {
         // @ts-ignore: wrong type annotations
         this.rendition.resize(width, height);
     }
+    setPointerEventsEnabled(value: boolean) {
+        this.rendition.manager.setPointerEventsEnabled(value);
+    }
 }
