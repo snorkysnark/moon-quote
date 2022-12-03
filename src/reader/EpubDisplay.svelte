@@ -1,34 +1,39 @@
 <script lang="ts">
-    import type { Book, Rendition } from "epubjs";
-    import ReaderController from "./controller";
-    import MoonQuoteView from "./customView";
-    import MoonQuoteManager from "./customManager";
+    import type { Book } from "epubjs";
+    import type Section from "epubjs/types/section";
+    import { createBlobUrl, revokeBlobUrl } from "epubjs/src/utils/core";
 
     export let epub: Book;
+    let section: Section = null;
 
-    let container: HTMLElement;
-    let rendition: Rendition;
+    function epubChanged(_epub: Book) {
+        display(0);
+    }
+    $: epubChanged(epub);
 
+    let html: string = null;
+    async function loadHtml(section: Section) {
+        html = await section.render((path) => {
+            return epub.load(path);
+        });
+    }
+    $: if (section) loadHtml(section);
+
+    let blobUrl: string = null;
     $: {
-        if (rendition) {
-            rendition.destroy();
+        if (blobUrl) {
+            revokeBlobUrl(blobUrl);
         }
-        if (container) {
-            rendition = epub.renderTo(container, {
-                height: "100%",
-                width: "100%",
-                view: MoonQuoteView,
-                manager: MoonQuoteManager,
-                allowScriptedContent: true, //Needed for arrow key navigation
-            });
-            rendition.display(0);
-        }
+        blobUrl = html ? createBlobUrl(html, "application/xhtml+xml") : null;
     }
 
-    export let controller: ReaderController = null;
-    $: if (rendition) {
-        controller = new ReaderController(rendition);
+    export function display(target: number) {
+        section = epub.spine.get(target);
     }
 </script>
 
-<div class="w-full h-full" bind:this={container} />
+<div class="w-full h-full">
+    {#if blobUrl}
+        <iframe src={blobUrl} frameborder="0" title={section.href} />
+    {/if}
+</div>

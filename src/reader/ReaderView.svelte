@@ -2,13 +2,11 @@
     import type { Book } from "epubjs";
     import { sidePanelRight } from "src/settings";
     import { contextMenu } from "src/contextmenu";
-    import { resizableWidth } from "src/resizableWidth";
     import EpubDisplay from "./EpubDisplay.svelte";
-    import type ReaderController from "./controller";
 
     export let epub: Book;
 
-    let controller: ReaderController;
+    let rendition: EpubDisplay;
 </script>
 
 <div
@@ -32,26 +30,13 @@
     />
     <div class="bg-blue-200 w-10 shrink-0" />
     <div class="flex-auto bg-gray-300 flex overflow-hidden">
-        <button class="navButton" on:click={() => controller.prev()}>←</button>
-        <div
-            class="h-full py-3 relative"
-            use:resizableWidth={{
-                initial: 795,
-                min: 300,
-                onResizeStart: () => {
-                    controller.setPointerEventsEnabled(false);
-                },
-                onResizeEnd: () => {
-                    controller.resize("100%", "100%");
-                    controller.setPointerEventsEnabled(true);
-                },
-            }}
-        >
+        <button class="navButton">←</button>
+        <div class="h-full py-3 relative" style:width="800px">
             <div class="bg-white h-full shadow-lg shadow-neutral-500">
-                <EpubDisplay {epub} bind:controller />
+                <EpubDisplay {epub} bind:this={rendition} />
             </div>
         </div>
-        <button class="navButton" on:click={() => controller.next()}>→</button>
+        <button class="navButton">→</button>
     </div>
 </div>
 
