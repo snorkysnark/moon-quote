@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import solid from 'vite-plugin-solid';
+import solid from "vite-plugin-solid";
 import * as path from "path";
 
 // https://vitejs.dev/config/
@@ -25,9 +25,15 @@ export default defineConfig({
 
     resolve: {
         alias: {
-            src: path.resolve('src/')
-        }
+            src: path.resolve("src/"),
+        },
     },
 
     plugins: [solid()],
+
+    css: {
+        modules: {
+            localsConvention: "camelCase",
+        },
+    },
 });

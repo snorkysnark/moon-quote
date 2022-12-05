@@ -1,5 +1,6 @@
 import { createResource, Show } from "solid-js";
 import { BookDatabaseEntry, loadEpub } from "src/backend/library";
+import Loading from "src/decor/Loading";
 import ReaderView from "./ReaderView";
 
 export default function Reader(props: {
@@ -26,7 +27,7 @@ export default function Reader(props: {
                     {props.bookEntry.metaTitle}
                 </h1>
             </div>
-            <Show when={epub()}>
+            <Show when={epub()} fallback={<Loading />}>
                 <ReaderView epub={epub()} />
             </Show>
         </div>
