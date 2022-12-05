@@ -84,9 +84,6 @@ export default function EpubDisplay(props: {
         window.addEventListener("keydown", onKeyDown);
         onCleanup(() => {
             window.removeEventListener("keydown", onKeyDown);
-            if (iframe?.contentWindow) {
-                iframe.contentWindow.removeEventListener("keydown", onKeyDown);
-            }
         });
     });
 
