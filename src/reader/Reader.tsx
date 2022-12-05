@@ -1,6 +1,6 @@
-import { createEffect, createResource, onMount, Show } from "solid-js";
+import { createResource, Show } from "solid-js";
 import { BookDatabaseEntry, loadEpub } from "src/backend/library";
-import EpubDisplay from "./EpubDisplay";
+import ReaderView from "./ReaderView";
 
 export default function Reader(props: {
     bookEntry: BookDatabaseEntry;
@@ -27,7 +27,7 @@ export default function Reader(props: {
                 </h1>
             </div>
             <Show when={epub()}>
-                <EpubDisplay epub={epub()} />
+                <ReaderView epub={epub()} />
             </Show>
         </div>
     );
