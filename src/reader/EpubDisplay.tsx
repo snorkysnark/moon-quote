@@ -1,4 +1,4 @@
-import { Book } from "epubjs";
+import { Book, Contents } from "epubjs";
 import Section from "epubjs/types/section";
 import {
     createEffect,
@@ -11,8 +11,7 @@ import {
     Show,
 } from "solid-js";
 import { createBlobUrl, revokeBlobUrl } from "epubjs/src/utils/core";
-import "iframe-resizer/js/iframeResizer";
-import iframeResizerInner from "iframe-resizer/js/iframeResizer.contentWindow?url";
+import { EVENTS } from "epubjs/src/utils/constants";
 
 export interface Controller {
     display: (target: number) => void;
@@ -54,6 +53,14 @@ export default function EpubDisplay(props: {
         )
     );
 
+    const [textHeight, setTextHeight] = createSignal<number>(null);
+    // When the section changes, reset the associated values
+    createEffect(
+        on(section, () => {
+            onCleanup(() => setTextHeight(null));
+        })
+    );
+
     const request = createMemo(() => (path: string) => props.epub.load(path));
     const [html] = createResource(
         () => (section() ? { section: section(), request: request() } : null),
@@ -90,35 +97,36 @@ export default function EpubDisplay(props: {
         });
     });
 
-    let firstLoad = true;
     const onLoadIframe = () => {
         iframe.contentWindow.addEventListener("keydown", onKeyDown);
 
-        const script = document.createElement("script");
-        script.setAttribute("src", iframeResizerInner);
-        iframe.contentDocument.body.appendChild(script);
-
-        // Have to set up iframeResizer after we've injected the script
-        if (firstLoad) {
-            iFrameResize(
-                {
-                    checkOrigin: false,
-                    heightCalculationMethod: "lowestElement",
-                },
-                iframe
-            );
-            firstLoad = false;
-        }
+        const iframeDoc = iframe.contentDocument;
+        const contents = new Contents(
+            iframeDoc,
+            iframeDoc.body,
+            section().cfiBase,
+            section().index
+        );
+        contents.on(EVENTS.CONTENTS.RESIZE, () => {
+            setTextHeight(contents.textHeight());
+        });
     };
 
     return (
-        <Show when={blobUrl()}>
-            <iframe
-                class="w-full"
-                src={blobUrl()}
-                ref={iframe}
-                onLoad={onLoadIframe}
-            ></iframe>
-        </Show>
+        <div class="w-full h-full overflow-hidden">
+            <Show when={blobUrl()}>
+                <iframe
+                    class="w-full overflow-hidden"
+                    src={blobUrl()}
+                    ref={iframe}
+                    onLoad={onLoadIframe}
+                    style={{
+                        height: textHeight()
+                            ? `max(${textHeight()}px, 100%)`
+                            : "100%",
+                    }}
+                ></iframe>
+            </Show>
+        </div>
     );
 }
