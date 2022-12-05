@@ -1,6 +1,8 @@
 import { Book } from "epubjs";
 import EpubDisplay, { Controller } from "./EpubDisplay";
 
+const navButtonClass = "flex-auto text-4xl";
+
 export default function ReaderView(props: { epub: Book }) {
     let controller: Controller;
 
@@ -10,7 +12,7 @@ export default function ReaderView(props: { epub: Book }) {
             <div class="bg-blue-200 w-10 shrink-0" />
             <div class="flex-auto bg-gray-300 flex overflow-hidden">
                 <button
-                    class="flex-auto text-4xl"
+                    class={navButtonClass}
                     onClick={() => controller.prev()}
                 >
                     ←
@@ -24,7 +26,7 @@ export default function ReaderView(props: { epub: Book }) {
                     </div>
                 </div>
                 <button
-                    class="flex-auto text-4xl"
+                    class={navButtonClass}
                     onClick={() => controller.next()}
                 >
                     →
