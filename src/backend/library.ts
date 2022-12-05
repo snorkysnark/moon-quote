@@ -85,7 +85,7 @@ export async function loadEpub(path: string): Promise<Book> {
     const file = await fs.readBinaryFile(path);
     const book = ePub(file.buffer);
 
-    await book.ready;
+    await book.opened;
     return book;
 }
 
