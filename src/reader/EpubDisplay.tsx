@@ -12,29 +12,41 @@ import {
 } from "solid-js";
 import { createBlobUrl, revokeBlobUrl } from "epubjs/src/utils/core";
 
-export default function EpubDisplay(props: { epub: Book }) {
+export interface Controller {
+    display: (target: number) => void;
+    prev: () => void;
+    next: () => void;
+}
+
+export default function EpubDisplay(props: {
+    epub: Book;
+    setController?: (controller: Controller) => void;
+}) {
     const [section, setSection] = createSignal<Section>(null);
     // @ts-ignore: wrong type signature for prev()
     const prevSection = () => section()?.prev() as Section;
     // @ts-ignore: wrong type signature for next()
     const nextSection = () => section()?.next() as Section;
 
-    const display = (target: number) => {
-        setSection(props.epub.spine.get(target));
+    const controller: Controller = {
+        display: (target: number) => {
+            setSection(props.epub.spine.get(target));
+        },
+        prev: () => {
+            if (prevSection()) setSection(prevSection());
+        },
+        next: () => {
+            if (nextSection()) setSection(nextSection());
+        },
     };
-    const prev = () => {
-        if (prevSection()) setSection(prevSection());
-    };
-    const next = () => {
-        if (nextSection()) setSection(nextSection());
-    };
+    if (props.setController) props.setController(controller);
 
     // When the book changes, reset to its first section
     createEffect(
         on(
             () => props.epub,
             () => {
-                display(0);
+                controller.display(0);
                 onCleanup(() => setSection(null));
             }
         )
@@ -59,10 +71,10 @@ export default function EpubDisplay(props: { epub: Book }) {
         event.preventDefault();
         switch (event.key) {
             case "ArrowLeft":
-                prev();
+                controller.prev();
                 break;
             case "ArrowRight":
-                next();
+                controller.next();
                 break;
         }
     };
