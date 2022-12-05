@@ -11,6 +11,8 @@ import {
     Show,
 } from "solid-js";
 import { createBlobUrl, revokeBlobUrl } from "epubjs/src/utils/core";
+import "iframe-resizer/js/iframeResizer";
+import iframeResizerInner from "iframe-resizer/js/iframeResizer.contentWindow?url";
 
 export interface Controller {
     display: (target: number) => void;
@@ -82,19 +84,37 @@ export default function EpubDisplay(props: {
     let iframe: HTMLIFrameElement;
     onMount(() => {
         window.addEventListener("keydown", onKeyDown);
+
         onCleanup(() => {
             window.removeEventListener("keydown", onKeyDown);
         });
     });
 
+    let firstLoad = true;
     const onLoadIframe = () => {
         iframe.contentWindow.addEventListener("keydown", onKeyDown);
+
+        const script = document.createElement("script");
+        script.setAttribute("src", iframeResizerInner);
+        iframe.contentDocument.body.appendChild(script);
+
+        // Have to set up iframeResizer after we've injected the script
+        if (firstLoad) {
+            iFrameResize(
+                {
+                    checkOrigin: false,
+                    heightCalculationMethod: "lowestElement",
+                },
+                iframe
+            );
+            firstLoad = false;
+        }
     };
 
     return (
         <Show when={blobUrl()}>
             <iframe
-                class="w-full h-full"
+                class="w-full"
                 src={blobUrl()}
                 ref={iframe}
                 onLoad={onLoadIframe}
