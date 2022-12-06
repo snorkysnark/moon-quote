@@ -103,6 +103,7 @@ export default function EpubDisplay(props: {
         iframe.contentWindow.addEventListener("keydown", onKeyDown);
 
         const iframeDoc = iframe.contentDocument;
+        iframeDoc.body.style.overflow = "hidden";
 
         setContents(
             new Contents(
