@@ -40,6 +40,7 @@ export default function EpubDisplay(props: {
         on(section, () => {
             onCleanup(() => {
                 setContents(null);
+                startAtBottom = false;
             });
         })
     );
@@ -49,6 +50,8 @@ export default function EpubDisplay(props: {
     // @ts-ignore: wrong type signature for next()
     const nextSection = () => section()?.next() as Section;
 
+    let startAtBottom = false;
+
     const [contents, setContents] = createSignal<Contents>(null);
     createEffect(
         on(contents, () => {
@@ -56,6 +59,10 @@ export default function EpubDisplay(props: {
                 const lastContents = contents();
                 const onResize = () => {
                     setTextHeight(lastContents.textHeight())
+                    if (startAtBottom) {
+                        scroller.scrollTop = lastContents.textHeight();
+                        startAtBottom = false;
+                    }
                 };
                 lastContents.on(EVENTS.CONTENTS.RESIZE, onResize);
 
@@ -92,6 +99,7 @@ export default function EpubDisplay(props: {
         prev: () => {
             if (prevSection()) {
                 setSection(prevSection())
+                startAtBottom = true;
             };
         },
         next: () => {
@@ -112,6 +120,7 @@ export default function EpubDisplay(props: {
         }
     };
 
+    let scroller: HTMLDivElement;
     let iframe: HTMLIFrameElement;
     onMount(() => {
         window.addEventListener("keydown", onKeyDown);
@@ -138,7 +147,7 @@ export default function EpubDisplay(props: {
     };
 
     return (
-        <div class="w-full h-full overflow-scroll relative">
+        <div class="w-full h-full overflow-scroll relative" ref={scroller}>
             <div class="absolute w-10 h-10 top-10 left-10 bg-red-500 pointer-events-none"></div>
             <Show when={blobUrl()}>
                 <iframe
