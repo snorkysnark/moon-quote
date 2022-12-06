@@ -23,25 +23,6 @@ export default function EpubDisplay(props: {
     epub: Book;
     setController?: (controller: Controller) => void;
 }) {
-    const [section, setSection] = createSignal<Section>(null);
-    // @ts-ignore: wrong type signature for prev()
-    const prevSection = () => section()?.prev() as Section;
-    // @ts-ignore: wrong type signature for next()
-    const nextSection = () => section()?.next() as Section;
-
-    const controller: Controller = {
-        display: (target: number) => {
-            setSection(props.epub.spine.get(target));
-        },
-        prev: () => {
-            if (prevSection()) setSection(prevSection());
-        },
-        next: () => {
-            if (nextSection()) setSection(nextSection());
-        },
-    };
-    if (props.setController) props.setController(controller);
-
     // When the book changes, reset to its first section
     createEffect(
         on(
@@ -53,7 +34,7 @@ export default function EpubDisplay(props: {
         )
     );
 
-    const [contents, setContents] = createSignal<Contents>(null);
+    const [section, setSection] = createSignal<Section>(null);
     // When the section changes, reset the associated values
     createEffect(
         on(section, () => {
@@ -63,6 +44,32 @@ export default function EpubDisplay(props: {
         })
     );
 
+    // @ts-ignore: wrong type signature for prev()
+    const prevSection = () => section()?.prev() as Section;
+    // @ts-ignore: wrong type signature for next()
+    const nextSection = () => section()?.next() as Section;
+
+    const [contents, setContents] = createSignal<Contents>(null);
+    createEffect(
+        on(contents, () => {
+            if (contents()) {
+                const lastContents = contents();
+                const onResize = () => {
+                    setTextHeight(lastContents.textHeight())
+                };
+                lastContents.on(EVENTS.CONTENTS.RESIZE, onResize);
+
+                onCleanup(() => {
+                    lastContents.off(EVENTS.CONTENTS.RESIZE, onResize);
+                    lastContents.destroy();
+                    setTextHeight(null);
+                });
+            }
+        })
+    );
+    const [textHeight, setTextHeight] = createSignal<number>(null);
+
+    // Load section content into a Blob
     const request = createMemo(() => (path: string) => props.epub.load(path));
     const [html] = createResource(
         () => (section() ? { section: section(), request: request() } : null),
@@ -77,6 +84,21 @@ export default function EpubDisplay(props: {
             return url;
         }
     });
+
+    const controller: Controller = {
+        display: (target: number) => {
+            setSection(props.epub.spine.get(target));
+        },
+        prev: () => {
+            if (prevSection()) {
+                setSection(prevSection())
+            };
+        },
+        next: () => {
+            if (nextSection()) setSection(nextSection());
+        },
+    };
+    if (props.setController) props.setController(controller);
 
     const onKeyDown = (event: KeyboardEvent) => {
         event.preventDefault();
@@ -98,8 +120,8 @@ export default function EpubDisplay(props: {
             window.removeEventListener("keydown", onKeyDown);
         });
     });
-
     const onLoadIframe = () => {
+        // No need to removeEventListener, since document gets unloaded anyway
         iframe.contentWindow.addEventListener("keydown", onKeyDown);
 
         const iframeDoc = iframe.contentDocument;
@@ -114,23 +136,6 @@ export default function EpubDisplay(props: {
             )
         );
     };
-
-    const [textHeight, setTextHeight] = createSignal<number>(null);
-    createEffect(
-        on(contents, () => {
-            if (contents()) {
-                const lastContents = contents();
-                const onResize = () => setTextHeight(lastContents.textHeight());
-                lastContents.on(EVENTS.CONTENTS.RESIZE, onResize);
-
-                onCleanup(() => {
-                    lastContents.off(EVENTS.CONTENTS.RESIZE, onResize);
-                    lastContents.destroy();
-                    setTextHeight(null);
-                });
-            }
-        })
-    );
 
     return (
         <div class="w-full h-full overflow-scroll relative">
