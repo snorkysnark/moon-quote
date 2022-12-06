@@ -133,7 +133,8 @@ export default function EpubDisplay(props: {
     );
 
     return (
-        <div class="w-full h-full overflow-hidden">
+        <div class="w-full h-full overflow-scroll relative">
+            <div class="absolute w-10 h-10 top-10 left-10 bg-red-500 pointer-events-none"></div>
             <Show when={blobUrl()}>
                 <iframe
                     class="w-full overflow-hidden"
