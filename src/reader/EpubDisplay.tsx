@@ -53,11 +53,13 @@ export default function EpubDisplay(props: {
         )
     );
 
-    const [textHeight, setTextHeight] = createSignal<number>(null);
+    const [contents, setContents] = createSignal<Contents>(null);
     // When the section changes, reset the associated values
     createEffect(
         on(section, () => {
-            onCleanup(() => setTextHeight(null));
+            onCleanup(() => {
+                setContents(null);
+            });
         })
     );
 
@@ -101,16 +103,33 @@ export default function EpubDisplay(props: {
         iframe.contentWindow.addEventListener("keydown", onKeyDown);
 
         const iframeDoc = iframe.contentDocument;
-        const contents = new Contents(
-            iframeDoc,
-            iframeDoc.body,
-            section().cfiBase,
-            section().index
+
+        setContents(
+            new Contents(
+                iframeDoc,
+                iframeDoc.body,
+                section().cfiBase,
+                section().index
+            )
         );
-        contents.on(EVENTS.CONTENTS.RESIZE, () => {
-            setTextHeight(contents.textHeight());
-        });
     };
+
+    const [textHeight, setTextHeight] = createSignal<number>(null);
+    createEffect(
+        on(contents, () => {
+            if (contents()) {
+                const lastContents = contents();
+                const onResize = () => setTextHeight(lastContents.textHeight());
+                lastContents.on(EVENTS.CONTENTS.RESIZE, onResize);
+
+                onCleanup(() => {
+                    lastContents.off(EVENTS.CONTENTS.RESIZE, onResize);
+                    lastContents.destroy();
+                    setTextHeight(null);
+                });
+            }
+        })
+    );
 
     return (
         <div class="w-full h-full overflow-hidden">
