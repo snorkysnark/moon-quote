@@ -1,5 +1,5 @@
 import { Book } from "epubjs";
-import EpubDisplay, { Controller } from "./EpubDisplay";
+import EpubRendition, { Controller } from "./EpubRendition";
 
 const navButtonClass = "flex-auto text-4xl";
 
@@ -19,7 +19,7 @@ export default function ReaderView(props: { epub: Book }) {
                 </button>
                 <div class="h-full py-3 relative" style={{ width: "800px" }}>
                     <div class="bg-white h-full shadow-lg shadow-neutral-500">
-                        <EpubDisplay
+                        <EpubRendition
                             epub={props.epub}
                             setController={(c) => (controller = c)}
                         />

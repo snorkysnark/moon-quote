@@ -19,7 +19,7 @@ export interface Controller {
     next: () => void;
 }
 
-export default function EpubDisplay(props: {
+export default function EpubRendition(props: {
     epub: Book;
     setController?: (controller: Controller) => void;
 }) {
@@ -58,7 +58,7 @@ export default function EpubDisplay(props: {
             if (contents()) {
                 const lastContents = contents();
                 const onResize = () => {
-                    setTextHeight(lastContents.textHeight())
+                    setTextHeight(lastContents.textHeight());
                     if (startAtBottom) {
                         scroller.scrollTop = lastContents.textHeight();
                         startAtBottom = false;
@@ -98,9 +98,9 @@ export default function EpubDisplay(props: {
         },
         prev: () => {
             if (prevSection()) {
-                setSection(prevSection())
+                setSection(prevSection());
                 startAtBottom = true;
-            };
+            }
         },
         next: () => {
             if (nextSection()) setSection(nextSection());
