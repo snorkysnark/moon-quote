@@ -45,6 +45,8 @@ export default function EpubView(props: {
         }
     };
 
+    let firstResize = true;
+
     // Not cleaning up contents/textHeight when section changes,
     // so that iframe doesn't flicker while loading new content
     const [contents, setContents] = createSignal<Contents>(null);
@@ -55,13 +57,17 @@ export default function EpubView(props: {
                 const lastContents = contents();
                 const onResize = () => {
                     setTextHeight(lastContents.textHeight());
-                    scrollToTarget();
+                    if (firstResize){
+                        scrollToTarget();
+                        firstResize = false;
+                    }
                 };
                 lastContents.on(EVENTS.CONTENTS.RESIZE, onResize);
 
                 onCleanup(() => {
                     lastContents.off(EVENTS.CONTENTS.RESIZE, onResize);
                     lastContents.destroy();
+                    firstResize = true;
                 });
             }
         })
