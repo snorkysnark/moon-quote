@@ -10,9 +10,9 @@ import {
     onMount,
     Show,
 } from "solid-js";
-import EpubView from "./EpubView";
+import EpubView, { ViewController } from "./EpubView";
 
-export interface Controller {
+export interface RenditionController {
     display: (section: Section | number, scrollTarget?: string) => void;
     prev: () => void;
     next: () => void;
@@ -20,7 +20,7 @@ export interface Controller {
 
 export default function EpubRendition(props: {
     epub: Book;
-    setController?: (controller: Controller) => void;
+    setController?: (controller: RenditionController) => void;
 }) {
     // When the book changes, reset to its first section
     createEffect(
@@ -44,7 +44,8 @@ export default function EpubRendition(props: {
     // Load section content into a Blob
     const request = createMemo(() => (path: string) => props.epub.load(path));
 
-    const myController: Controller = {
+    let viewController: ViewController;
+    const myController: RenditionController = {
         display: (section: Section | number, scrollTarget: string = "top") => {
             batch(() => {
                 if (typeof section === "number") {
@@ -56,13 +57,17 @@ export default function EpubRendition(props: {
             });
         },
         prev: () => {
-            if (prevSection()) {
-                myController.display(prevSection(), "bottom");
+            if (!viewController.pageUp()) {
+                if (prevSection()) {
+                    myController.display(prevSection(), "bottom");
+                }
             }
         },
         next: () => {
-            if (nextSection()) {
-                myController.display(nextSection());
+            if (!viewController.pageDown()) {
+                if (nextSection()) {
+                    myController.display(nextSection());
+                }
             }
         },
     };
@@ -93,6 +98,7 @@ export default function EpubRendition(props: {
                 section={section()}
                 scrollTarget={scrollTarget()}
                 onKeyDown={onKeyDown}
+                setController={(controller) => (viewController = controller)}
             />
         </Show>
     );

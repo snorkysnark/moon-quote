@@ -1,10 +1,10 @@
 import { Book } from "epubjs";
-import EpubRendition, { Controller } from "./EpubRendition";
+import EpubRendition, { RenditionController } from "./EpubRendition";
 
 const navButtonClass = "flex-auto text-4xl";
 
 export default function ReaderView(props: { epub: Book }) {
-    let controller: Controller;
+    let controller: RenditionController;
 
     return (
         <div class="flex w-full h-full min-h-0">

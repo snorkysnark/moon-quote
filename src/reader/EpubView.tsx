@@ -12,11 +12,17 @@ import {
 } from "solid-js";
 import { EVENTS } from "epubjs/src/utils/constants";
 
+export interface ViewController {
+    pageUp: () => boolean;
+    pageDown: () => boolean;
+}
+
 export default function EpubView(props: {
     request: (path: string) => Promise<any>;
     section: Section;
     scrollTarget?: string;
     onKeyDown?: (event: KeyboardEvent) => void;
+    setController?: (controller: ViewController) => void;
 }) {
     const [html] = createResource(
         () => ({ request: props.request, section: props.section }),
@@ -92,6 +98,28 @@ export default function EpubView(props: {
             )
         );
     };
+
+    const controller: ViewController = {
+        pageUp() {
+            if (scroller.scrollTop > 0) {
+                scroller.scrollTop -= scroller.clientHeight;
+                return true;
+            } else {
+                return false;
+            }
+        },
+        pageDown() {
+            const newScrollTop = scroller.scrollTop + scroller.clientHeight;
+            if (newScrollTop < scroller.scrollHeight) {
+                scroller.scrollTop = newScrollTop;
+                return true;
+            }
+            return false;
+        }
+    };
+    if (props.setController) {
+        props.setController(controller);
+    }
 
     return (
         <div class="w-full h-full overflow-scroll relative" ref={scroller}>
