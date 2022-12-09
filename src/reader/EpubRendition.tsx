@@ -60,9 +60,31 @@ export default function EpubRendition(props: {
     };
     if (props.setController) props.setController(controller);
 
+    const onKeyDown = (event: KeyboardEvent) => {
+        event.preventDefault();
+        switch (event.key) {
+            case "ArrowLeft":
+                controller.prev();
+                break;
+            case "ArrowRight":
+                controller.next();
+                break;
+        }
+    };
+    onMount(() => {
+        window.addEventListener("keydown", onKeyDown);
+        onCleanup(() => {
+            window.removeEventListener("keydown", onKeyDown);
+        });
+    });
+
     return (
         <Show when={section()}>
-            <EpubView request={request()} section={section()} />
+            <EpubView
+                request={request()}
+                section={section()}
+                onKeyDown={onKeyDown}
+            />
         </Show>
     );
 }

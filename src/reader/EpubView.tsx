@@ -2,7 +2,6 @@ import { Contents } from "epubjs";
 import Section from "epubjs/types/section";
 import { createBlobUrl, revokeBlobUrl } from "epubjs/src/utils/core";
 import {
-    batch,
     createEffect,
     createMemo,
     createResource,
@@ -16,6 +15,7 @@ import { EVENTS } from "epubjs/src/utils/constants";
 export default function EpubView(props: {
     request: (path: string) => Promise<any>;
     section: Section;
+    onKeyDown?: (event: KeyboardEvent) => void;
 }) {
     const [html] = createResource(
         () => ({ request: props.request, section: props.section }),
@@ -59,6 +59,10 @@ export default function EpubView(props: {
     const onLoadIframe = () => {
         const iframeDoc = iframe.contentDocument;
         iframeDoc.body.style.overflow = "hidden";
+
+        if (props.onKeyDown) {
+            iframe.contentWindow.addEventListener("keydown", props.onKeyDown);
+        }
 
         setContents(
             new Contents(
