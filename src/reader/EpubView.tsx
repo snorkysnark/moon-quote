@@ -15,6 +15,7 @@ import { EVENTS } from "epubjs/src/utils/constants";
 export default function EpubView(props: {
     request: (path: string) => Promise<any>;
     section: Section;
+    scrollTarget?: string;
     onKeyDown?: (event: KeyboardEvent) => void;
 }) {
     const [html] = createResource(
@@ -33,6 +34,17 @@ export default function EpubView(props: {
         }
     });
 
+    const scrollToTarget = () => {
+        scroller.scrollLeft = 0;
+        if (!props.scrollTarget) return
+
+        if (props.scrollTarget === "top") {
+            scroller.scrollTop = 0;
+        } else if (props.scrollTarget === "bottom") {
+            scroller.scrollTop = textHeight();
+        }
+    };
+
     // Not cleaning up contents/textHeight when section changes,
     // so that iframe doesn't flicker while loading new content
     const [contents, setContents] = createSignal<Contents>(null);
@@ -43,6 +55,7 @@ export default function EpubView(props: {
                 const lastContents = contents();
                 const onResize = () => {
                     setTextHeight(lastContents.textHeight());
+                    scrollToTarget();
                 };
                 lastContents.on(EVENTS.CONTENTS.RESIZE, onResize);
 

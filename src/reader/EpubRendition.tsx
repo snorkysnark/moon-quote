@@ -1,21 +1,19 @@
-import { Book, Contents } from "epubjs";
+import { Book } from "epubjs";
 import Section from "epubjs/types/section";
 import {
+    batch,
     createEffect,
     createMemo,
-    createResource,
     createSignal,
     on,
     onCleanup,
     onMount,
     Show,
 } from "solid-js";
-import { createBlobUrl, revokeBlobUrl } from "epubjs/src/utils/core";
-import { EVENTS } from "epubjs/src/utils/constants";
 import EpubView from "./EpubView";
 
 export interface Controller {
-    display: (target: number) => void;
+    display: (section: Section | number, scrollTarget?: string) => void;
     prev: () => void;
     next: () => void;
 }
@@ -29,13 +27,14 @@ export default function EpubRendition(props: {
         on(
             () => props.epub,
             () => {
-                controller.display(0);
+                myController.display(0);
                 onCleanup(() => setSection(null));
             }
         )
     );
 
     const [section, setSection] = createSignal<Section>(null);
+    const [scrollTarget, setScrollTarget] = createSignal<string>(null);
 
     // @ts-ignore: wrong type signature for prev()
     const prevSection = () => section()?.prev() as Section;
@@ -45,29 +44,38 @@ export default function EpubRendition(props: {
     // Load section content into a Blob
     const request = createMemo(() => (path: string) => props.epub.load(path));
 
-    const controller: Controller = {
-        display: (target: number) => {
-            setSection(props.epub.spine.get(target));
+    const myController: Controller = {
+        display: (section: Section | number, scrollTarget: string = "top") => {
+            batch(() => {
+                if (typeof section === "number") {
+                    setSection(props.epub.spine.get(section));
+                } else {
+                    setSection(section);
+                }
+                setScrollTarget(scrollTarget);
+            });
         },
         prev: () => {
             if (prevSection()) {
-                setSection(prevSection());
+                myController.display(prevSection(), "bottom");
             }
         },
         next: () => {
-            if (nextSection()) setSection(nextSection());
+            if (nextSection()) {
+                myController.display(nextSection());
+            }
         },
     };
-    if (props.setController) props.setController(controller);
+    if (props.setController) props.setController(myController);
 
     const onKeyDown = (event: KeyboardEvent) => {
         event.preventDefault();
         switch (event.key) {
             case "ArrowLeft":
-                controller.prev();
+                myController.prev();
                 break;
             case "ArrowRight":
-                controller.next();
+                myController.next();
                 break;
         }
     };
@@ -83,6 +91,7 @@ export default function EpubRendition(props: {
             <EpubView
                 request={request()}
                 section={section()}
+                scrollTarget={scrollTarget()}
                 onKeyDown={onKeyDown}
             />
         </Show>
