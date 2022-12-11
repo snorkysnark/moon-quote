@@ -40,15 +40,21 @@ export default function EpubView(props: {
         }
     });
 
+    const [smoothScrolling, setSmoothScrolling] = createSignal(true);
+
     const scrollToTarget = () => {
+        setSmoothScrolling(false);
+
         scroller.scrollLeft = 0;
-        if (!props.scrollTarget) return
+        if (!props.scrollTarget) return;
 
         if (props.scrollTarget === "top") {
             scroller.scrollTop = 0;
         } else if (props.scrollTarget === "bottom") {
             scroller.scrollTop = textHeight();
         }
+
+        setSmoothScrolling(true);
     };
 
     let firstResize = true;
@@ -63,7 +69,7 @@ export default function EpubView(props: {
                 const lastContents = contents();
                 const onResize = () => {
                     setTextHeight(lastContents.textHeight());
-                    if (firstResize){
+                    if (firstResize) {
                         scrollToTarget();
                         firstResize = false;
                     }
@@ -115,14 +121,18 @@ export default function EpubView(props: {
                 return true;
             }
             return false;
-        }
+        },
     };
     if (props.setController) {
         props.setController(controller);
     }
 
     return (
-        <div class="w-full h-full overflow-scroll relative" ref={scroller}>
+        <div
+            class="w-full h-full overflow-scroll relative"
+            classList={{ "scroll-smooth": smoothScrolling() }}
+            ref={scroller}
+        >
             <Show when={blobUrl()}>
                 <iframe
                     class="w-full overflow-hidden"
