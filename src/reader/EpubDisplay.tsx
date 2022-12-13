@@ -55,12 +55,17 @@ export default function EpubDisplay(props: { epub: Book }) {
 
     createEffect(() => {
         if (ready() && scrollTarget()) {
+            // Can't use a signal here, since it would only update the dom after this effect
+            scroller.style.scrollBehavior = "auto";
+
             scroller.scrollLeft = 0;
             if (scrollTarget().side === "top") {
                 scroller.scrollTop = 0;
             } else {
                 scroller.scrollTop = textHeight();
             }
+
+            scroller.style.scrollBehavior = "smooth";
             setScrollTarget(null);
         }
     });
@@ -171,7 +176,11 @@ export default function EpubDisplay(props: { epub: Book }) {
     });
 
     return (
-        <div class="w-full h-full overflow-scroll relative" ref={scroller}>
+        <div
+            class="w-full h-full overflow-scroll relative"
+            style={{ "scroll-behavior": "smooth" }}
+            ref={scroller}
+        >
             <Show when={blobUrl()}>
                 <iframe
                     class="w-full overflow-hidden"
