@@ -15,6 +15,8 @@ import {
 import ScrollTarget from "./scrollTarget";
 import { useReaderContext } from "./ReaderContextProvider";
 
+const SCROLL_STEP = 20;
+
 export default function EpubDisplay(props: { epub: Book }) {
     const [section, setSection] = createSignal<Section>(null);
     // Reset to first section when book changes
@@ -143,6 +145,12 @@ export default function EpubDisplay(props: { epub: Book }) {
         }
         return false;
     }
+    function scrollDown() {
+        scroller.scrollTop += SCROLL_STEP;
+    }
+    function scrollUp() {
+        scroller.scrollTop -= SCROLL_STEP;
+    }
     function pageUpOrPrev() {
         if (!pageUp()) toPrevSection();
     }
@@ -153,11 +161,19 @@ export default function EpubDisplay(props: { epub: Book }) {
     function onKeyDown(event: KeyboardEvent) {
         event.preventDefault();
         switch (event.key) {
+            case "PageUp":
             case "ArrowLeft":
                 pageUpOrPrev();
                 break;
+            case "PageDown":
             case "ArrowRight":
                 pageDownOrNext();
+                break;
+            case "ArrowDown":
+                scrollDown();
+                break;
+            case "ArrowUp":
+                scrollUp();
                 break;
         }
     }
