@@ -123,15 +123,36 @@ export default function EpubDisplay(props: { epub: Book }) {
             setScrollTarget({ type: "side", side: "bottom" });
         }
     }
+    function pageUp() {
+        if (scroller.scrollTop > 0) {
+            scroller.scrollTop -= scroller.clientHeight;
+            return true;
+        }
+        return false;
+    }
+    function pageDown() {
+        const newScrollTop = scroller.scrollTop + scroller.clientHeight;
+        if (newScrollTop < scroller.scrollHeight) {
+            scroller.scrollTop = newScrollTop;
+            return true;
+        }
+        return false;
+    }
+    function pageUpOrPrev() {
+        if (!pageUp()) toPrevSection();
+    }
+    function pageDownOrNext() {
+        if (!pageDown()) toNextSection();
+    }
 
     function onKeyDown(event: KeyboardEvent) {
         event.preventDefault();
         switch (event.key) {
             case "ArrowLeft":
-                toPrevSection();
+                pageUpOrPrev();
                 break;
             case "ArrowRight":
-                toNextSection();
+                pageDownOrNext();
                 break;
         }
     }
@@ -139,8 +160,8 @@ export default function EpubDisplay(props: { epub: Book }) {
     const context = useReaderContext();
     onMount(() => {
         window.addEventListener("keydown", onKeyDown);
-        const unbindNext = context.events.on("next", toNextSection);
-        const unbindPrev = context.events.on("prev", toPrevSection);
+        const unbindPrev = context.events.on("prev", pageUpOrPrev);
+        const unbindNext = context.events.on("next", pageDownOrNext);
 
         onCleanup(() => {
             window.removeEventListener("keydown", onKeyDown);
