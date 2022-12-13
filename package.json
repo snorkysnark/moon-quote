@@ -20,6 +20,7 @@
     "dependencies": {
         "@tauri-apps/api": "1.0.2",
         "epubjs": "^0.3.93",
+        "nanoevents": "^7.0.1",
         "solid-js": "^1.6.2"
     }
 }
