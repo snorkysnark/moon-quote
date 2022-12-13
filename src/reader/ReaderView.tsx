@@ -1,6 +1,6 @@
 import { Book } from "epubjs";
 import EpubDisplay from "./EpubDisplay";
-import { useReaderContext } from "./Reader";
+import { useReaderContext } from "./ReaderContextProvider";
 
 const navButtonClass = "flex-auto text-4xl";
 

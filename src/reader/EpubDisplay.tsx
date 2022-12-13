@@ -13,7 +13,7 @@ import {
     Show,
 } from "solid-js";
 import ScrollTarget from "./scrollTarget";
-import { useReaderContext } from "./Reader";
+import { useReaderContext } from "./ReaderContextProvider";
 
 export default function EpubDisplay(props: { epub: Book }) {
     const [section, setSection] = createSignal<Section>(null);
