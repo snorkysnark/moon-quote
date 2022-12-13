@@ -3,5 +3,10 @@ interface SideTarget {
     side: 'top' | 'bottom';
 }
 
-type ScrollTarget = SideTarget;
+interface LinkTarget {
+    type: 'link';
+    link: string;
+}
+
+type ScrollTarget = SideTarget | LinkTarget;
 export default ScrollTarget;

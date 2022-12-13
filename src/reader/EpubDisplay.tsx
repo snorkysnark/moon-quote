@@ -60,11 +60,24 @@ export default function EpubDisplay(props: { epub: Book }) {
             // Can't use a signal here, since it would only update the dom after this effect
             scroller.style.scrollBehavior = "auto";
 
-            scroller.scrollLeft = 0;
-            if (scrollTarget().side === "top") {
-                scroller.scrollTop = 0;
-            } else {
-                scroller.scrollTop = textHeight();
+            const target = scrollTarget();
+            switch (target.type) {
+                case "side":
+                    scroller.scrollLeft = 0;
+                    if (target.side === "top") {
+                        scroller.scrollTop = 0;
+                    } else {
+                        scroller.scrollTop = textHeight();
+                    }
+                    break;
+                case "link":
+                    // @ts-ignore
+                    const location = contents().locationOf(target.link) as {
+                        left: number;
+                        top: number;
+                    };
+                    scroller.scrollLeft = location.left;
+                    scroller.scrollTop = location.top;
             }
 
             scroller.style.scrollBehavior = "smooth";
@@ -86,8 +99,18 @@ export default function EpubDisplay(props: { epub: Book }) {
                 };
                 lastContents.on(EVENTS.CONTENTS.RESIZE, onResize);
 
+                const onLinkClicked = (href: string) => {
+                    const path = props.epub.path.relative(href);
+                    toLink(path);
+                };
+                lastContents.on(EVENTS.CONTENTS.LINK_CLICKED, onLinkClicked);
+
                 onCleanup(() => {
                     lastContents.off(EVENTS.CONTENTS.RESIZE, onResize);
+                    lastContents.off(
+                        EVENTS.CONTENTS.LINK_CLICKED,
+                        onLinkClicked
+                    );
                     lastContents.destroy();
                 });
             }
@@ -128,6 +151,13 @@ export default function EpubDisplay(props: { epub: Book }) {
         if (prevSection()) {
             setSection(prevSection());
             setScrollTarget({ type: "side", side: "bottom" });
+        }
+    }
+    function toLink(link: string) {
+        const section = props.epub.spine.get(link);
+        if (section) {
+            setSection(section);
+            setScrollTarget({ type: "link", link });
         }
     }
     function pageUp() {
