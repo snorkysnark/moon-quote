@@ -4,6 +4,7 @@ import { createContext, JSXElement, useContext } from "solid-js";
 export interface ReaderEvents {
     next: () => void;
     prev: () => void;
+    display: (target: string) => void;
 }
 
 export interface ReaderContextValue {

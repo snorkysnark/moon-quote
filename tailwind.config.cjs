@@ -6,6 +6,9 @@ module.exports = {
             gridTemplateColumns: {
                 "fit-40": "repeat(auto-fit, 10rem)",
             },
+            flex: {
+                "grow-auto": "1 0 auto",
+            },
         },
     },
     plugins: [],

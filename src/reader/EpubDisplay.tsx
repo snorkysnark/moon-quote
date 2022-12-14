@@ -101,7 +101,7 @@ export default function EpubDisplay(props: { epub: Book }) {
 
                 const onLinkClicked = (href: string) => {
                     const path = props.epub.path.relative(href);
-                    toLink(path);
+                    display(path);
                 };
                 lastContents.on(EVENTS.CONTENTS.LINK_CLICKED, onLinkClicked);
 
@@ -153,11 +153,11 @@ export default function EpubDisplay(props: { epub: Book }) {
             setScrollTarget({ type: "side", side: "bottom" });
         }
     }
-    function toLink(link: string) {
-        const section = props.epub.spine.get(link);
+    function display(target: string) {
+        const section = props.epub.spine.get(target);
         if (section) {
             setSection(section);
-            setScrollTarget({ type: "link", link });
+            setScrollTarget({ type: "link", link: target });
         }
     }
     function pageUp() {
@@ -213,11 +213,13 @@ export default function EpubDisplay(props: { epub: Book }) {
         window.addEventListener("keydown", onKeyDown);
         const unbindPrev = context.events.on("prev", pageUpOrPrev);
         const unbindNext = context.events.on("next", pageDownOrNext);
+        const unbindDisplay = context.events.on("display", display);
 
         onCleanup(() => {
             window.removeEventListener("keydown", onKeyDown);
             unbindNext();
             unbindPrev();
+            unbindDisplay();
         });
     });
 
