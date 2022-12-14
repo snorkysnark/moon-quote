@@ -58,15 +58,13 @@ export function ToC(props: {
                             <div class="flex">
                                 <Show when={item.subitems.length > 0}>
                                     <button
-                                        class="text-xl"
+                                        class="text-xl font-mono"
                                         classList={{
                                             "rotate-90": item.opened,
-                                            "translate-x-1": item.opened,
                                         }}
                                         onClick={[toggleItem, path]}
                                     >
-                                        {/* Don't turn into an emoji */}
-                                        ▶&#xFE0E;
+                                        ▶
                                     </button>
                                 </Show>
                                 <button
