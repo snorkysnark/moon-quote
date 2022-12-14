@@ -3,6 +3,8 @@ import EpubDisplay from "./EpubDisplay";
 import { useReaderContext } from "./ReaderContextProvider";
 import { makeFoldableToc, ToC } from "./ToC";
 import { createStore } from "solid-js/store";
+import tocIcon from "src/decor/toc.svg";
+import { createSignal, Show } from "solid-js";
 
 const navButtonClass = "flex-auto text-4xl";
 
@@ -15,12 +17,24 @@ export default function ReaderView(props: { epub: Book }) {
         makeFoldableToc(props.epub.navigation.toc, true)
     );
 
+    let [sidePanel, setSidePanel] = createSignal(false);
+
     return (
         <div class="flex w-full h-full min-h-0">
-            <div class="bg-gray-100 w-10 shrink-0" />
-            <div class="bg-blue-200 w-10 flex-grow-auto overflow-y-scroll">
-                <ToC items={toc} setToc={setToc} />
+            <div class="bg-gray-100 w-10 shrink-0">
+                <button
+                    class="w-full p-2"
+                    classList={{ "bg-orange-200": sidePanel() }}
+                    onClick={() => setSidePanel(!sidePanel())}
+                >
+                    <img src={tocIcon} alt="Table of Contents" />
+                </button>
             </div>
+            <Show when={sidePanel()}>
+                <div class="bg-blue-200 w-10 flex-grow-auto overflow-y-scroll">
+                    <ToC items={toc} setToc={setToc} />
+                </div>
+            </Show>
             <div class="flex-auto bg-gray-300 flex overflow-hidden">
                 <button
                     class={navButtonClass}
