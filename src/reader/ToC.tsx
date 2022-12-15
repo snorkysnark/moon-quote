@@ -27,7 +27,7 @@ export function makeFoldableToc(
 
 export function ToC(props: {
     items: NavItemFoldable[];
-    setToc: SetStoreFunction<NavItemFoldable[]>;
+    setToc: SetStoreFunction<{ items: NavItemFoldable[] }>;
     onHref: (href: string) => void;
     parentPath?: any[];
 }) {
@@ -41,16 +41,16 @@ export function ToC(props: {
         <ul>
             <For each={props.items}>
                 {(item, i) => {
-                    // Path to this item inside the store, for example [1, "subitems", 2]
+                    // Path to this item inside the store, for example ["items", 1, "subitems", 2]
                     const path = props.parentPath
                         ? [...props.parentPath, "subitems", i()]
-                        : [i()];
+                        : ["items", i()];
 
                     return (
                         <li
                             classList={{
                                 // Don't add margin to topmost items
-                                "ml-6": path.length > 1,
+                                "ml-6": !!props.parentPath,
                             }}
                         >
                             <div class="flex">

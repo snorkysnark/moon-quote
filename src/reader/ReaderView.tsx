@@ -3,7 +3,7 @@ import EpubDisplay from "./EpubDisplay";
 import { makeFoldableToc, ToC } from "./ToC";
 import { createStore } from "solid-js/store";
 import tocIcon from "src/decor/toc.svg";
-import { createSignal, Show } from "solid-js";
+import { createComputed, createSignal, Show } from "solid-js";
 import { createEvent } from "src/util/events";
 
 const navButtonClass = "flex-auto text-4xl";
@@ -15,8 +15,9 @@ export default function ReaderView(props: { epub: Book }) {
 
     // Storing toc state outside of ToC component,
     // so that it persists when the panel is closed
-    const [toc, setToc] = createStore(
-        makeFoldableToc(props.epub.navigation.toc, true)
+    const [toc, setToc] = createStore({ items: null });
+    createComputed(() =>
+        setToc("items", makeFoldableToc(props.epub.navigation.toc, true))
     );
 
     let [sidePanel, setSidePanel] = createSignal(false);
@@ -34,7 +35,11 @@ export default function ReaderView(props: { epub: Book }) {
             </div>
             <Show when={sidePanel()}>
                 <div class="bg-blue-200 w-10 flex-grow-auto overflow-y-scroll">
-                    <ToC items={toc} setToc={setToc} onHref={emitDisplay} />
+                    <ToC
+                        items={toc.items}
+                        setToc={setToc}
+                        onHref={emitDisplay}
+                    />
                 </div>
             </Show>
             <div class="flex-auto bg-gray-300 flex overflow-hidden">
