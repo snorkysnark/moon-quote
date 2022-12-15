@@ -13,11 +13,16 @@ import {
     Show,
 } from "solid-js";
 import ScrollTarget from "./scrollTarget";
-import { useReaderContext } from "./ReaderContextProvider";
+import { EventListener } from "src/util/events";
 
 const SCROLL_STEP = 20;
 
-export default function EpubDisplay(props: { epub: Book }) {
+export default function EpubDisplay(props: {
+    epub: Book;
+    nextListener?: EventListener<void>;
+    prevListener?: EventListener<void>;
+    displayListener?: EventListener<string>;
+}) {
     const [section, setSection] = createSignal<Section>(null);
     // Reset to first section when book changes
     createEffect(
@@ -208,18 +213,17 @@ export default function EpubDisplay(props: { epub: Book }) {
         }
     }
 
-    const context = useReaderContext();
     onMount(() => {
         window.addEventListener("keydown", onKeyDown);
-        const unbindPrev = context.events.on("prev", pageUpOrPrev);
-        const unbindNext = context.events.on("next", pageDownOrNext);
-        const unbindDisplay = context.events.on("display", display);
+        props.prevListener?.listen(pageUpOrPrev);
+        props.nextListener?.listen(pageDownOrNext);
+        props.displayListener?.listen(display);
 
         onCleanup(() => {
             window.removeEventListener("keydown", onKeyDown);
-            unbindNext();
-            unbindPrev();
-            unbindDisplay();
+            props.prevListener?.remove(pageUpOrPrev);
+            props.nextListener?.remove(pageDownOrNext);
+            props.displayListener?.remove(display);
         });
     });
 

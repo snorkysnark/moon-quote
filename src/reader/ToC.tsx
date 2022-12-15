@@ -1,7 +1,6 @@
 import { NavItem } from "epubjs";
 import { For, Show } from "solid-js";
 import { SetStoreFunction } from "solid-js/store";
-import { useReaderContext } from "./ReaderContextProvider";
 
 export interface NavItemFoldable {
     opened: boolean;
@@ -29,6 +28,7 @@ export function makeFoldableToc(
 export function ToC(props: {
     items: NavItemFoldable[];
     setToc: SetStoreFunction<NavItemFoldable[]>;
+    onHref: (href: string) => void;
     parentPath?: any[];
 }) {
     function toggleItem(path: any[]) {
@@ -36,8 +36,6 @@ export function ToC(props: {
         // but code should work regardless
         props.setToc(...path, "opened", (opened) => !opened);
     }
-
-    const { events } = useReaderContext();
 
     return (
         <ul>
@@ -69,9 +67,7 @@ export function ToC(props: {
                                 </Show>
                                 <button
                                     class="hover:bg-yellow-200 text-left flex-auto"
-                                    onClick={() =>
-                                        events.emit("display", item.href)
-                                    }
+                                    onClick={() => props.onHref(item.href)}
                                 >
                                     {item.label}
                                 </button>
@@ -82,6 +78,7 @@ export function ToC(props: {
                                 <ToC
                                     items={item.subitems}
                                     setToc={props.setToc}
+                                    onHref={props.onHref}
                                     parentPath={path}
                                 />
                             </Show>
