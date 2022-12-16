@@ -251,6 +251,13 @@ export default function EpubDisplay(props: {
             class="w-full h-full overflow-scroll relative"
             style={{ "scroll-behavior": "smooth" }}
             ref={scroller}
+            onWheel={(event) => {
+                if (event.ctrlKey)
+                    event.preventDefault();
+                    setFontSize(
+                        fontSize() + event.deltaY / Math.abs(event.deltaY)
+                    );
+            }}
         >
             <Show when={blobUrl()}>
                 <iframe
