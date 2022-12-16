@@ -145,13 +145,11 @@ export default function EpubDisplay(props: {
         );
     }
 
-    createEffect(
-        on(fontSize, () => {
-            if (iframe?.contentDocument) {
-                iframe.contentDocument.body.style.fontSize = `${fontSize()}px`;
-            }
-        })
-    );
+    createEffect(() => {
+        if (ready()) {
+            iframe.contentDocument.body.style.fontSize = `${fontSize()}px`;
+        }
+    });
 
     // @ts-ignore: wrong type signature for next()
     const nextSection = () => section()?.next() as Section;
@@ -252,11 +250,8 @@ export default function EpubDisplay(props: {
             style={{ "scroll-behavior": "smooth" }}
             ref={scroller}
             onWheel={(event) => {
-                if (event.ctrlKey)
-                    event.preventDefault();
-                    setFontSize(
-                        fontSize() + event.deltaY / Math.abs(event.deltaY)
-                    );
+                if (event.ctrlKey) event.preventDefault();
+                setFontSize(fontSize() + event.deltaY / Math.abs(event.deltaY));
             }}
         >
             <Show when={blobUrl()}>
