@@ -11,9 +11,11 @@ import {
     onCleanup,
     onMount,
     Show,
+    untrack,
 } from "solid-js";
 import ScrollTarget from "./scrollTarget";
 import { EventListener } from "src/util/events";
+import { findNodeBelow } from "src/util/dom";
 
 const SCROLL_STEP = 20;
 const PAGE_MARGIN = 20;
@@ -151,7 +153,24 @@ export default function EpubDisplay(props: {
 
     createEffect(() => {
         if (loaded()) {
+            let anchor: HTMLElement = null;
+            let positionBeforeResize: number = null;
+
+            // Don't run this block during first load, only when font changes
+            if (untrack(sized)) {
+                anchor = findNodeBelow(iframe.contentDocument.body, scroller.scrollTop);
+                positionBeforeResize = anchor.getBoundingClientRect().y;
+            }
             iframe.contentDocument.body.style.fontSize = `${fontSize()}px`;
+
+            // Compensate for the resize, using the topmost node as anchor
+            if (anchor) {
+                const delta = anchor.getBoundingClientRect().y - positionBeforeResize
+
+                scroller.style.scrollBehavior = "auto";
+                scroller.scrollTop += delta;
+                scroller.style.scrollBehavior = "smooth";
+            }
         }
     });
 
