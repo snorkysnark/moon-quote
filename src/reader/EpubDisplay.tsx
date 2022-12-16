@@ -52,17 +52,21 @@ export default function EpubDisplay(props: {
         }
     });
 
-    const [ready, setReady] = createSignal(false);
+    // True if iframe has been loaded
+    const [loaded, setLoaded] = createSignal(true);
+    // True if iframe size has beed defined
+    const [sized, setSized] = createSignal(false);
     const [scrollTarget, setScrollTarget] = createSignal<ScrollTarget>(null);
     createEffect(
         on(section, () => {
-            setReady(false);
+            setLoaded(false);
+            setSized(false);
             setScrollTarget(null);
         })
     );
 
     createEffect(() => {
-        if (ready() && scrollTarget()) {
+        if (sized() && scrollTarget()) {
             // Can't use a signal here, since it would only update the dom after this effect
             scroller.style.scrollBehavior = "auto";
 
@@ -101,7 +105,7 @@ export default function EpubDisplay(props: {
                 const lastContents = contents();
                 const onResize = () => {
                     setTextHeight(lastContents.textHeight() + PAGE_MARGIN);
-                    setReady(true);
+                    setSized(true);
                 };
                 lastContents.on(EVENTS.CONTENTS.RESIZE, onResize);
 
@@ -131,7 +135,6 @@ export default function EpubDisplay(props: {
         const iframeDoc = iframe.contentDocument;
         iframeDoc.body.style.overflow = "hidden";
         iframeDoc.body.style.margin = `${PAGE_MARGIN}px`;
-        iframeDoc.body.style.fontSize = `${fontSize()}px`;
 
         iframe.contentWindow.addEventListener("keydown", onKeyDown);
 
@@ -143,10 +146,11 @@ export default function EpubDisplay(props: {
                 section().index
             )
         );
+        setLoaded(true);
     }
 
     createEffect(() => {
-        if (ready()) {
+        if (loaded()) {
             iframe.contentDocument.body.style.fontSize = `${fontSize()}px`;
         }
     });
