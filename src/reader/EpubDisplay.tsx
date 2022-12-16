@@ -16,6 +16,7 @@ import ScrollTarget from "./scrollTarget";
 import { EventListener } from "src/util/events";
 
 const SCROLL_STEP = 20;
+const PAGE_MARGIN = 20;
 
 export default function EpubDisplay(props: {
     epub: Book;
@@ -99,7 +100,7 @@ export default function EpubDisplay(props: {
             if (contents()) {
                 const lastContents = contents();
                 const onResize = () => {
-                    setTextHeight(lastContents.textHeight());
+                    setTextHeight(lastContents.textHeight() + PAGE_MARGIN);
                     setReady(true);
                 };
                 lastContents.on(EVENTS.CONTENTS.RESIZE, onResize);
@@ -127,6 +128,7 @@ export default function EpubDisplay(props: {
     function onLoadIframe() {
         const iframeDoc = iframe.contentDocument;
         iframeDoc.body.style.overflow = "hidden";
+        iframeDoc.body.style.margin = `${PAGE_MARGIN}px`;
 
         iframe.contentWindow.addEventListener("keydown", onKeyDown);
 
