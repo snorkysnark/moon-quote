@@ -123,12 +123,15 @@ export default function EpubDisplay(props: {
         })
     );
 
+    const [fontSize, setFontSize] = createSignal(16);
+
     let scroller: HTMLDivElement;
     let iframe: HTMLIFrameElement;
     function onLoadIframe() {
         const iframeDoc = iframe.contentDocument;
         iframeDoc.body.style.overflow = "hidden";
         iframeDoc.body.style.margin = `${PAGE_MARGIN}px`;
+        iframeDoc.body.style.fontSize = `${fontSize()}px`;
 
         iframe.contentWindow.addEventListener("keydown", onKeyDown);
 
@@ -141,6 +144,14 @@ export default function EpubDisplay(props: {
             )
         );
     }
+
+    createEffect(
+        on(fontSize, () => {
+            if (iframe?.contentDocument) {
+                iframe.contentDocument.body.style.fontSize = `${fontSize()}px`;
+            }
+        })
+    );
 
     // @ts-ignore: wrong type signature for next()
     const nextSection = () => section()?.next() as Section;
@@ -211,6 +222,12 @@ export default function EpubDisplay(props: {
                 break;
             case "ArrowUp":
                 scrollUp();
+                break;
+            case "-":
+                if (event.ctrlKey) setFontSize(fontSize() - 1);
+                break;
+            case "=":
+                if (event.ctrlKey) setFontSize(fontSize() + 1);
                 break;
         }
     }
