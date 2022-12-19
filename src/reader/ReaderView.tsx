@@ -6,6 +6,10 @@ import tocIcon from "src/decor/toc.svg";
 import { createComputed, createSignal, Show } from "solid-js";
 import { createEvent } from "src/util/events";
 
+// use:__ directives
+import { resizableWidth } from "src/resizableWidth";
+false && resizableWidth;
+
 const navButtonClass = "flex-auto text-4xl";
 
 export default function ReaderView(props: { epub: Book }) {
@@ -21,6 +25,7 @@ export default function ReaderView(props: { epub: Book }) {
     );
 
     let [sidePanel, setSidePanel] = createSignal(false);
+    let [iframePointerEvents, setIframePointerEvents] = createSignal(true);
 
     return (
         <div class="flex w-full h-full min-h-0">
@@ -46,13 +51,18 @@ export default function ReaderView(props: { epub: Book }) {
                 <button class={navButtonClass} onClick={() => emitPrev()}>
                     ←
                 </button>
-                <div class="h-full py-3 relative" style={{ width: "800px" }}>
+                <div class="h-full py-3 relative" use:resizableWidth={{
+                    initial: 800,
+                    onResizeStart: () => setIframePointerEvents(false),
+                    onResizeEnd: () => setIframePointerEvents(true)
+                }}>
                     <div class="bg-white h-full shadow-lg shadow-neutral-500">
                         <EpubDisplay
                             epub={props.epub}
                             nextListener={nextListener}
                             prevListener={prevListener}
                             displayListener={displayListener}
+                            pointerEvents={iframePointerEvents()}
                         />
                     </div>
                 </div>

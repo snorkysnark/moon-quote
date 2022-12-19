@@ -8,6 +8,7 @@ import {
     createMemo,
     createResource,
     createSignal,
+    mergeProps,
     on,
     onCleanup,
     onMount,
@@ -22,12 +23,15 @@ const PAGE_MARGIN = 20;
 // @ts-ignore: layout settings aren't actually needed
 const MAPPING = new Mapping(new Layout({}));
 
-export default function EpubDisplay(props: {
+export default function EpubDisplay(propsRaw: {
     epub: Book;
     nextListener?: EventListener<void>;
     prevListener?: EventListener<void>;
     displayListener?: EventListener<string>;
+    pointerEvents?: boolean;
 }) {
+    const props = mergeProps({ pointerEvents: true }, propsRaw);
+
     const [section, setSection] = createSignal<Section>(null);
     // Reset to first section when book changes
     createEffect(
@@ -237,7 +241,7 @@ export default function EpubDisplay(props: {
 
         setFontSize(value);
         if (anchor) {
-            setScrollTarget({ type: 'link', link: anchor });
+            setScrollTarget({ type: "link", link: anchor });
         }
     }
 
@@ -305,6 +309,7 @@ export default function EpubDisplay(props: {
                         height: textHeight()
                             ? `max(${textHeight()}px, 100%)`
                             : "100%",
+                        "pointer-events": props.pointerEvents ? "auto" : "none",
                     }}
                 ></iframe>
             </Show>
