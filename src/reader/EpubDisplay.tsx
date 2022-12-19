@@ -11,7 +11,6 @@ import {
     onCleanup,
     onMount,
     Show,
-    untrack,
 } from "solid-js";
 import ScrollTarget from "./scrollTarget";
 import { EventListener } from "src/util/events";
@@ -90,6 +89,11 @@ export default function EpubDisplay(props: {
                     };
                     scroller.scrollLeft = location.left;
                     scroller.scrollTop = location.top;
+                    break;
+                case "anchor":
+                    const rect = target.node.getBoundingClientRect();
+                    scroller.scrollTop = rect.y + target.offset;
+                    break;
             }
 
             scroller.style.scrollBehavior = "smooth";
@@ -106,6 +110,7 @@ export default function EpubDisplay(props: {
             if (contents()) {
                 const lastContents = contents();
                 const onResize = () => {
+                    console.log("onResize");
                     setTextHeight(lastContents.textHeight() + PAGE_MARGIN);
                     setSized(true);
                 };
@@ -130,6 +135,24 @@ export default function EpubDisplay(props: {
     );
 
     const [fontSize, setFontSize] = createSignal(16);
+    createEffect(() => {
+        if (loaded()) {
+            iframe.contentDocument.body.style.fontSize = `${fontSize()}px`;
+
+            // After changing the font size, the dimensions of the iframe aren't known
+            // until they are recalculated and EVENTS.CONTENTS.RESIZE gets fired
+            setSized(false);
+
+            // If EVENTS.CONTENTS.RESIZE doesn't fire (can happen on a page with no text),
+            // setSized(true) anyways after a (longer) timeout
+            const waitForResizeTimeout = setTimeout(() => setSized(true), 2000);
+            onCleanup(() => {
+                clearTimeout(waitForResizeTimeout);
+            });
+        }
+    });
+
+    createEffect(() => console.log("sized", sized()));
 
     let scroller: HTMLDivElement;
     let iframe: HTMLIFrameElement;
@@ -150,29 +173,6 @@ export default function EpubDisplay(props: {
         );
         setLoaded(true);
     }
-
-    createEffect(() => {
-        if (loaded()) {
-            let anchor: HTMLElement = null;
-            let positionBeforeResize: number = null;
-
-            // Don't run this block during first load, only when font changes
-            if (untrack(sized)) {
-                anchor = findNodeBelow(iframe.contentDocument.body, scroller.scrollTop);
-                positionBeforeResize = anchor.getBoundingClientRect().y;
-            }
-            iframe.contentDocument.body.style.fontSize = `${fontSize()}px`;
-
-            // Compensate for the resize, using the topmost node as anchor
-            if (anchor) {
-                const delta = anchor.getBoundingClientRect().y - positionBeforeResize
-
-                scroller.style.scrollBehavior = "auto";
-                scroller.scrollTop += delta;
-                scroller.style.scrollBehavior = "smooth";
-            }
-        }
-    });
 
     // @ts-ignore: wrong type signature for next()
     const nextSection = () => section()?.next() as Section;
@@ -226,6 +226,25 @@ export default function EpubDisplay(props: {
     function pageDownOrNext() {
         if (!pageDown()) toNextSection();
     }
+    function setFontSizeAnchored(value: number) {
+        let anchor: HTMLElement = null;
+        let offset: number = null;
+
+        if (sized()) {
+            anchor = findNodeBelow(
+                iframe.contentDocument.body,
+                scroller.scrollTop
+            );
+
+            const rect = anchor.getBoundingClientRect();
+            offset = scroller.scrollTop - rect.y;
+        }
+
+        setFontSize(value);
+        if (anchor) {
+            setScrollTarget({ type: 'anchor', node: anchor, offset });
+        }
+    }
 
     function onKeyDown(event: KeyboardEvent) {
         event.preventDefault();
@@ -245,10 +264,10 @@ export default function EpubDisplay(props: {
                 scrollUp();
                 break;
             case "-":
-                if (event.ctrlKey) setFontSize(fontSize() - 1);
+                if (event.ctrlKey) setFontSizeAnchored(fontSize() - 1);
                 break;
             case "=":
-                if (event.ctrlKey) setFontSize(fontSize() + 1);
+                if (event.ctrlKey) setFontSizeAnchored(fontSize() + 1);
                 break;
         }
     }
@@ -275,7 +294,9 @@ export default function EpubDisplay(props: {
             onWheel={(event) => {
                 if (event.ctrlKey) {
                     event.preventDefault();
-                    setFontSize(fontSize() + event.deltaY / Math.abs(event.deltaY));
+                    setFontSizeAnchored(
+                        fontSize() + event.deltaY / Math.abs(event.deltaY)
+                    );
                 }
             }}
         >

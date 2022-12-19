@@ -8,5 +8,11 @@ interface LinkTarget {
     link: string;
 }
 
-type ScrollTarget = SideTarget | LinkTarget;
+interface AnchorTarget {
+    type: 'anchor';
+    node: HTMLElement;
+    offset: number;
+}
+
+type ScrollTarget = SideTarget | LinkTarget | AnchorTarget;
 export default ScrollTarget;
