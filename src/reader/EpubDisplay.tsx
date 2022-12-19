@@ -1,6 +1,7 @@
-import { Book, Contents } from "epubjs";
+import { Book, Contents, Layout } from "epubjs";
 import Section from "epubjs/types/section";
 import { createBlobUrl, revokeBlobUrl } from "epubjs/src/utils/core";
+import Mapping from "epubjs/src/mapping";
 import { EVENTS } from "epubjs/src/utils/constants";
 import {
     createEffect,
@@ -14,10 +15,12 @@ import {
 } from "solid-js";
 import ScrollTarget from "./scrollTarget";
 import { EventListener } from "src/util/events";
-import { findNodeBelow } from "src/util/dom";
 
 const SCROLL_STEP = 20;
 const PAGE_MARGIN = 20;
+
+// @ts-ignore: layout settings aren't actually needed
+const MAPPING = new Mapping(new Layout({}));
 
 export default function EpubDisplay(props: {
     epub: Book;
@@ -90,10 +93,6 @@ export default function EpubDisplay(props: {
                     scroller.scrollLeft = location.left;
                     scroller.scrollTop = location.top;
                     break;
-                case "anchor":
-                    const rect = target.node.getBoundingClientRect();
-                    scroller.scrollTop = rect.y + target.offset;
-                    break;
             }
 
             scroller.style.scrollBehavior = "smooth";
@@ -110,7 +109,6 @@ export default function EpubDisplay(props: {
             if (contents()) {
                 const lastContents = contents();
                 const onResize = () => {
-                    console.log("onResize");
                     setTextHeight(lastContents.textHeight() + PAGE_MARGIN);
                     setSized(true);
                 };
@@ -151,8 +149,6 @@ export default function EpubDisplay(props: {
             });
         }
     });
-
-    createEffect(() => console.log("sized", sized()));
 
     let scroller: HTMLDivElement;
     let iframe: HTMLIFrameElement;
@@ -227,22 +223,21 @@ export default function EpubDisplay(props: {
         if (!pageDown()) toNextSection();
     }
     function setFontSizeAnchored(value: number) {
-        let anchor: HTMLElement = null;
-        let offset: number = null;
+        let anchor: string = null;
 
         if (sized()) {
-            anchor = findNodeBelow(
-                iframe.contentDocument.body,
-                scroller.scrollTop
+            const location = MAPPING.page(
+                contents(),
+                section().cfiBase,
+                scroller.scrollTop,
+                scroller.scrollTop + scroller.clientHeight
             );
-
-            const rect = anchor.getBoundingClientRect();
-            offset = scroller.scrollTop - rect.y;
+            anchor = location?.start;
         }
 
         setFontSize(value);
         if (anchor) {
-            setScrollTarget({ type: 'anchor', node: anchor, offset });
+            setScrollTarget({ type: 'link', link: anchor });
         }
     }
 
