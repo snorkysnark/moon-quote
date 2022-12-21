@@ -1,6 +1,6 @@
 import { createSignal, Show } from "solid-js";
 import { type BookDatabaseEntry } from "./backend/library";
-import Library from "./Library";
+import Library from "./library/Library";
 import Reader from "./reader/Reader";
 
 export default function App() {
