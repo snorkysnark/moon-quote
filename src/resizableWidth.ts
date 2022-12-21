@@ -26,10 +26,10 @@ export interface ResizableWidthParams {
 
 export function resizableWidth(
     element: HTMLElement,
-    paramsSignal: Accessor<ResizableWidthParams>
+    paramsAccessor: Accessor<ResizableWidthParams>
 ) {
     // Not supporting reactivity
-    const params = paramsSignal();
+    const params = paramsAccessor();
 
     element.style.width = `${params.initial}px`;
 
