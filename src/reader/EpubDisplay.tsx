@@ -60,8 +60,8 @@ export default function EpubDisplay(propsRaw: {
         }
     });
 
-    // True if iframe has been loaded
-    const [loaded, setLoaded] = createSignal(true);
+    // True if iframe has been loaded, make sure that dependent code runs on reload
+    const [loaded, setLoaded] = createSignal(true, { equals: false });
     // True if iframe size has beed defined
     const [sized, setSized] = createSignal(false);
     const [scrollTarget, setScrollTarget] = createSignal<ScrollTarget>(null);
