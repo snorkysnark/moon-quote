@@ -1,5 +1,6 @@
 import {
     createContext,
+    createEffect,
     createSignal,
     For,
     JSX,
@@ -29,6 +30,9 @@ export default function ContextMenuProvider(props: { children?: JSX.Element }) {
     const [menu, setMenu] = createSignal<MenuState>(null);
 
     let menuContainer: HTMLDivElement;
+    createEffect(() => {
+        if (menu() === null) menuContainer = null;
+    });
 
     function onClickItem(item: MenuItem) {
         if (!item.disabled) {
