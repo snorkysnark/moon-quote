@@ -1,6 +1,9 @@
 import { NavItem } from "epubjs";
 import { For, Show } from "solid-js";
-import { SetStoreFunction } from "solid-js/store";
+import { produce, SetStoreFunction } from "solid-js/store";
+
+import { contextMenu } from "src/contextMenu";
+false && contextMenu;
 
 export interface NavItemFoldable {
     opened: boolean;
@@ -25,6 +28,13 @@ export function makeFoldableToc(
     });
 }
 
+function setAllItemsOpened(items: NavItemFoldable[], value: boolean) {
+    for (const item of items) {
+        item.opened = value;
+        setAllItemsOpened(item.subitems, value);
+    }
+}
+
 export function ToC(props: {
     items: NavItemFoldable[];
     setToc: SetStoreFunction<{ items: NavItemFoldable[] }>;
@@ -35,6 +45,13 @@ export function ToC(props: {
         // @ts-ignore: typescript type definition only supports a limited number of arguments,
         // but code should work regardless
         props.setToc(...path, "opened", (opened) => !opened);
+    }
+
+    function unfoldAll() {
+        props.setToc(produce((store) => setAllItemsOpened(store.items, true)));
+    }
+    function foldAll() {
+        props.setToc(produce((store) => setAllItemsOpened(store.items, false)));
     }
 
     return (
@@ -68,6 +85,14 @@ export function ToC(props: {
                                 <button
                                     class="hover:bg-yellow-200 text-left flex-auto"
                                     onClick={() => props.onHref(item.href)}
+                                    use:contextMenu={[
+                                        { label: "URL", disabled: true },
+                                        { label: "Fold All", action: foldAll },
+                                        {
+                                            label: "Unfold All",
+                                            action: unfoldAll,
+                                        },
+                                    ]}
                                 >
                                     {item.label}
                                 </button>
