@@ -26,6 +26,7 @@ export interface EpubDisplayController {
     display: (target: string) => void;
     pageUpOrPrev: () => void;
     pageDownOrNext: () => void;
+    tryGetLocation: () => string;
 }
 
 export default function EpubDisplay(propsRaw: {
@@ -229,18 +230,18 @@ export default function EpubDisplay(propsRaw: {
     function pageDownOrNext() {
         if (!pageDown()) toNextSection();
     }
-    function setFontSizeAnchored(value: number) {
-        let anchor: string = null;
+    function tryGetLocation(): string {
+        if (!sized()) return null;
 
-        if (sized()) {
-            const location = MAPPING.page(
-                contents(),
-                section().cfiBase,
-                scroller.scrollTop,
-                scroller.scrollTop + scroller.clientHeight
-            );
-            anchor = location?.start;
-        }
+        return MAPPING.page(
+            contents(),
+            section().cfiBase,
+            scroller.scrollTop,
+            scroller.scrollTop + scroller.clientHeight
+        )?.start;
+    }
+    function setFontSizeAnchored(value: number) {
+        let anchor = tryGetLocation();
 
         setFontSize(value);
         if (anchor) {
@@ -252,6 +253,7 @@ export default function EpubDisplay(propsRaw: {
         display,
         pageUpOrPrev,
         pageDownOrNext,
+        tryGetLocation,
     });
 
     function onKeyDown(event: KeyboardEvent) {

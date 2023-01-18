@@ -22,6 +22,9 @@ export default function ReaderView(props: { epub: Book }) {
     let [sidePanel, setSidePanel] = createSignal(false);
     let [iframePointerEvents, setIframePointerEvents] = createSignal(true);
 
+    // Location will be restored after resizing
+    let locationLock: string = null;
+
     let displayController: EpubDisplayController;
 
     return (
@@ -55,8 +58,17 @@ export default function ReaderView(props: { epub: Book }) {
                     class="h-full py-3 relative"
                     use:resizableWidth={{
                         initial: 800,
-                        onResizeStart: () => setIframePointerEvents(false),
-                        onResizeEnd: () => setIframePointerEvents(true),
+                        onResizeStart: () => {
+                            setIframePointerEvents(false);
+                            locationLock = displayController?.tryGetLocation();
+                        },
+                        onResizeEnd: () => {
+                            setIframePointerEvents(true);
+                            if (locationLock) {
+                                displayController?.display(locationLock);
+                                locationLock = null;
+                            }
+                        },
                     }}
                 >
                     <div class="bg-white h-full shadow-lg shadow-neutral-500">
