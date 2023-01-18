@@ -15,7 +15,6 @@ import {
     Show,
 } from "solid-js";
 import ScrollTarget from "./scrollTarget";
-import { EventListener } from "src/util/events";
 
 const SCROLL_STEP = 20;
 const PAGE_MARGIN = 20;
@@ -23,12 +22,16 @@ const PAGE_MARGIN = 20;
 // @ts-ignore: layout settings aren't actually needed
 const MAPPING = new Mapping(new Layout({}));
 
+export interface EpubDisplayController {
+    display: (target: string) => void;
+    pageUpOrPrev: () => void;
+    pageDownOrNext: () => void;
+}
+
 export default function EpubDisplay(propsRaw: {
     epub: Book;
-    nextListener?: EventListener<void>;
-    prevListener?: EventListener<void>;
-    displayListener?: EventListener<string>;
     pointerEvents?: boolean;
+    controllerRef?: (controller: EpubDisplayController) => void;
 }) {
     const props = mergeProps({ pointerEvents: true }, propsRaw);
 
@@ -245,6 +248,12 @@ export default function EpubDisplay(propsRaw: {
         }
     }
 
+    props.controllerRef?.({
+        display,
+        pageUpOrPrev,
+        pageDownOrNext,
+    });
+
     function onKeyDown(event: KeyboardEvent) {
         event.preventDefault();
         switch (event.key) {
@@ -273,15 +282,8 @@ export default function EpubDisplay(propsRaw: {
 
     onMount(() => {
         window.addEventListener("keydown", onKeyDown);
-        props.prevListener?.listen(pageUpOrPrev);
-        props.nextListener?.listen(pageDownOrNext);
-        props.displayListener?.listen(display);
-
         onCleanup(() => {
             window.removeEventListener("keydown", onKeyDown);
-            props.prevListener?.remove(pageUpOrPrev);
-            props.nextListener?.remove(pageDownOrNext);
-            props.displayListener?.remove(display);
         });
     });
 

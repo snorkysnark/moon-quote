@@ -1,10 +1,9 @@
 import { Book } from "epubjs";
-import EpubDisplay from "./EpubDisplay";
+import EpubDisplay, { EpubDisplayController } from "./EpubDisplay";
 import { makeFoldableToc, ToC } from "./ToC";
 import { createStore } from "solid-js/store";
 import tocIcon from "src/decor/toc.svg";
 import { createComputed, createSignal, Show } from "solid-js";
-import { createEvent } from "src/util/events";
 
 // use:__ directives
 import { resizableWidth } from "src/resizableWidth";
@@ -13,10 +12,6 @@ false && resizableWidth;
 const navButtonClass = "flex-auto text-4xl";
 
 export default function ReaderView(props: { epub: Book }) {
-    const [emitNext, nextListener] = createEvent<void>();
-    const [emitPrev, prevListener] = createEvent<void>();
-    const [emitDisplay, displayListener] = createEvent<string>();
-
     // Storing toc state outside of ToC component,
     // so that it persists when the panel is closed
     const [toc, setToc] = createStore({ items: null });
@@ -26,6 +21,8 @@ export default function ReaderView(props: { epub: Book }) {
 
     let [sidePanel, setSidePanel] = createSignal(false);
     let [iframePointerEvents, setIframePointerEvents] = createSignal(true);
+
+    let displayController: EpubDisplayController;
 
     return (
         <div class="flex w-full h-full min-h-0">
@@ -43,30 +40,37 @@ export default function ReaderView(props: { epub: Book }) {
                     <ToC
                         items={toc.items}
                         setToc={setToc}
-                        onHref={emitDisplay}
+                        onHref={(href) => displayController?.display(href)}
                     />
                 </div>
             </Show>
             <div class="flex-auto bg-gray-300 flex overflow-hidden">
-                <button class={navButtonClass} onClick={() => emitPrev()}>
+                <button
+                    class={navButtonClass}
+                    onClick={() => displayController?.pageUpOrPrev()}
+                >
                     ←
                 </button>
-                <div class="h-full py-3 relative" use:resizableWidth={{
-                    initial: 800,
-                    onResizeStart: () => setIframePointerEvents(false),
-                    onResizeEnd: () => setIframePointerEvents(true)
-                }}>
+                <div
+                    class="h-full py-3 relative"
+                    use:resizableWidth={{
+                        initial: 800,
+                        onResizeStart: () => setIframePointerEvents(false),
+                        onResizeEnd: () => setIframePointerEvents(true),
+                    }}
+                >
                     <div class="bg-white h-full shadow-lg shadow-neutral-500">
                         <EpubDisplay
                             epub={props.epub}
-                            nextListener={nextListener}
-                            prevListener={prevListener}
-                            displayListener={displayListener}
                             pointerEvents={iframePointerEvents()}
+                            controllerRef={(c) => (displayController = c)}
                         />
                     </div>
                 </div>
-                <button class={navButtonClass} onClick={() => emitNext()}>
+                <button
+                    class={navButtonClass}
+                    onClick={() => displayController?.pageDownOrNext()}
+                >
                     →
                 </button>
             </div>
