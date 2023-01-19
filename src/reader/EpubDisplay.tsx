@@ -75,7 +75,6 @@ export default function EpubDisplay(propsRaw: {
             setLoaded(false);
             setSized(false);
             setScrollTarget(null);
-            setIframeDocument(null);
             setSelectionRange(null);
         })
     );
@@ -122,6 +121,7 @@ export default function EpubDisplay(propsRaw: {
                 const onResize = () => {
                     setTextHeight(lastContents.textHeight() + PAGE_MARGIN);
                     setSized(true);
+                    setSelectionRect(selectionRange()?.getBoundingClientRect());
                 };
                 lastContents.on(EVENTS.CONTENTS.RESIZE, onResize);
 
@@ -161,14 +161,16 @@ export default function EpubDisplay(propsRaw: {
         }
     });
 
-    const [iframeDocument, setIframeDocument] = createSignal<Document>(null);
     const [selectionRange, setSelectionRange] = createSignal<Range>(null);
+    const [selectionRect, setSelectionRect] = createSignal<DOMRect>();
+    createEffect(() => {
+        setSelectionRect(selectionRange()?.getBoundingClientRect());
+    });
 
     let scroller: HTMLDivElement;
     let iframe: HTMLIFrameElement;
     function onLoadIframe() {
         const iframeDoc = iframe.contentDocument;
-        setIframeDocument(iframeDoc);
 
         iframeDoc.body.style.overflow = "hidden";
         iframeDoc.body.style.margin = `${PAGE_MARGIN}px`;
@@ -319,10 +321,9 @@ export default function EpubDisplay(propsRaw: {
                 }
             }}
         >
-            <Show when={iframeDocument() && selectionRange()}>
+            <Show when={selectionRect()}>
                 <SelectionOverlay
-                    bookDocument={iframeDocument()}
-                    selectionRange={selectionRange()}
+                    selectionRect={selectionRect()}
                 />
             </Show>
             <Show when={blobUrl()}>
