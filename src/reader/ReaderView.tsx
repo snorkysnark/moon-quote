@@ -2,8 +2,8 @@ import { Book } from "epubjs";
 import EpubDisplay, { EpubDisplayController } from "./EpubDisplay";
 import { makeFoldableToc, ToC } from "./ToC";
 import { createStore } from "solid-js/store";
-import tocIcon from "src/decor/toc.svg";
 import { createComputed, createSignal, Show } from "solid-js";
+import { ImList2 } from "solid-icons/im";
 
 // use:__ directives
 import { resizableWidth } from "src/resizableWidth";
@@ -35,7 +35,7 @@ export default function ReaderView(props: { epub: Book }) {
                     classList={{ "bg-orange-200": sidePanel() }}
                     onClick={() => setSidePanel(!sidePanel())}
                 >
-                    <img src={tocIcon} alt="Table of Contents" />
+                    <ImList2 class="w-full h-full" title="Table of Contents" />
                 </button>
             </div>
             <Show when={sidePanel()}>
