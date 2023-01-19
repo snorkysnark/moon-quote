@@ -4,6 +4,8 @@ import { createBlobUrl, revokeBlobUrl } from "epubjs/src/utils/core";
 import Mapping from "epubjs/src/mapping";
 import { EVENTS } from "epubjs/src/utils/constants";
 import {
+    Accessor,
+    batch,
     createEffect,
     createMemo,
     createResource,
@@ -17,6 +19,7 @@ import {
 import ScrollTarget from "./scrollTarget";
 import SelectionOverlay from "./SelectionOverlay";
 import { BookDatabaseEntry } from "src/backend/library";
+import { Target } from "src/deeplink";
 
 const SCROLL_STEP = 20;
 const PAGE_MARGIN = 20;
@@ -32,23 +35,44 @@ export interface EpubDisplayController {
 }
 
 export default function EpubDisplay(propsRaw: {
-    bookEntry: BookDatabaseEntry,
+    bookEntry: BookDatabaseEntry;
     epub: Book;
     pointerEvents?: boolean;
     controllerRef?: (controller: EpubDisplayController) => void;
+    getExternalTarget?: Accessor<Target>;
 }) {
     const props = mergeProps({ pointerEvents: true }, propsRaw);
 
     const [section, setSection] = createSignal<Section>(null);
-    // Reset to first section when book changes
     createEffect(
         on(
             () => props.epub,
             () => {
-                setSection(props.epub.spine.get(0));
+                const target = props.getExternalTarget?.();
+                if (target) {
+                    visitExternalTarget(target);
+                } else {
+                    setSection(props.epub.spine.get(0));
+                }
             }
         )
     );
+    createEffect(() => {
+        const target = props.getExternalTarget?.();
+        if (target) visitExternalTarget(target);
+    });
+    function visitExternalTarget(target: Target) {
+        switch (target.type) {
+            case "Range":
+                setSection(props.epub.spine.get(target.value));
+                // Run after the side effects of setSection have been executed
+                queueMicrotask(() => {
+                    setScrollTarget({ type: "link", link: target.value });
+                    setSelectionTarget(target.value);
+                });
+                break;
+        }
+    }
 
     const request = createMemo(() => (path: string) => props.epub.load(path));
     const [html] = createResource(
@@ -72,11 +96,13 @@ export default function EpubDisplay(propsRaw: {
     // True if iframe size has beed defined
     const [sized, setSized] = createSignal(false);
     const [scrollTarget, setScrollTarget] = createSignal<ScrollTarget>(null);
+    const [selectionTarget, setSelectionTarget] = createSignal<string>(null);
     createEffect(
         on(section, () => {
             setLoaded(false);
             setSized(false);
             setScrollTarget(null);
+            setSelectionTarget(null);
             setSelectionRange(null);
         })
     );
@@ -109,6 +135,18 @@ export default function EpubDisplay(propsRaw: {
 
             scroller.style.scrollBehavior = "smooth";
             setScrollTarget(null);
+        }
+    });
+
+    createEffect(() => {
+        if (loaded() && selectionTarget()) {
+            const range = new EpubCFI(selectionTarget()).toRange(iframe.contentDocument);
+            if (range) {
+                iframe.contentDocument.getSelection().removeAllRanges();
+                iframe.contentDocument.getSelection().addRange(range);
+                iframe.focus();
+            }
+            setSelectionTarget(null);
         }
     });
 

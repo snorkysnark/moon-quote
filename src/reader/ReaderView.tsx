@@ -2,12 +2,13 @@ import { Book } from "epubjs";
 import EpubDisplay, { EpubDisplayController } from "./EpubDisplay";
 import { makeFoldableToc, ToC } from "./ToC";
 import { createStore } from "solid-js/store";
-import { createComputed, createSignal, Show } from "solid-js";
+import { Accessor, createComputed, createSignal, Show } from "solid-js";
 import { ImList2 } from "solid-icons/im";
 
 // use:__ directives
 import { resizableWidth } from "src/resizableWidth";
 import { BookDatabaseEntry } from "src/backend/library";
+import { Target } from "src/deeplink";
 false && resizableWidth;
 
 const navButtonClass = "flex-auto text-4xl";
@@ -15,6 +16,7 @@ const navButtonClass = "flex-auto text-4xl";
 export default function ReaderView(props: {
     bookEntry: BookDatabaseEntry;
     epub: Book;
+    getExternalTarget?: Accessor<Target>;
 }) {
     // Storing toc state outside of ToC component,
     // so that it persists when the panel is closed
@@ -83,6 +85,7 @@ export default function ReaderView(props: {
                             epub={props.epub}
                             pointerEvents={iframePointerEvents()}
                             controllerRef={(c) => (displayController = c)}
+                            getExternalTarget={props.getExternalTarget}
                         />
                     </div>
                 </div>

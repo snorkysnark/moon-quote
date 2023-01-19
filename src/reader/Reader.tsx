@@ -1,22 +1,27 @@
-import { createResource, Show } from "solid-js";
+import { Accessor, createResource, Show } from "solid-js";
 import { BookDatabaseEntry, loadEpub } from "src/backend/library";
 import Loading from "src/decor/Loading";
+import { Target } from "src/deeplink";
 import ReaderView from "./ReaderView";
 
 export default function Reader(props: {
     bookEntry: BookDatabaseEntry;
-    onExit: () => void;
+    getExternalTarget?: Accessor<Target>;
+    onExit?: () => void;
 }) {
-    const [epub] = createResource(props.bookEntry, (bookEntry) => {
-        return loadEpub(bookEntry.epubPath);
-    });
+    const [epub] = createResource(
+        () => props.bookEntry,
+        (bookEntry) => {
+            return loadEpub(bookEntry.epubPath);
+        }
+    );
 
     return (
         <div class="flex flex-col h-screen select-none">
             <div class="bg-orange-400 h-10 flex">
                 <button
                     class="bg-gray-200 text-2xl px-3 mr-2"
-                    onClick={props.onExit}
+                    onClick={() => props.onExit?.()}
                 >
                     ←
                 </button>
@@ -27,8 +32,12 @@ export default function Reader(props: {
                     {props.bookEntry.metaTitle}
                 </h1>
             </div>
-            <Show when={epub()} fallback={<Loading />}>
-                <ReaderView bookEntry={props.bookEntry} epub={epub()} />
+            <Show when={epub.state === "ready"} fallback={<Loading />}>
+                <ReaderView
+                    bookEntry={props.bookEntry}
+                    epub={epub()}
+                    getExternalTarget={props.getExternalTarget}
+                />
             </Show>
         </div>
     );
