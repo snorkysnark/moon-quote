@@ -15,6 +15,7 @@ import {
     Show,
 } from "solid-js";
 import ScrollTarget from "./scrollTarget";
+import SelectionOverlay from "./SelectionOverlay";
 
 const SCROLL_STEP = 20;
 const PAGE_MARGIN = 20;
@@ -74,6 +75,8 @@ export default function EpubDisplay(propsRaw: {
             setLoaded(false);
             setSized(false);
             setScrollTarget(null);
+            setIframeDocument(null);
+            setSelectionRange(null);
         })
     );
 
@@ -158,14 +161,27 @@ export default function EpubDisplay(propsRaw: {
         }
     });
 
+    const [iframeDocument, setIframeDocument] = createSignal<Document>(null);
+    const [selectionRange, setSelectionRange] = createSignal<Range>(null);
+
     let scroller: HTMLDivElement;
     let iframe: HTMLIFrameElement;
     function onLoadIframe() {
         const iframeDoc = iframe.contentDocument;
+        setIframeDocument(iframeDoc);
+
         iframeDoc.body.style.overflow = "hidden";
         iframeDoc.body.style.margin = `${PAGE_MARGIN}px`;
 
         iframe.contentWindow.addEventListener("keydown", onKeyDown);
+        iframeDoc.addEventListener("selectionchange", () => {
+            const selection = iframe.contentWindow.getSelection();
+            if (selection.type === "Range") {
+                setSelectionRange(selection.getRangeAt(0));
+            } else {
+                setSelectionRange(null);
+            }
+        });
 
         setContents(
             new Contents(
@@ -303,6 +319,12 @@ export default function EpubDisplay(propsRaw: {
                 }
             }}
         >
+            <Show when={iframeDocument() && selectionRange()}>
+                <SelectionOverlay
+                    bookDocument={iframeDocument()}
+                    selectionRange={selectionRange()}
+                />
+            </Show>
             <Show when={blobUrl()}>
                 <iframe
                     class="w-full overflow-hidden"
