@@ -3,8 +3,10 @@ import { createMemo, createSignal } from "solid-js";
 import { ImLink } from "solid-icons/im";
 import * as clipboard from "@tauri-apps/api/clipboard";
 import Toastify from "toastify-js";
+import { makeAnnotationURL } from "src/deeplink";
 
 export default function SelectionOverlay(props: {
+    bookId: string;
     selectionRect: DOMRect;
     selectionCfi: string;
 }) {
@@ -33,7 +35,9 @@ export default function SelectionOverlay(props: {
             <button
                 class="p-1 hover:bg-blue-100"
                 onClick={() => {
-                    clipboard.writeText(props.selectionCfi);
+                    clipboard.writeText(
+                        makeAnnotationURL(props.bookId, props.selectionCfi)
+                    );
                     Toastify({
                         text: "Copied URL to clipboard",
                         gravity: "bottom",

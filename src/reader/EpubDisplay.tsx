@@ -16,6 +16,7 @@ import {
 } from "solid-js";
 import ScrollTarget from "./scrollTarget";
 import SelectionOverlay from "./SelectionOverlay";
+import { BookDatabaseEntry } from "src/backend/library";
 
 const SCROLL_STEP = 20;
 const PAGE_MARGIN = 20;
@@ -31,6 +32,7 @@ export interface EpubDisplayController {
 }
 
 export default function EpubDisplay(propsRaw: {
+    bookEntry: BookDatabaseEntry,
     epub: Book;
     pointerEvents?: boolean;
     controllerRef?: (controller: EpubDisplayController) => void;
@@ -328,6 +330,7 @@ export default function EpubDisplay(propsRaw: {
         >
             <Show when={selectionRect()}>
                 <SelectionOverlay
+                    bookId={props.bookEntry.bookId}
                     selectionRect={selectionRect()}
                     selectionCfi={selectionCfi()}
                 />

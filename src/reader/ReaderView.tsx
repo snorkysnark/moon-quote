@@ -7,11 +7,15 @@ import { ImList2 } from "solid-icons/im";
 
 // use:__ directives
 import { resizableWidth } from "src/resizableWidth";
+import { BookDatabaseEntry } from "src/backend/library";
 false && resizableWidth;
 
 const navButtonClass = "flex-auto text-4xl";
 
-export default function ReaderView(props: { epub: Book }) {
+export default function ReaderView(props: {
+    bookEntry: BookDatabaseEntry;
+    epub: Book;
+}) {
     // Storing toc state outside of ToC component,
     // so that it persists when the panel is closed
     const [toc, setToc] = createStore({ items: null });
@@ -75,6 +79,7 @@ export default function ReaderView(props: { epub: Book }) {
                 >
                     <div class="bg-white h-full shadow-lg shadow-neutral-500">
                         <EpubDisplay
+                            bookEntry={props.bookEntry}
                             epub={props.epub}
                             pointerEvents={iframePointerEvents()}
                             controllerRef={(c) => (displayController = c)}

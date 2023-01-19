@@ -28,7 +28,7 @@ export default function Reader(props: {
                 </h1>
             </div>
             <Show when={epub()} fallback={<Loading />}>
-                <ReaderView epub={epub()} />
+                <ReaderView bookEntry={props.bookEntry} epub={epub()} />
             </Show>
         </div>
     );
