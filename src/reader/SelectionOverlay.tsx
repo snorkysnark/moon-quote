@@ -1,8 +1,13 @@
 import { createElementBounds } from "@solid-primitives/bounds";
 import { createMemo, createSignal } from "solid-js";
 import { ImLink } from "solid-icons/im";
+import * as clipboard from "@tauri-apps/api/clipboard";
+import Toastify from "toastify-js";
 
-export default function SelectionOverlay(props: { selectionRect: DOMRect }) {
+export default function SelectionOverlay(props: {
+    selectionRect: DOMRect;
+    selectionCfi: string;
+}) {
     const [container, setContainer] = createSignal<HTMLElement>();
     const containerBounds = createElementBounds(container);
 
@@ -25,7 +30,16 @@ export default function SelectionOverlay(props: { selectionRect: DOMRect }) {
             }}
             ref={setContainer}
         >
-            <button class="p-1 hover:bg-blue-100">
+            <button
+                class="p-1 hover:bg-blue-100"
+                onClick={() => {
+                    clipboard.writeText(props.selectionCfi);
+                    Toastify({
+                        text: "Copied URL to clipboard",
+                        gravity: "bottom",
+                    }).showToast();
+                }}
+            >
                 <ImLink title="Link" />
             </button>
         </div>

@@ -1,4 +1,4 @@
-import { Book, Contents, Layout } from "epubjs";
+import { Book, Contents, EpubCFI, Layout } from "epubjs";
 import Section from "epubjs/types/section";
 import { createBlobUrl, revokeBlobUrl } from "epubjs/src/utils/core";
 import Mapping from "epubjs/src/mapping";
@@ -166,6 +166,11 @@ export default function EpubDisplay(propsRaw: {
     createEffect(() => {
         setSelectionRect(selectionRange()?.getBoundingClientRect());
     });
+    const selectionCfi = createMemo(() => {
+        return selectionRange()
+            ? new EpubCFI(selectionRange(), contents().cfiBase).toString()
+            : null;
+    });
 
     let scroller: HTMLDivElement;
     let iframe: HTMLIFrameElement;
@@ -324,6 +329,7 @@ export default function EpubDisplay(propsRaw: {
             <Show when={selectionRect()}>
                 <SelectionOverlay
                     selectionRect={selectionRect()}
+                    selectionCfi={selectionCfi()}
                 />
             </Show>
             <Show when={blobUrl()}>
