@@ -62,12 +62,14 @@ export default function ReaderView(props: { epub: Book }) {
                             setIframePointerEvents(false);
                             locationLock = displayController?.tryGetLocation();
                         },
-                        onResizeEnd: () => {
-                            setIframePointerEvents(true);
+                        onResize: () => {
                             if (locationLock) {
                                 displayController?.display(locationLock);
-                                locationLock = null;
                             }
+                        },
+                        onResizeEnd: () => {
+                            setIframePointerEvents(true);
+                            locationLock = null;
                         },
                     }}
                 >

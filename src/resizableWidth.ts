@@ -21,7 +21,8 @@ export interface ResizableWidthParams {
     initial: number;
     min?: number;
     onResizeStart?: () => void;
-    onResizeEnd?: (width: number) => void;
+    onResize?: () => void;
+    onResizeEnd?: () => void;
 }
 
 export function resizableWidth(
@@ -59,15 +60,11 @@ export function resizableWidth(
             startWidth: element.clientWidth,
         };
 
-        if (params.onResizeStart) {
-            params.onResizeStart();
-        }
+        params.onResizeStart?.();
     }
 
     function onMouseUp() {
-        if (params.onResizeEnd) {
-            params.onResizeEnd(element.clientWidth);
-        }
+        params.onResizeEnd?.();
         drag = null;
     }
 
@@ -81,6 +78,7 @@ export function resizableWidth(
         }
 
         element.style.width = `${newWidth}px`;
+        params.onResize?.();
     }
 
     window.addEventListener("mousemove", onMouseMove);
