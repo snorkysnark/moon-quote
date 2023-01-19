@@ -71,6 +71,12 @@ export default function EpubDisplay(propsRaw: {
                     setSelectionTarget(target.value);
                 });
                 break;
+            case "Chapter":
+                setSection(props.epub.spine.get(target.value));
+                queueMicrotask(() => {
+                    setScrollTarget({ type: "link", link: target.value });
+                });
+                break;
         }
     }
 
@@ -140,7 +146,9 @@ export default function EpubDisplay(propsRaw: {
 
     createEffect(() => {
         if (loaded() && selectionTarget()) {
-            const range = new EpubCFI(selectionTarget()).toRange(iframe.contentDocument);
+            const range = new EpubCFI(selectionTarget()).toRange(
+                iframe.contentDocument
+            );
             if (range) {
                 iframe.contentDocument.getSelection().removeAllRanges();
                 iframe.contentDocument.getSelection().addRange(range);

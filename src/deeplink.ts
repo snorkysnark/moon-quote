@@ -1,7 +1,6 @@
 import { invoke } from "@tauri-apps/api";
 import { listen } from "@tauri-apps/api/event";
-import { JSX } from "solid-js";
-import { AnnotationDatabaseEntry, BookDatabaseEntry } from "./backend/library";
+import { BookDatabaseEntry } from "./backend/library";
 
 export interface GoToTarget {
     book: BookDatabaseEntry;
@@ -24,6 +23,12 @@ export function makeAnnotationURL(bookId: string, cfi: string) {
     return `moonquote:///book/${encodeURIComponent(
         bookId
     )}/annotation/${encodeURIComponent(cfi)}`;
+}
+
+export function makeChapterURL(bookId: string, href: string) {
+    return `moonquote:///book/${encodeURIComponent(
+        bookId
+    )}/nav/${encodeURIComponent(href)}`;
 }
 
 export async function onAnnotationLink(callback: (link: GoToTarget) => void) {

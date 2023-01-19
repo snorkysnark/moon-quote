@@ -47,6 +47,7 @@ export default function ReaderView(props: {
             <Show when={sidePanel()}>
                 <div class="bg-blue-200 w-10 flex-grow-auto overflow-y-scroll">
                     <ToC
+                        bookId={props.bookEntry.bookId}
                         items={toc.items}
                         setToc={setToc}
                         onHref={(href) => displayController?.display(href)}

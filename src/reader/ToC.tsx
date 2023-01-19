@@ -1,8 +1,11 @@
 import { NavItem } from "epubjs";
 import { For, Show } from "solid-js";
 import { produce, SetStoreFunction } from "solid-js/store";
+import * as clipboard from "@tauri-apps/api/clipboard";
+import Toastify from "toastify-js";
 
 import { contextMenu } from "src/contextMenu";
+import { makeChapterURL } from "src/deeplink";
 false && contextMenu;
 
 export interface NavItemFoldable {
@@ -36,6 +39,7 @@ function setAllItemsOpened(items: NavItemFoldable[], value: boolean) {
 }
 
 export function ToC(props: {
+    bookId: string;
     items: NavItemFoldable[];
     setToc: SetStoreFunction<{ items: NavItemFoldable[] }>;
     onHref: (href: string) => void;
@@ -52,6 +56,13 @@ export function ToC(props: {
     }
     function foldAll() {
         props.setToc(produce((store) => setAllItemsOpened(store.items, false)));
+    }
+    function copyUrl(href: string) {
+        clipboard.writeText(makeChapterURL(props.bookId, href));
+        Toastify({
+            text: "Copied URL to clipboard",
+            gravity: "bottom",
+        }).showToast();
     }
 
     return (
@@ -86,7 +97,10 @@ export function ToC(props: {
                                     class="hover:bg-yellow-200 text-left flex-auto"
                                     onClick={() => props.onHref(item.href)}
                                     use:contextMenu={[
-                                        { label: "URL", disabled: true },
+                                        {
+                                            label: "URL",
+                                            action: () => copyUrl(item.href),
+                                        },
                                         { label: "Fold All", action: foldAll },
                                         {
                                             label: "Unfold All",
@@ -101,6 +115,7 @@ export function ToC(props: {
                                 when={item.opened && item.subitems.length > 0}
                             >
                                 <ToC
+                                    bookId={props.bookId}
                                     items={item.subitems}
                                     setToc={props.setToc}
                                     onHref={props.onHref}
