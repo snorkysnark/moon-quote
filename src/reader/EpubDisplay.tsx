@@ -5,7 +5,6 @@ import Mapping from "epubjs/src/mapping";
 import { EVENTS } from "epubjs/src/utils/constants";
 import {
     Accessor,
-    batch,
     createEffect,
     createMemo,
     createResource,
@@ -67,7 +66,7 @@ export default function EpubDisplay(propsRaw: {
                 setSection(props.epub.spine.get(target.value));
                 // Run after the side effects of setSection have been executed
                 queueMicrotask(() => {
-                    setScrollTarget({ type: "link", link: target.value });
+                    setScrollTarget({ type: "range", cfi: target.value });
                     setSelectionTarget(target.value);
                 });
                 break;
@@ -136,6 +135,17 @@ export default function EpubDisplay(propsRaw: {
                     };
                     scroller.scrollLeft = location.left;
                     scroller.scrollTop = location.top;
+                    break;
+                case "range":
+                    const rect = new EpubCFI(target.cfi, contents().cfiBase)
+                        .toRange(iframe.contentDocument)
+                        ?.getBoundingClientRect();
+                    if (rect) {
+                        scroller.scrollTop =
+                            rect.y -
+                            scroller.clientHeight / 2 +
+                            rect.height / 2;
+                    }
                     break;
             }
 

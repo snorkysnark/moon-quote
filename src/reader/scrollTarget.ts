@@ -1,12 +1,17 @@
 interface SideTarget {
-    type: 'side';
-    side: 'top' | 'bottom';
+    type: "side";
+    side: "top" | "bottom";
 }
 
 interface LinkTarget {
-    type: 'link';
+    type: "link";
     link: string;
 }
 
-type ScrollTarget = SideTarget | LinkTarget;
+interface RangeTarget {
+    type: "range";
+    cfi: string;
+}
+
+type ScrollTarget = SideTarget | LinkTarget | RangeTarget;
 export default ScrollTarget;
