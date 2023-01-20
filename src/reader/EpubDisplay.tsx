@@ -163,7 +163,13 @@ export default function EpubDisplay(propsRaw: {
             );
             if (range) {
                 iframe.contentDocument.getSelection().removeAllRanges();
-                iframe.contentDocument.getSelection().addRange(range);
+
+                if (range.collapsed) {
+                    setSelectionRange(range);
+                } else {
+                    iframe.contentDocument.getSelection().addRange(range);
+                }
+
                 iframe.focus();
             }
             setSelectionTarget(null);
@@ -236,11 +242,21 @@ export default function EpubDisplay(propsRaw: {
         iframeDoc.body.style.margin = `${PAGE_MARGIN}px`;
 
         iframe.contentWindow.addEventListener("keydown", onKeyDown);
+        iframe.contentWindow.addEventListener("contextmenu", (event) => {
+            event.preventDefault();
+            iframeDoc.getSelection().removeAllRanges();
+            setSelectionRange(iframeDoc.caretRangeFromPoint(event.x, event.y));
+        });
         iframeDoc.addEventListener("selectionchange", () => {
             const selection = iframe.contentWindow.getSelection();
             if (selection.type === "Range") {
                 setSelectionRange(selection.getRangeAt(0));
-            } else {
+            } else if (!selectionRange()?.collapsed) {
+                setSelectionRange(null);
+            }
+        });
+        iframeDoc.addEventListener("mousedown", () => {
+            if (selectionRange()?.collapsed) {
                 setSelectionRange(null);
             }
         });
@@ -358,7 +374,7 @@ export default function EpubDisplay(propsRaw: {
                 if (event.ctrlKey) setFontSizeAnchored(fontSize() + 1);
                 break;
             case "c":
-                if (event.ctrlKey && selectionRange()) {
+                if (event.ctrlKey && selectionRange() && !selectionRange().collapsed) {
                     clipboard.writeText(selectionRange().toString());
                     toast("Copied selection to clipboard");
                 }
@@ -387,7 +403,7 @@ export default function EpubDisplay(propsRaw: {
                 }
             }}
         >
-            <Show when={selectionRect()}>
+            <Show when={selectionRange() && selectionRect()}>
                 <SelectionOverlay
                     bookId={props.bookEntry.bookId}
                     selectionRect={selectionRect()}
