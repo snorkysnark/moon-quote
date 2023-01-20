@@ -224,11 +224,6 @@ export default function EpubDisplay(propsRaw: {
     createEffect(() => {
         setSelectionRect(selectionRange()?.getBoundingClientRect());
     });
-    const selectionCfi = createMemo(() => {
-        return selectionRange()
-            ? new EpubCFI(selectionRange(), contents().cfiBase).toString()
-            : null;
-    });
 
     let scroller: HTMLDivElement;
     let iframe: HTMLIFrameElement;
@@ -388,7 +383,8 @@ export default function EpubDisplay(propsRaw: {
                 <SelectionOverlay
                     bookId={props.bookEntry.bookId}
                     selectionRect={selectionRect()}
-                    selectionCfi={selectionCfi()}
+                    selectionRange={selectionRange()}
+                    baseCfi={contents().cfiBase}
                 />
             </Show>
             <Show when={blobUrl()}>
