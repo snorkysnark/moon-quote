@@ -19,6 +19,8 @@ import ScrollTarget from "./scrollTarget";
 import SelectionOverlay from "./SelectionOverlay";
 import { BookDatabaseEntry } from "src/backend/library";
 import { Target } from "src/deeplink";
+import * as clipboard from "@tauri-apps/api/clipboard";
+import { toast } from "src/toast";
 
 const SCROLL_STEP = 20;
 const PAGE_MARGIN = 20;
@@ -354,6 +356,12 @@ export default function EpubDisplay(propsRaw: {
                 break;
             case "=":
                 if (event.ctrlKey) setFontSizeAnchored(fontSize() + 1);
+                break;
+            case "c":
+                if (event.ctrlKey && selectionRange()) {
+                    clipboard.writeText(selectionRange().toString());
+                    toast("Copied selection to clipboard");
+                }
                 break;
         }
     }

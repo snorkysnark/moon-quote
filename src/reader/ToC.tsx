@@ -2,7 +2,7 @@ import { NavItem } from "epubjs";
 import { For, Show } from "solid-js";
 import { produce, SetStoreFunction } from "solid-js/store";
 import * as clipboard from "@tauri-apps/api/clipboard";
-import Toastify from "toastify-js";
+import { toast } from "src/toast";
 
 import { contextMenu } from "src/contextMenu";
 import { makeChapterURL } from "src/deeplink";
@@ -59,10 +59,7 @@ export function ToC(props: {
     }
     function copyUrl(href: string) {
         clipboard.writeText(makeChapterURL(props.bookId, href));
-        Toastify({
-            text: "Copied URL to clipboard",
-            gravity: "bottom",
-        }).showToast();
+        toast("Copied URL to clipboard");
     }
 
     return (
