@@ -1,6 +1,6 @@
 import { createElementBounds } from "@solid-primitives/bounds";
 import { createMemo, createSignal } from "solid-js";
-import { ImLink, ImCopy } from "solid-icons/im";
+import { ImLink } from "solid-icons/im";
 import * as clipboard from "@tauri-apps/api/clipboard";
 import { makeAnnotationURL } from "src/deeplink";
 import { EpubCFI } from "epubjs";
@@ -50,15 +50,6 @@ export default function SelectionOverlay(props: {
                 }}
             >
                 <ImLink title="Link" />
-            </button>
-            <button
-                class="p-1 m-1 hover:bg-blue-100"
-                onClick={() => {
-                    clipboard.writeText(props.selectionRange.toString());
-                    toast("Copied text to clipboard");
-                }}
-            >
-                <ImCopy title="Copy" />
             </button>
         </div>
     );
