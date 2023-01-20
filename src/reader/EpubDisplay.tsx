@@ -333,27 +333,36 @@ export default function EpubDisplay(propsRaw: {
     });
 
     function onKeyDown(event: KeyboardEvent) {
-        event.preventDefault();
         switch (event.key) {
             case "PageUp":
             case "ArrowLeft":
+                event.preventDefault();
                 pageUpOrPrev();
                 break;
             case "PageDown":
             case "ArrowRight":
+                event.preventDefault();
                 pageDownOrNext();
                 break;
             case "ArrowDown":
+                event.preventDefault();
                 scrollDown();
                 break;
             case "ArrowUp":
+                event.preventDefault();
                 scrollUp();
                 break;
             case "-":
-                if (event.ctrlKey) setFontSizeAnchored(fontSize() - 1);
+                if (event.ctrlKey) {
+                    event.preventDefault();
+                    setFontSizeAnchored(fontSize() - 1)
+                };
                 break;
             case "=":
-                if (event.ctrlKey) setFontSizeAnchored(fontSize() + 1);
+                if (event.ctrlKey) {
+                    event.preventDefault();
+                    setFontSizeAnchored(fontSize() + 1)
+                };
                 break;
         }
     }
