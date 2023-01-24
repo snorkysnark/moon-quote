@@ -21,6 +21,8 @@ import { BookDatabaseEntry } from "src/backend/library";
 import { Target } from "src/deeplink";
 import * as clipboard from "@tauri-apps/api/clipboard";
 import { toast } from "src/toast";
+import { createMarks } from "./marks/marks";
+import MarksDisplay from "./marks/MarksDisplay";
 
 const SCROLL_STEP = 20;
 const PAGE_MARGIN = 20;
@@ -188,6 +190,7 @@ export default function EpubDisplay(propsRaw: {
                     setTextHeight(lastContents.textHeight() + PAGE_MARGIN);
                     setSized(true);
                     setSelectionRect(selectionRange()?.getBoundingClientRect());
+                    marksControl.updateRects();
                 };
                 lastContents.on(EVENTS.CONTENTS.RESIZE, onResize);
 
@@ -232,6 +235,8 @@ export default function EpubDisplay(propsRaw: {
     createEffect(() => {
         setSelectionRect(selectionRange()?.getBoundingClientRect());
     });
+
+    const [marks, marksControl] = createMarks();
 
     let scroller: HTMLDivElement;
     let iframe: HTMLIFrameElement;
@@ -374,7 +379,11 @@ export default function EpubDisplay(propsRaw: {
                 if (event.ctrlKey) setFontSizeAnchored(fontSize() + 1);
                 break;
             case "c":
-                if (event.ctrlKey && selectionRange() && !selectionRange().collapsed) {
+                if (
+                    event.ctrlKey &&
+                    selectionRange() &&
+                    !selectionRange().collapsed
+                ) {
                     clipboard.writeText(selectionRange().toString());
                     toast("Copied selection to clipboard");
                 }
@@ -409,8 +418,14 @@ export default function EpubDisplay(propsRaw: {
                     selectionRect={selectionRect()}
                     selectionRange={selectionRange()}
                     baseCfi={contents().cfiBase}
+                    onHighlight={() => {
+                        if (!selectionRange().collapsed) {
+                            marksControl.addMark(selectionRange());
+                        }
+                    }}
                 />
             </Show>
+            <MarksDisplay marks={marks.array} />
             <Show when={blobUrl()}>
                 <iframe
                     class="w-full overflow-hidden"

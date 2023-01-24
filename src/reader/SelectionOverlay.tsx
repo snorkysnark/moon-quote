@@ -1,6 +1,7 @@
 import { createElementBounds } from "@solid-primitives/bounds";
 import { createMemo, createSignal, Show } from "solid-js";
-import { ImLink } from "solid-icons/im";
+import { BiRegularLinkAlt } from "solid-icons/bi";
+import { BiRegularHighlight } from "solid-icons/bi";
 import * as clipboard from "@tauri-apps/api/clipboard";
 import { makeAnnotationURL } from "src/deeplink";
 import { EpubCFI } from "epubjs";
@@ -12,6 +13,7 @@ export default function SelectionOverlay(props: {
     selectionRect: DOMRect;
     selectionRange: Range;
     baseCfi: string;
+    onHighlight: () => void;
 }) {
     const [container, setContainer] = createSignal<HTMLElement>();
     const containerBounds = createElementBounds(container);
@@ -29,7 +31,7 @@ export default function SelectionOverlay(props: {
     return (
         <>
             <div
-                class="absolute bg-white flex shadow-neutral-400 shadow-md"
+                class="absolute bg-white flex p-1 shadow-neutral-400 shadow-md z-10"
                 style={{
                     left: `${position().x}px`,
                     top: `${position().y}px`,
@@ -37,7 +39,7 @@ export default function SelectionOverlay(props: {
                 ref={setContainer}
             >
                 <button
-                    class="p-1 m-1 hover:bg-blue-100"
+                    class="p-1 hover:bg-blue-100"
                     onClick={() => {
                         clipboard.writeText(
                             makeAnnotationURL(
@@ -51,7 +53,13 @@ export default function SelectionOverlay(props: {
                         toast("Copied URL to clipboard");
                     }}
                 >
-                    <ImLink title="Link" />
+                    <BiRegularLinkAlt title="Link" class="scale-125" />
+                </button>
+                <button
+                    class="p-1 hover:bg-blue-100"
+                    onClick={props.onHighlight}
+                >
+                    <BiRegularHighlight class="scale-125" />
                 </button>
             </div>
 
