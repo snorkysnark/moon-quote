@@ -9,31 +9,15 @@ use crate::{
 use super::data::BookAnnotation;
 
 #[tauri::command]
-pub fn add_annotation(
-    db: State<SqlitePool>,
-    book_id: String,
-    cfi: String,
-    text_content: String,
-    color: i32,
-) -> SerializableResult<BookAnnotation> {
+pub fn add_annotation(db: State<SqlitePool>, annotation: BookAnnotation) -> SerializableResult<()> {
     use schema::annotations::dsl;
 
     let mut conn = db.get()?;
     diesel::insert_into(dsl::annotations)
-        .values((
-            dsl::book_id.eq(&book_id),
-            dsl::cfi.eq(&cfi),
-            dsl::text_content.eq(&text_content),
-            dsl::color.eq(color),
-        ))
+        .values(annotation)
         .execute(&mut conn)?;
 
-    Ok(BookAnnotation {
-        book_id,
-        cfi,
-        text_content,
-        color,
-    })
+    Ok(())
 }
 
 #[tauri::command]

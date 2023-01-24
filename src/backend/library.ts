@@ -94,15 +94,16 @@ export interface AnnotationDatabaseEntry {
     cfi: string;
     textContent: string;
     color: number;
+    comment: string;
+    collapsed: boolean;
 }
 
 export async function getAnnotationsForBook(
     bookId: string
-): Promise<AnnotationDatabaseEntry[]> {
+): Promise<void> {
     const annotations: AnnotationDatabaseEntry[] = await invoke(
         "get_annotations_for_book",
         { bookId }
     );
     sortAnnotations(annotations);
-    return annotations;
 }

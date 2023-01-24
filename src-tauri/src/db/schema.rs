@@ -6,6 +6,8 @@ diesel::table! {
         cfi -> Text,
         text_content -> Text,
         color -> Integer,
+        comment -> Nullable<Text>,
+        collapsed -> Bool,
     }
 }
 

@@ -128,11 +128,14 @@ pub struct Book {
     pub meta_spread: Option<String>,
 }
 
-#[derive(Clone, Queryable, Serialize)]
+#[derive(Clone, Queryable, Serialize, Deserialize, Insertable)]
 #[serde(rename_all = "camelCase")]
+#[diesel(table_name = schema::annotations)]
 pub struct BookAnnotation {
     pub book_id: String,
     pub cfi: String,
     pub text_content: String,
     pub color: i32,
+    pub comment: Option<String>,
+    pub collapsed: bool,
 }
