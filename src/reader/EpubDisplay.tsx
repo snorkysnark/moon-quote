@@ -21,7 +21,7 @@ import { BookDatabaseEntry } from "src/backend/library";
 import { Target } from "src/deeplink";
 import * as clipboard from "@tauri-apps/api/clipboard";
 import { toast } from "src/toast";
-import { Mark } from "./marks/marks";
+import { Highlight, Marker } from "./marks/marks";
 import MarksDisplay from "./marks/MarksDisplay";
 
 const SCROLL_STEP = 20;
@@ -252,7 +252,8 @@ export default function EpubDisplay(propsRaw: {
             );
         }
     });
-    const [highlightMarks, setHighlightMarks] = createSignal<Mark[]>([]);
+    const [highlightMarks, setHighlightMarks] = createSignal<Highlight[]>([]);
+    const [highlightMarkers, setHighlightMarkers] = createSignal<Marker[]>([]);
     function updateHighlightMarks() {
         setHighlightMarks(
             highlightRanges()
@@ -261,6 +262,16 @@ export default function EpubDisplay(propsRaw: {
                     return {
                         range,
                         clientRects: Array.from(range.getClientRects()),
+                    };
+                })
+        );
+        setHighlightMarkers(
+            highlightRanges()
+                .filter((range) => range.collapsed)
+                .map((range) => {
+                    return {
+                        range,
+                        rect: range.getBoundingClientRect(),
                     };
                 })
         );
@@ -449,15 +460,15 @@ export default function EpubDisplay(propsRaw: {
                     baseCfi={contents().cfiBase}
                     onHighlight={() => {
                         addHighlight(
-                            new EpubCFI(
-                                selectionRange(),
-                                contents().cfiBase
-                            )
+                            new EpubCFI(selectionRange(), contents().cfiBase)
                         );
                     }}
                 />
             </Show>
-            <MarksDisplay marks={highlightMarks()} />
+            <MarksDisplay
+                highlights={highlightMarks()}
+                markers={highlightMarkers()}
+            />
             <Show when={blobUrl()}>
                 <iframe
                     class="w-full overflow-hidden"
