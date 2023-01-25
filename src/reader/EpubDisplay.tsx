@@ -462,6 +462,8 @@ export default function EpubDisplay(propsRaw: {
                         addHighlight(
                             new EpubCFI(selectionRange(), contents().cfiBase)
                         );
+                        iframe.contentDocument.getSelection().removeAllRanges();
+                        setSelectionRange(null);
                     }}
                 />
             </Show>
