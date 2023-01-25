@@ -21,7 +21,7 @@ import { BookDatabaseEntry } from "src/backend/library";
 import { Target } from "src/deeplink";
 import * as clipboard from "@tauri-apps/api/clipboard";
 import { toast } from "src/toast";
-import { createMarks } from "./marks/marks";
+import { Mark } from "./marks/marks";
 import MarksDisplay from "./marks/MarksDisplay";
 
 const SCROLL_STEP = 20;
@@ -190,7 +190,7 @@ export default function EpubDisplay(propsRaw: {
                     setTextHeight(lastContents.textHeight() + PAGE_MARGIN);
                     setSized(true);
                     setSelectionRect(selectionRange()?.getBoundingClientRect());
-                    marksControl.updateRects();
+                    updateHighlightMarks();
                 };
                 lastContents.on(EVENTS.CONTENTS.RESIZE, onResize);
 
@@ -236,7 +236,36 @@ export default function EpubDisplay(propsRaw: {
         setSelectionRect(selectionRange()?.getBoundingClientRect());
     });
 
-    const [marks, marksControl] = createMarks();
+    const [highlightCfis, setHighlightCfis] = createSignal<EpubCFI[]>([]);
+    function addHighlight(cfi: EpubCFI) {
+        setHighlightCfis((cfis) => [...cfis, cfi]);
+    }
+    const [highlightRanges, setHighlightRanges] = createSignal<Range[]>([]);
+    createEffect(() => {
+        if (loaded()) {
+            setHighlightRanges(
+                highlightCfis()
+                    .filter(
+                        (cfi) => cfi.base.steps[1].index === section().index
+                    )
+                    .map((cfi) => cfi.toRange(iframe.contentDocument))
+            );
+        }
+    });
+    const [highlightMarks, setHighlightMarks] = createSignal<Mark[]>([]);
+    function updateHighlightMarks() {
+        setHighlightMarks(
+            highlightRanges()
+                .filter((range) => !range.collapsed)
+                .map((range) => {
+                    return {
+                        range,
+                        clientRects: Array.from(range.getClientRects()),
+                    };
+                })
+        );
+    }
+    createEffect(updateHighlightMarks);
 
     let scroller: HTMLDivElement;
     let iframe: HTMLIFrameElement;
@@ -419,13 +448,16 @@ export default function EpubDisplay(propsRaw: {
                     selectionRange={selectionRange()}
                     baseCfi={contents().cfiBase}
                     onHighlight={() => {
-                        if (!selectionRange().collapsed) {
-                            marksControl.addMark(selectionRange());
-                        }
+                        addHighlight(
+                            new EpubCFI(
+                                selectionRange(),
+                                contents().cfiBase
+                            )
+                        );
                     }}
                 />
             </Show>
-            <MarksDisplay marks={marks.array} />
+            <MarksDisplay marks={highlightMarks()} />
             <Show when={blobUrl()}>
                 <iframe
                     class="w-full overflow-hidden"
