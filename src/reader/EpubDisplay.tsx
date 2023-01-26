@@ -271,6 +271,7 @@ export default function EpubDisplay(propsRaw: {
             if (selectionRange()?.collapsed) {
                 setSelectionRange(null);
             }
+            setSelectedAnnotation(null);
         });
 
         setContents(
