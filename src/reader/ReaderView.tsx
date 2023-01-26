@@ -4,12 +4,14 @@ import { makeFoldableToc, ToC } from "./ToC";
 import { createStore } from "solid-js/store";
 import { Accessor, createComputed, createSignal, Show } from "solid-js";
 import { ImList2 } from "solid-icons/im";
+import { BookDatabaseEntry } from "src/backend/library";
+import { Target } from "src/deeplink";
 
 // use:__ directives
 import { resizableWidth } from "src/resizableWidth";
-import { BookDatabaseEntry } from "src/backend/library";
-import { Target } from "src/deeplink";
-false && resizableWidth;
+import { contextMenu } from "src/contextMenu";
+import { createStorageSignal } from "@solid-primitives/storage";
+false && resizableWidth && contextMenu;
 
 const navButtonClass = "flex-auto text-4xl";
 
@@ -28,14 +30,36 @@ export default function ReaderView(props: {
     let [sidePanel, setSidePanel] = createSignal(false);
     let [iframePointerEvents, setIframePointerEvents] = createSignal(true);
 
+    let [sidePanelRight, setSidePanelRight] = createStorageSignal(
+        "sidePanelRight",
+        false
+    );
+
     // Location will be restored after resizing
     let locationLock: string = null;
 
     let displayController: EpubDisplayController;
 
     return (
-        <div class="flex w-full h-full min-h-0">
-            <div class="bg-gray-100 w-10 shrink-0">
+        <div
+            class="flex w-full h-full min-h-0"
+            classList={{ "flex-row-reverse": sidePanelRight() }}
+        >
+            <div
+                class="bg-gray-100 w-10 shrink-0"
+                use:contextMenu={[
+                    {
+                        label: "Left Side",
+                        disabled: !sidePanelRight(),
+                        action: () => setSidePanelRight(false),
+                    },
+                    {
+                        label: "Right Side",
+                        disabled: sidePanelRight(),
+                        action: () => setSidePanelRight(true),
+                    },
+                ]}
+            >
                 <button
                     class="w-full p-2"
                     classList={{ "bg-orange-200": sidePanel() }}
@@ -49,12 +73,12 @@ export default function ReaderView(props: {
                     class="relative"
                     use:resizableWidth={{
                         initial: 500,
-                        side: "right",
+                        side: sidePanelRight() ? "left" : "right",
                         onResizeStart: () => setIframePointerEvents(false),
                         onResizeEnd: () => setIframePointerEvents(true),
                     }}
                 >
-                    <div class="bg-blue-200 h-full overflow-y-scroll border-r-slate-400 border-r-4">
+                    <div class="bg-blue-200 h-full overflow-y-scroll">
                         <ToC
                             bookId={props.bookEntry.bookId}
                             items={toc.items}
@@ -63,6 +87,7 @@ export default function ReaderView(props: {
                         />
                     </div>
                 </div>
+                <div class="h-full w-2 bg-gray-400"></div>
             </Show>
             <div class="flex-auto bg-gray-300 flex overflow-hidden">
                 <button
