@@ -27,10 +27,18 @@ export function resizableWidth(
 ) {
     element.style.width = `${params().initial}px`;
 
-    const handles = [];
+    const handles: HTMLElement[] = [];
     let handleDirections: WeakMap<object, Direction>;
 
+    function clearHandles() {
+        for (const handle of handles) {
+            element.removeChild(handle);
+        }
+        handles.length = 0;
+    }
+
     createEffect(() => {
+        clearHandles();
         handleDirections = new WeakMap<object, Direction>();
 
         const directions = [];
@@ -95,9 +103,7 @@ export function resizableWidth(
         window.removeEventListener("mousemove", onMouseMove);
         window.removeEventListener("mouseup", onMouseUp);
 
-        for (const handle of handles) {
-            element.removeChild(handle);
-        }
+        clearHandles();
     });
 }
 
