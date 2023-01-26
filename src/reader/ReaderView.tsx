@@ -10,7 +10,7 @@ import { Target } from "src/deeplink";
 // use:__ directives
 import { resizableWidth } from "src/resizableWidth";
 import { contextMenu } from "src/contextMenu";
-import { createStorageSignal } from "@solid-primitives/storage";
+import { createStorageSignal } from "src/localstorage";
 false && resizableWidth && contextMenu;
 
 const navButtonClass = "flex-auto text-4xl";
