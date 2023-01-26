@@ -22,8 +22,8 @@ import { BookDatabaseEntry } from "src/backend/library";
 import { Target } from "src/deeplink";
 import * as clipboard from "@tauri-apps/api/clipboard";
 import { toast } from "src/toast";
-import { createAnnotations } from "./annotations/annotations";
-import HighlightsDisplay from "./annotations/HighlightsDisplay";
+import { AnnotationData, createAnnotations } from "./annotations/annotations";
+import HighlightsOverlay from "./annotations/HighlightsOverlay";
 import StickyNote from "./annotations/StickyNote";
 
 const SCROLL_STEP = 20;
@@ -398,6 +398,12 @@ export default function EpubDisplay(propsRaw: {
         }
     }
 
+    const [selectedAnnotation, setSelectedAnnotation] =
+        createSignal<AnnotationData>();
+    function onClickAnnotation(annotation: AnnotationData) {
+        setSelectedAnnotation(annotation);
+    }
+
     onMount(() => {
         window.addEventListener("keydown", onKeyDown);
         onCleanup(() => {
@@ -431,19 +437,29 @@ export default function EpubDisplay(propsRaw: {
                                 selectionRange(),
                                 contents().cfiBase
                             ),
-                            color: selectionRange().collapsed ? "orange" : "yellow",
+                            color: selectionRange().collapsed
+                                ? "orange"
+                                : "yellow",
                         });
                         iframe.contentDocument.getSelection().removeAllRanges();
                         setSelectionRange(null);
                     }}
                 />
             </Show>
-            <HighlightsDisplay
+            <HighlightsOverlay
                 highlights={annotations.highlights()}
+                onClick={onClickAnnotation}
+                selectedAnnotation={selectedAnnotation()}
             />
-            <For each={annotations.flags()}>{(flag) => (
-                <StickyNote flag={flag} />
-            )}</For>
+            <For each={annotations.flags()}>
+                {(flag) => (
+                    <StickyNote
+                        flag={flag}
+                        onClick={[onClickAnnotation, flag.annotation.data]}
+                        selected={flag.annotation.data === selectedAnnotation()}
+                    />
+                )}
+            </For>
             <Show when={blobUrl()}>
                 <iframe
                     class="w-full overflow-hidden"
