@@ -1,4 +1,4 @@
-export default function MarkerOverlay(props: { caretRect: DOMRect }) {
+export default function CaretOverlay(props: { caretRect: DOMRect }) {
     return (
         <div
             class="absolute"

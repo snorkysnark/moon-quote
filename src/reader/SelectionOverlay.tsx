@@ -6,7 +6,7 @@ import * as clipboard from "@tauri-apps/api/clipboard";
 import { makeAnnotationURL } from "src/deeplink";
 import { EpubCFI } from "epubjs";
 import { toast } from "src/toast";
-import MarkerOverlay from "./MarkerOverlay";
+import CaretOverlay from "./CaretOverlay";
 
 export default function SelectionOverlay(props: {
     bookId: string;
@@ -64,7 +64,7 @@ export default function SelectionOverlay(props: {
             </div>
 
             <Show when={props.selectionRange.collapsed}>
-                <MarkerOverlay caretRect={props.selectionRect} />
+                <CaretOverlay caretRect={props.selectionRect} />
             </Show>
         </>
     );

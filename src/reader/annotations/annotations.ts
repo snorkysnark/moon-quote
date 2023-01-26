@@ -18,7 +18,7 @@ export interface AnnotationHighlight {
     clientRects: DOMRect[];
 }
 
-export interface AnnotationFlag {
+export interface AnnotationNote {
     annotation: AnnotationRange;
     rect: DOMRect;
 }
@@ -29,7 +29,7 @@ export function createAnnotations() {
     );
     const [ranges, setRanges] = createSignal<AnnotationRange[]>([]);
     const [highlights, setHighlights] = createSignal<AnnotationHighlight[]>([]);
-    const [flags, setFlags] = createSignal<AnnotationFlag[]>([]);
+    const [flags, setFlags] = createSignal<AnnotationNote[]>([]);
 
     function add(annotation: AnnotationData) {
         setAnnotationData((annotations) => [...annotations, annotation]);
