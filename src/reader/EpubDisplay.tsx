@@ -21,8 +21,8 @@ import { BookDatabaseEntry } from "src/backend/library";
 import { Target } from "src/deeplink";
 import * as clipboard from "@tauri-apps/api/clipboard";
 import { toast } from "src/toast";
-import { Highlight, Marker } from "./marks/marks";
-import MarksDisplay from "./marks/MarksDisplay";
+import { createAnnotations } from "./annotations/annotations";
+import AnnotationsDisplay from "./annotations/AnnotationsDisplay";
 
 const SCROLL_STEP = 20;
 const PAGE_MARGIN = 20;
@@ -190,7 +190,7 @@ export default function EpubDisplay(propsRaw: {
                     setTextHeight(lastContents.textHeight() + PAGE_MARGIN);
                     setSized(true);
                     setSelectionRect(selectionRange()?.getBoundingClientRect());
-                    updateHighlightMarks();
+                    annotations.updateRects();
                 };
                 lastContents.on(EVENTS.CONTENTS.RESIZE, onResize);
 
@@ -236,47 +236,12 @@ export default function EpubDisplay(propsRaw: {
         setSelectionRect(selectionRange()?.getBoundingClientRect());
     });
 
-    const [highlightCfis, setHighlightCfis] = createSignal<EpubCFI[]>([]);
-    function addHighlight(cfi: EpubCFI) {
-        setHighlightCfis((cfis) => [...cfis, cfi]);
-    }
-    const [highlightRanges, setHighlightRanges] = createSignal<Range[]>([]);
+    const annotations = createAnnotations();
     createEffect(() => {
         if (loaded()) {
-            setHighlightRanges(
-                highlightCfis()
-                    .filter(
-                        (cfi) => cfi.base.steps[1].index === section().index
-                    )
-                    .map((cfi) => cfi.toRange(iframe.contentDocument))
-            );
+            annotations.loadRanges(section().index, iframe.contentDocument);
         }
     });
-    const [highlightMarks, setHighlightMarks] = createSignal<Highlight[]>([]);
-    const [highlightMarkers, setHighlightMarkers] = createSignal<Marker[]>([]);
-    function updateHighlightMarks() {
-        setHighlightMarks(
-            highlightRanges()
-                .filter((range) => !range.collapsed)
-                .map((range) => {
-                    return {
-                        range,
-                        clientRects: Array.from(range.getClientRects()),
-                    };
-                })
-        );
-        setHighlightMarkers(
-            highlightRanges()
-                .filter((range) => range.collapsed)
-                .map((range) => {
-                    return {
-                        range,
-                        rect: range.getBoundingClientRect(),
-                    };
-                })
-        );
-    }
-    createEffect(updateHighlightMarks);
 
     let scroller: HTMLDivElement;
     let iframe: HTMLIFrameElement;
@@ -459,7 +424,7 @@ export default function EpubDisplay(propsRaw: {
                     selectionRange={selectionRange()}
                     baseCfi={contents().cfiBase}
                     onHighlight={() => {
-                        addHighlight(
+                        annotations.add(
                             new EpubCFI(selectionRange(), contents().cfiBase)
                         );
                         iframe.contentDocument.getSelection().removeAllRanges();
@@ -467,9 +432,9 @@ export default function EpubDisplay(propsRaw: {
                     }}
                 />
             </Show>
-            <MarksDisplay
-                highlights={highlightMarks()}
-                markers={highlightMarkers()}
+            <AnnotationsDisplay
+                highlights={annotations.highlights()}
+                flags={annotations.flags()}
             />
             <Show when={blobUrl()}>
                 <iframe

@@ -1,10 +1,10 @@
 import { For } from "solid-js";
-import { Highlight, Marker } from "./marks";
+import { AnnotationHighlight, AnnotationFlag } from "./marks";
 import { BsFlagFill } from 'solid-icons/bs'
 
-export default function MarksDisplay(props: {
-    highlights: Highlight[];
-    markers: Marker[];
+export default function AnnotationsDisplay(props: {
+    highlights: AnnotationHighlight[];
+    flags: AnnotationFlag[];
 }) {
     return (
         <>
@@ -26,7 +26,7 @@ export default function MarksDisplay(props: {
                     )}
                 </For>
 
-                <For each={props.markers}>
+                <For each={props.flags}>
                     {(marker) => (
                         <rect
                             class="fill-red-500"
@@ -39,7 +39,7 @@ export default function MarksDisplay(props: {
                 </For>
             </svg>
 
-            <For each={props.markers}>
+            <For each={props.flags}>
                 {(marker) => (
                     <div
                         class="absolute"
