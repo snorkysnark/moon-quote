@@ -433,7 +433,7 @@ export default function EpubDisplay(propsRaw: {
                     selectionRange={selectionRange()}
                     baseCfi={contents().cfiBase}
                     onHighlight={() => {
-                        annotations.add({
+                        const newAnnotation = {
                             cfi: new EpubCFI(
                                 selectionRange(),
                                 contents().cfiBase
@@ -441,9 +441,11 @@ export default function EpubDisplay(propsRaw: {
                             color: selectionRange().collapsed
                                 ? "orange"
                                 : "yellow",
-                        });
+                        };
+                        annotations.add(newAnnotation);
                         iframe.contentDocument.getSelection().removeAllRanges();
                         setSelectionRange(null);
+                        setSelectedAnnotation(newAnnotation);
                     }}
                 />
             </Show>

@@ -45,13 +45,23 @@ export default function ReaderView(props: {
                 </button>
             </div>
             <Show when={sidePanel()}>
-                <div class="bg-blue-200 w-10 flex-grow-auto overflow-y-scroll">
-                    <ToC
-                        bookId={props.bookEntry.bookId}
-                        items={toc.items}
-                        setToc={setToc}
-                        onHref={(href) => displayController?.display(href)}
-                    />
+                <div
+                    class="relative"
+                    use:resizableWidth={{
+                        initial: 500,
+                        side: "right",
+                        onResizeStart: () => setIframePointerEvents(false),
+                        onResizeEnd: () => setIframePointerEvents(true),
+                    }}
+                >
+                    <div class="bg-blue-200 h-full overflow-y-scroll border-r-slate-400 border-r-4">
+                        <ToC
+                            bookId={props.bookEntry.bookId}
+                            items={toc.items}
+                            setToc={setToc}
+                            onHref={(href) => displayController?.display(href)}
+                        />
+                    </div>
                 </div>
             </Show>
             <div class="flex-auto bg-gray-300 flex overflow-hidden">

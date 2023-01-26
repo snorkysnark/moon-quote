@@ -1,15 +1,10 @@
-import { Accessor, onCleanup } from "solid-js";
+import { Accessor, createEffect, onCleanup } from "solid-js";
 import "./resizableWidth.css";
 
 interface Direction {
     name: string;
     deltaX: number;
 }
-
-const directions: Direction[] = [
-    { name: "left", deltaX: -1 },
-    { name: "right", deltaX: 1 },
-];
 
 interface Drag {
     direction: Direction;
@@ -19,6 +14,7 @@ interface Drag {
 
 export interface ResizableWidthParams {
     initial: number;
+    side?: "left" | "right";
     min?: number;
     onResizeStart?: () => void;
     onResize?: () => void;
@@ -27,26 +23,35 @@ export interface ResizableWidthParams {
 
 export function resizableWidth(
     element: HTMLElement,
-    paramsAccessor: Accessor<ResizableWidthParams>
+    params: Accessor<ResizableWidthParams>
 ) {
-    // Not supporting reactivity
-    const params = paramsAccessor();
-
-    element.style.width = `${params.initial}px`;
+    element.style.width = `${params().initial}px`;
 
     const handles = [];
-    const handleDirections = new WeakMap<object, Direction>();
+    let handleDirections: WeakMap<object, Direction>;
 
-    for (const direction of directions) {
-        const handle = document.createElement("div");
-        handle.setAttribute("class", "resizeHandle " + direction.name);
+    createEffect(() => {
+        handleDirections = new WeakMap<object, Direction>();
 
-        handles.push(handle);
-        handleDirections.set(handle, direction);
+        const directions = [];
+        if (params().side !== "right") {
+            directions.push({ name: "left", deltaX: -1 });
+        }
+        if (params().side !== "left") {
+            directions.push({ name: "right", deltaX: 1 });
+        }
 
-        element.appendChild(handle);
-        handle.addEventListener("mousedown", onMouseDown);
-    }
+        for (const direction of directions) {
+            const handle = document.createElement("div");
+            handle.setAttribute("class", "resizeHandle " + direction.name);
+
+            handles.push(handle);
+            handleDirections.set(handle, direction);
+
+            element.appendChild(handle);
+            handle.addEventListener("mousedown", onMouseDown);
+        }
+    });
 
     let drag: Drag = null;
 
@@ -60,25 +65,27 @@ export function resizableWidth(
             startWidth: element.clientWidth,
         };
 
-        params.onResizeStart?.();
+        params().onResizeStart?.();
     }
 
     function onMouseUp() {
-        params.onResizeEnd?.();
+        params().onResizeEnd?.();
         drag = null;
     }
 
     function onMouseMove(event: MouseEvent) {
         if (!drag) return;
 
-        const delta = (event.pageX - drag.startX) * drag.direction.deltaX * 2;
+        let delta = (event.pageX - drag.startX) * drag.direction.deltaX;
+        if (!params().side) delta *= 2;
+
         let newWidth = drag.startWidth + delta;
-        if (params.min) {
-            newWidth = Math.max(newWidth, params.min);
+        if (params().min) {
+            newWidth = Math.max(newWidth, params().min);
         }
 
         element.style.width = `${newWidth}px`;
-        params.onResize?.();
+        params().onResize?.();
     }
 
     window.addEventListener("mousemove", onMouseMove);
@@ -97,7 +104,7 @@ export function resizableWidth(
 declare module "solid-js" {
     namespace JSX {
         interface Directives {
-            resizableWidth: ResizableWidthParams
+            resizableWidth: ResizableWidthParams;
         }
     }
-};
+}
