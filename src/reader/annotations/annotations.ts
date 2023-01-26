@@ -1,50 +1,69 @@
 import { EpubCFI } from "epubjs";
 import { createEffect, createSignal } from "solid-js";
 
-export interface AnnotationHighlight {
+export interface AnnotationData {
+    cfi: EpubCFI;
+    color: string;
+    comment?: string;
+}
+
+export interface AnnotationRange {
+    data: AnnotationData;
     range: Range;
+}
+
+export interface AnnotationHighlight {
+    annotation: AnnotationRange;
+    bounds: DOMRect;
     clientRects: DOMRect[];
 }
 
 export interface AnnotationFlag {
-    range: Range;
+    annotation: AnnotationRange;
     rect: DOMRect;
 }
 
 export function createAnnotations() {
-    const [cfis, setCfis] = createSignal<EpubCFI[]>([]);
-    const [ranges, setRanges] = createSignal<Range[]>([]);
+    const [annotationData, setAnnotationData] = createSignal<AnnotationData[]>(
+        []
+    );
+    const [ranges, setRanges] = createSignal<AnnotationRange[]>([]);
     const [highlights, setHighlights] = createSignal<AnnotationHighlight[]>([]);
     const [flags, setFlags] = createSignal<AnnotationFlag[]>([]);
 
-    function add(cfi: EpubCFI) {
-        setCfis((cfis) => [...cfis, cfi]);
+    function add(annotation: AnnotationData) {
+        setAnnotationData((annotations) => [...annotations, annotation]);
     }
     function loadRanges(sectionIndex: number, contentDocument: Document) {
         setRanges(
-            cfis()
-                .filter((cfi) => cfi.base.steps[1].index === sectionIndex)
-                .map((cfi) => cfi.toRange(contentDocument))
+            annotationData()
+                .filter(
+                    (annotation) =>
+                        annotation.cfi.base.steps[1].index === sectionIndex
+                )
+                .map((data) => ({
+                    data,
+                    range: data.cfi.toRange(contentDocument),
+                }))
         );
     }
     function updateRects() {
         setHighlights(
             ranges()
-                .filter((range) => !range.collapsed)
-                .map((range) => {
-                    return {
-                        range,
-                        clientRects: Array.from(range.getClientRects()),
-                    };
-                })
+                .filter((annotation) => !annotation.range.collapsed)
+                .map((annotation) => ({
+                    annotation,
+                    bounds: annotation.range.getBoundingClientRect(),
+                    clientRects: Array.from(annotation.range.getClientRects()),
+                }))
         );
         setFlags(
             ranges()
-                .filter((range) => range.collapsed)
-                .map((range) => {
+                .filter((annotation) => annotation.range.collapsed)
+                .map((annotation) => {
                     return {
-                        range,
-                        rect: range.getBoundingClientRect(),
+                        annotation,
+                        rect: annotation.range.getBoundingClientRect(),
                     };
                 })
         );

@@ -1,5 +1,5 @@
 import { For } from "solid-js";
-import { AnnotationHighlight, AnnotationFlag } from "./marks";
+import { AnnotationHighlight, AnnotationFlag } from "./annotations";
 import { BsFlagFill } from 'solid-icons/bs'
 
 export default function AnnotationsDisplay(props: {
@@ -10,9 +10,9 @@ export default function AnnotationsDisplay(props: {
         <>
             <svg class="absolute overflow-visible pointer-events-none mix-blend-multiply">
                 <For each={props.highlights}>
-                    {(mark) => (
-                        <g class="fill-yellow-200">
-                            <For each={mark.clientRects}>
+                    {(highlight) => (
+                        <g style={{ fill: highlight.annotation.data.color }}>
+                            <For each={highlight.clientRects}>
                                 {(clientRect) => (
                                     <rect
                                         x={clientRect.x}
@@ -27,28 +27,28 @@ export default function AnnotationsDisplay(props: {
                 </For>
 
                 <For each={props.flags}>
-                    {(marker) => (
+                    {(flag) => (
                         <rect
-                            class="fill-red-500"
-                            x={marker.rect.x - 1}
-                            y={marker.rect.y}
+                            style={{ fill: flag.annotation.data.color }}
+                            x={flag.rect.x - 1}
+                            y={flag.rect.y}
                             width="3"
-                            height={marker.rect.height}
+                            height={flag.rect.height}
                         ></rect>
                     )}
                 </For>
             </svg>
 
             <For each={props.flags}>
-                {(marker) => (
+                {(flag) => (
                     <div
                         class="absolute"
                         style={{
-                            left: `${marker.rect.x - 1}px`,
-                            top: `${marker.rect.y}px`,
+                            left: `${flag.rect.x - 1}px`,
+                            top: `${flag.rect.y}px`,
                         }}
                     >
-                        <BsFlagFill color="red" class="mix-blend-multiply" />
+                        <BsFlagFill color={flag.annotation.data.color} class="mix-blend-multiply" />
                     </div>
                 )}
             </For>

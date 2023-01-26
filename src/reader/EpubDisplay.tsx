@@ -424,9 +424,13 @@ export default function EpubDisplay(propsRaw: {
                     selectionRange={selectionRange()}
                     baseCfi={contents().cfiBase}
                     onHighlight={() => {
-                        annotations.add(
-                            new EpubCFI(selectionRange(), contents().cfiBase)
-                        );
+                        annotations.add({
+                            cfi: new EpubCFI(
+                                selectionRange(),
+                                contents().cfiBase
+                            ),
+                            color: "yellow",
+                        });
                         iframe.contentDocument.getSelection().removeAllRanges();
                         setSelectionRange(null);
                     }}
