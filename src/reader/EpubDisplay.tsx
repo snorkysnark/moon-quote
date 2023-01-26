@@ -9,6 +9,7 @@ import {
     createMemo,
     createResource,
     createSignal,
+    For,
     mergeProps,
     on,
     onCleanup,
@@ -22,7 +23,8 @@ import { Target } from "src/deeplink";
 import * as clipboard from "@tauri-apps/api/clipboard";
 import { toast } from "src/toast";
 import { createAnnotations } from "./annotations/annotations";
-import AnnotationsDisplay from "./annotations/AnnotationsDisplay";
+import HighlightsDisplay from "./annotations/HighlightsDisplay";
+import StickyNote from "./annotations/StickyNote";
 
 const SCROLL_STEP = 20;
 const PAGE_MARGIN = 20;
@@ -429,17 +431,19 @@ export default function EpubDisplay(propsRaw: {
                                 selectionRange(),
                                 contents().cfiBase
                             ),
-                            color: "yellow",
+                            color: selectionRange().collapsed ? "orange" : "yellow",
                         });
                         iframe.contentDocument.getSelection().removeAllRanges();
                         setSelectionRange(null);
                     }}
                 />
             </Show>
-            <AnnotationsDisplay
+            <HighlightsDisplay
                 highlights={annotations.highlights()}
-                flags={annotations.flags()}
             />
+            <For each={annotations.flags()}>{(flag) => (
+                <StickyNote flag={flag} />
+            )}</For>
             <Show when={blobUrl()}>
                 <iframe
                     class="w-full overflow-hidden"
