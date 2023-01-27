@@ -2,6 +2,7 @@ import { Accessor, createResource, Show } from "solid-js";
 import { BookDatabaseEntry, loadEpub } from "src/backend/library";
 import Loading from "src/decor/Loading";
 import { Target } from "src/deeplink";
+import { createAnnotations } from "./annotations";
 import ReaderView from "./ReaderView";
 
 export default function Reader(props: {
@@ -15,6 +16,7 @@ export default function Reader(props: {
             return loadEpub(bookEntry.epubPath);
         }
     );
+    const annotations = createAnnotations(() => props.bookEntry.bookId);
 
     return (
         <div class="flex flex-col h-screen select-none">
@@ -32,9 +34,16 @@ export default function Reader(props: {
                     {props.bookEntry.metaTitle}
                 </h1>
             </div>
-            <Show when={epub.state === "ready"} fallback={<Loading />}>
+            <Show
+                when={
+                    epub.state === "ready" &&
+                    annotations.value.state === "ready"
+                }
+                fallback={<Loading />}
+            >
                 <ReaderView
                     bookEntry={props.bookEntry}
+                    annotations={annotations}
                     epub={epub()}
                     getExternalTarget={props.getExternalTarget}
                 />

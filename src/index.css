@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+    --highlight1: #ffd400;
+    --highlight2: #ff6666;
+    --highlight3: #5fb236;
+    --highlight4: #2ea8e5;
+    --highlight5: #a28ae5;
+}

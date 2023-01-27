@@ -18,13 +18,14 @@ import {
 } from "solid-js";
 import ScrollTarget from "./scrollTarget";
 import SelectionOverlay from "./SelectionOverlay";
-import { BookDatabaseEntry } from "src/backend/library";
+import { AnnotationEntry, BookDatabaseEntry } from "src/backend/library";
 import { Target } from "src/deeplink";
 import * as clipboard from "@tauri-apps/api/clipboard";
 import { toast } from "src/toast";
-import { AnnotationData, createAnnotations } from "./annotations/annotations";
+import { createAnnotationRanges } from "./annotations/annotationRanges";
 import HighlightsOverlay from "./annotations/HighlightsOverlay";
 import StickyNote from "./annotations/StickyNote";
+import { AnnotationsResource } from "./annotations";
 
 const SCROLL_STEP = 20;
 const PAGE_MARGIN = 20;
@@ -42,6 +43,7 @@ export interface EpubDisplayController {
 export default function EpubDisplay(propsRaw: {
     bookEntry: BookDatabaseEntry;
     epub: Book;
+    annotations: AnnotationsResource,
     pointerEvents?: boolean;
     controllerRef?: (controller: EpubDisplayController) => void;
     getExternalTarget?: Accessor<Target>;
@@ -192,7 +194,7 @@ export default function EpubDisplay(propsRaw: {
                     setTextHeight(lastContents.textHeight() + PAGE_MARGIN);
                     setSized(true);
                     setSelectionRect(selectionRange()?.getBoundingClientRect());
-                    annotations.updateRects();
+                    annotationRanges.updateRects();
                 };
                 lastContents.on(EVENTS.CONTENTS.RESIZE, onResize);
 
@@ -238,10 +240,10 @@ export default function EpubDisplay(propsRaw: {
         setSelectionRect(selectionRange()?.getBoundingClientRect());
     });
 
-    const annotations = createAnnotations();
+    const annotationRanges = createAnnotationRanges(props.annotations.value);
     createEffect(() => {
         if (loaded()) {
-            annotations.loadRanges(section().index, iframe.contentDocument);
+            annotationRanges.loadRanges(section().index, iframe.contentDocument);
         }
     });
 
@@ -271,7 +273,7 @@ export default function EpubDisplay(propsRaw: {
             if (selectionRange()?.collapsed) {
                 setSelectionRange(null);
             }
-            setSelectedAnnotation(null);
+            setSelectedAnnotationCfi(null);
         });
 
         setContents(
@@ -399,10 +401,10 @@ export default function EpubDisplay(propsRaw: {
         }
     }
 
-    const [selectedAnnotation, setSelectedAnnotation] =
-        createSignal<AnnotationData>();
-    function onClickAnnotation(annotation: AnnotationData) {
-        setSelectedAnnotation(annotation);
+    const [selectedAnnotationCfi, setSelectedAnnotationCfi] =
+        createSignal<EpubCFI>();
+    function onClickAnnotation(annotation: AnnotationEntry) {
+        setSelectedAnnotationCfi(annotation.cfi);
     }
 
     onMount(() => {
@@ -434,32 +436,36 @@ export default function EpubDisplay(propsRaw: {
                     baseCfi={contents().cfiBase}
                     onHighlight={() => {
                         const newAnnotation = {
+                            bookId: props.bookEntry.bookId,
                             cfi: new EpubCFI(
                                 selectionRange(),
                                 contents().cfiBase
                             ),
+                            textContent: selectionRange().toString(),
                             color: selectionRange().collapsed
                                 ? "orange"
                                 : "yellow",
+                            comment: null,
+                            collapsed: selectionRange().collapsed,
                         };
-                        annotations.add(newAnnotation);
+                        props.annotations.add(newAnnotation);
                         iframe.contentDocument.getSelection().removeAllRanges();
                         setSelectionRange(null);
-                        setSelectedAnnotation(newAnnotation);
+                        setSelectedAnnotationCfi(newAnnotation.cfi);
                     }}
                 />
             </Show>
             <HighlightsOverlay
-                highlights={annotations.highlights()}
+                highlights={annotationRanges.highlights()}
                 onClick={onClickAnnotation}
-                selectedAnnotation={selectedAnnotation()}
+                selectedAnnotationCfi={selectedAnnotationCfi()}
             />
-            <For each={annotations.flags()}>
+            <For each={annotationRanges.notes()}>
                 {(flag) => (
                     <StickyNote
                         flag={flag}
-                        onClick={[onClickAnnotation, flag.annotation.data]}
-                        selected={flag.annotation.data === selectedAnnotation()}
+                        onClick={[onClickAnnotation, flag.annotation.entry]}
+                        selected={flag.annotation.entry.cfi === selectedAnnotationCfi()}
                     />
                 )}
             </For>

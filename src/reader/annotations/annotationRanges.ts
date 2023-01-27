@@ -1,14 +1,8 @@
-import { EpubCFI } from "epubjs";
-import { createEffect, createSignal } from "solid-js";
-
-export interface AnnotationData {
-    cfi: EpubCFI;
-    color: string;
-    comment?: string;
-}
+import { createEffect, createSignal, Resource } from "solid-js";
+import { AnnotationEntry } from "src/backend/library";
 
 export interface AnnotationRange {
-    data: AnnotationData;
+    entry: AnnotationEntry;
     range: Range;
 }
 
@@ -23,27 +17,23 @@ export interface AnnotationNote {
     rect: DOMRect;
 }
 
-export function createAnnotations() {
-    const [annotationData, setAnnotationData] = createSignal<AnnotationData[]>(
-        []
-    );
+export function createAnnotationRanges(
+    annotations: Resource<AnnotationEntry[]>
+) {
     const [ranges, setRanges] = createSignal<AnnotationRange[]>([]);
     const [highlights, setHighlights] = createSignal<AnnotationHighlight[]>([]);
-    const [flags, setFlags] = createSignal<AnnotationNote[]>([]);
+    const [notes, setNotes] = createSignal<AnnotationNote[]>([]);
 
-    function add(annotation: AnnotationData) {
-        setAnnotationData((annotations) => [...annotations, annotation]);
-    }
     function loadRanges(sectionIndex: number, contentDocument: Document) {
         setRanges(
-            annotationData()
+            annotations()
                 .filter(
                     (annotation) =>
                         annotation.cfi.base.steps[1].index === sectionIndex
                 )
-                .map((data) => ({
-                    data,
-                    range: data.cfi.toRange(contentDocument),
+                .map((entry) => ({
+                    entry,
+                    range: entry.cfi.toRange(contentDocument),
                 }))
         );
     }
@@ -57,7 +47,7 @@ export function createAnnotations() {
                     clientRects: Array.from(annotation.range.getClientRects()),
                 }))
         );
-        setFlags(
+        setNotes(
             ranges()
                 .filter((annotation) => annotation.range.collapsed)
                 .map((annotation) => {
@@ -71,5 +61,5 @@ export function createAnnotations() {
 
     createEffect(updateRects);
 
-    return { highlights, flags, add, loadRanges, updateRects };
+    return { highlights, notes, loadRanges, updateRects };
 }

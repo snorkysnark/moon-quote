@@ -135,7 +135,7 @@ pub struct BookAnnotation {
     pub book_id: String,
     pub cfi: String,
     pub text_content: String,
-    pub color: i32,
+    pub color: String,
     pub comment: Option<String>,
     pub collapsed: bool,
 }

@@ -1,10 +1,12 @@
+import { EpubCFI } from "epubjs";
 import { For, Show } from "solid-js";
-import { AnnotationData, AnnotationHighlight } from "./annotations";
+import { AnnotationEntry } from "src/backend/library";
+import { AnnotationHighlight } from "./annotationRanges";
 
 export default function HighlightsOverlay(props: {
     highlights: AnnotationHighlight[];
-    onClick: (annotation: AnnotationData) => void;
-    selectedAnnotation: AnnotationData;
+    onClick: (annotation: AnnotationEntry) => void;
+    selectedAnnotationCfi: EpubCFI;
 }) {
     return (
         <svg class="absolute overflow-visible mix-blend-multiply">
@@ -13,8 +15,8 @@ export default function HighlightsOverlay(props: {
                     <>
                         <g
                             class="cursor-pointer"
-                            style={{ fill: highlight.annotation.data.color }}
-                            onClick={[props.onClick, highlight.annotation.data]}
+                            style={{ fill: highlight.annotation.entry.color }}
+                            onClick={[props.onClick, highlight.annotation.entry]}
                         >
                             <For each={highlight.clientRects}>
                                 {(clientRect) => (
@@ -27,7 +29,7 @@ export default function HighlightsOverlay(props: {
                                 )}
                             </For>
                         </g>
-                        <Show when={highlight.annotation.data === props.selectedAnnotation}>
+                        <Show when={highlight.annotation.entry.cfi === props.selectedAnnotationCfi}>
                             <rect
                                 class="fill-none stroke-blue-500 stroke-2"
                                 x={highlight.bounds.x}

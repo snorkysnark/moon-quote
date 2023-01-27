@@ -1,5 +1,5 @@
 import { JSX, Show } from "solid-js";
-import { AnnotationNote } from "./annotations";
+import { AnnotationNote } from "./annotationRanges";
 
 const ICON_OFFSET = 3;
 const ICON_SIZE = 10;
@@ -22,7 +22,7 @@ export default function StickyNote(props: {
                 <g
                     class="hover:opacity-100 cursor-pointer stroke-black"
                     classList={{ "opacity-50": !props.selected }}
-                    style={{ fill: props.flag.annotation.data.color }}
+                    style={{ fill: props.flag.annotation.entry.color }}
                     stroke-linejoin="bevel"
                 >
                     <polygon

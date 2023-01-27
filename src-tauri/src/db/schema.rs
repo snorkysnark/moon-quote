@@ -5,7 +5,7 @@ diesel::table! {
         book_id -> Text,
         cfi -> Text,
         text_content -> Text,
-        color -> Integer,
+        color -> Text,
         comment -> Nullable<Text>,
         collapsed -> Bool,
     }

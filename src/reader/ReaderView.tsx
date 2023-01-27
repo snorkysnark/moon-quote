@@ -11,12 +11,14 @@ import { Target } from "src/deeplink";
 import { resizableWidth } from "src/resizableWidth";
 import { contextMenu } from "src/contextMenu";
 import { createStorageSignal } from "src/localstorage";
+import { AnnotationsResource } from "./annotations";
 false && resizableWidth && contextMenu;
 
 const navButtonClass = "flex-auto text-4xl";
 
 export default function ReaderView(props: {
     bookEntry: BookDatabaseEntry;
+    annotations: AnnotationsResource;
     epub: Book;
     getExternalTarget?: Accessor<Target>;
 }) {
@@ -118,6 +120,7 @@ export default function ReaderView(props: {
                     <div class="bg-white h-full shadow-lg shadow-neutral-500">
                         <EpubDisplay
                             bookEntry={props.bookEntry}
+                            annotations={props.annotations}
                             epub={props.epub}
                             pointerEvents={iframePointerEvents()}
                             controllerRef={(c) => (displayController = c)}

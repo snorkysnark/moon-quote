@@ -2,7 +2,7 @@ import { invoke } from "@tauri-apps/api";
 import type { BinaryFileContents } from "@tauri-apps/api/fs";
 import type { PackagingMetadataObject } from "epubjs/types/packaging";
 import * as fs from "@tauri-apps/api/fs";
-import ePub, { Book } from "epubjs";
+import ePub, { Book, EpubCFI } from "epubjs";
 import { sortAnnotations } from "src/util/cfi";
 
 export interface BookDatabaseEntry {
@@ -89,21 +89,62 @@ export async function loadEpub(path: string): Promise<Book> {
     return book;
 }
 
-export interface AnnotationDatabaseEntry {
+export interface AnnotationRaw {
     bookId: string;
     cfi: string;
     textContent: string;
-    color: number;
+    color: string;
     comment: string;
     collapsed: boolean;
 }
 
+export interface AnnotationEntry {
+    bookId: string;
+    cfi: EpubCFI;
+    textContent: string;
+    color: string;
+    comment: string;
+    collapsed: boolean;
+}
+
+export async function getAnnotationsForBookRaw(
+    bookId: string
+): Promise<AnnotationRaw[]> {
+    return invoke("get_annotations_for_book", { bookId });
+}
+
 export async function getAnnotationsForBook(
     bookId: string
-): Promise<void> {
-    const annotations: AnnotationDatabaseEntry[] = await invoke(
-        "get_annotations_for_book",
-        { bookId }
+): Promise<AnnotationEntry[]> {
+    return sortAnnotations(
+        (await getAnnotationsForBookRaw(bookId)).map((annotation) => ({
+            ...annotation,
+            cfi: new EpubCFI(annotation.cfi),
+        }))
     );
-    sortAnnotations(annotations);
+}
+
+export async function addAnnotationRaw(
+    annotation: AnnotationRaw
+): Promise<void> {
+    return invoke("add_annotation", { annotation });
+}
+
+export async function addAnnotation(
+    annotation: AnnotationEntry
+): Promise<void> {
+    return invoke("add_annotation", {
+        annotation: {
+            ...annotation,
+            cfi: annotation.cfi.toString(),
+        },
+    });
+}
+
+export async function deleteAnnotationRaw(bookId: string, cfi: string) {
+    return invoke("delete_annotation", { bookId, cfi });
+}
+
+export async function deleteAnnotation(bookId: string, cfi: EpubCFI) {
+    return invoke("delete_annotation", { bookId, cfi: cfi.toString() });
 }
