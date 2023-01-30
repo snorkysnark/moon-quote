@@ -463,7 +463,7 @@ export default function EpubDisplay(propsRaw: {
             <For each={annotationRanges.notes()}>
                 {(flag) => (
                     <StickyNote
-                        flag={flag}
+                        note={flag}
                         onClick={[onClickAnnotation, flag.annotation.entry]}
                         selected={flag.annotation.entry.cfi === selectedAnnotationCfi()}
                     />

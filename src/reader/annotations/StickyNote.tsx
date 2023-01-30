@@ -1,57 +1,29 @@
-import { JSX, Show } from "solid-js";
+import { JSX } from "solid-js";
 import { AnnotationNote } from "./annotationRanges";
-
-const ICON_OFFSET = 3;
-const ICON_SIZE = 10;
+import NoteIcon from "src/decor/stickyNote.svg?component-solid";
 
 export default function StickyNote(props: {
-    flag: AnnotationNote;
+    note: AnnotationNote;
     onClick: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>;
     selected: boolean;
 }) {
     return (
         <div
-            class="absolute"
+            class="absolute cursor-pointer"
+            classList={{
+                "border-2": props.selected,
+                "border-blue-500": props.selected,
+            }}
             style={{
-                left: `${props.flag.rect.x - 10}px`,
-                top: `${props.flag.rect.y}px`,
+                left: `${props.note.rect.x - 11}px`,
+                top: `${props.note.rect.y}px`,
             }}
             onClick={props.onClick}
         >
-            <svg width="26" height="26" class="stroke-2">
-                <g
-                    class="hover:opacity-100 cursor-pointer stroke-black"
-                    classList={{ "opacity-50": !props.selected }}
-                    style={{ fill: props.flag.annotation.entry.color }}
-                    stroke-linejoin="bevel"
-                >
-                    <polygon
-                        points={`${ICON_OFFSET},${ICON_OFFSET} ${
-                            ICON_OFFSET + ICON_SIZE * 2
-                        },${ICON_OFFSET} ${ICON_OFFSET + ICON_SIZE * 2},${
-                            ICON_OFFSET + ICON_SIZE * 2
-                        } ${ICON_OFFSET + ICON_SIZE},${
-                            ICON_OFFSET + ICON_SIZE * 2
-                        } ${ICON_OFFSET},${ICON_OFFSET + ICON_SIZE}`}
-                    />
-                    <polygon
-                        points={`${ICON_OFFSET},${ICON_OFFSET + ICON_SIZE} ${
-                            ICON_OFFSET + ICON_SIZE
-                        },${ICON_OFFSET + ICON_SIZE} ${
-                            ICON_OFFSET + ICON_SIZE
-                        },${ICON_OFFSET + ICON_SIZE * 2}`}
-                    />
-                </g>
-                <Show when={props.selected}>
-                    <rect
-                        class="fill-none stroke-blue-500 stroke-2"
-                        x="1"
-                        y="1"
-                        width="24"
-                        height="24"
-                    />
-                </Show>
-            </svg>
+            <NoteIcon
+                classList={{ "opacity-50": !props.selected }}
+                fill={props.note.annotation.entry.color}
+            />
         </div>
     );
 }
