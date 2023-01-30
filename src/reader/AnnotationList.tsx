@@ -14,10 +14,10 @@ export default function AnnotationList(props: {
             <For each={props.annotations.value()}>
                 {(annotation) => (
                     <button
-                        class="bg-white p-1 text-left"
+                        class="bg-white p-1"
                         classList={{
-                            "border-4": annotation.cfi === props.selectedCfi,
-                            "border-blue-500": annotation.cfi === props.selectedCfi,
+                            "bg-white": annotation.cfi !== props.selectedCfi,
+                            "bg-blue-300": annotation.cfi === props.selectedCfi,
                         }}
                         onClick={[props.onClick, annotation]}
                     >
@@ -25,13 +25,13 @@ export default function AnnotationList(props: {
                             fallback={<NoteIcon fill={annotation.color} />}
                             when={annotation.cfi.range}
                         >
-                            <span
-                                style={{
-                                    background: annotation.color,
-                                }}
-                            >
-                                {annotation.textContent}
-                            </span>
+                            <div class="flex items-stretch">
+                                <div
+                                    class="w-2 shrink-0 mr-1"
+                                    style={{ background: annotation.color }}
+                                />
+                                <p class="text-left">{annotation.textContent}</p>
+                            </div>
                         </Show>
                     </button>
                 )}
