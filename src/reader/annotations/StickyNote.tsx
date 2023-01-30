@@ -21,6 +21,7 @@ export default function StickyNote(props: {
             onClick={props.onClick}
         >
             <NoteIcon
+                class="hover:opacity-100"
                 classList={{ "opacity-50": !props.selected }}
                 fill={props.note.annotation.entry.color}
             />
