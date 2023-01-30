@@ -1,4 +1,4 @@
-import { Book } from "epubjs";
+import Epub, { Book } from "epubjs";
 import EpubDisplay, { EpubDisplayController } from "./EpubDisplay";
 import { makeFoldableToc, ToC } from "./ToC";
 import { createStore } from "solid-js/store";
@@ -14,13 +14,14 @@ import { ImList2 } from "solid-icons/im";
 import { HiSolidAnnotation } from "solid-icons/hi";
 import { BookDatabaseEntry } from "src/backend/library";
 import { Target } from "src/deeplink";
+import { createStorageSignal } from "src/localstorage";
+import { AnnotationsResource } from "./annotations";
+import AnnotationList from "./AnnotationList";
+import { EpubCFI } from "epubjs";
 
 // use:__ directives
 import { resizableWidth } from "src/resizableWidth";
 import { contextMenu } from "src/contextMenu";
-import { createStorageSignal } from "src/localstorage";
-import { AnnotationsResource } from "./annotations";
-import AnnotationList from "./AnnotationList";
 false && resizableWidth && contextMenu;
 
 const navButtonClass = "flex-auto text-4xl";
@@ -44,6 +45,8 @@ export default function ReaderView(props: {
     function toggleSidePanel(name: string) {
         setCurrentSidePanel((current) => (current === name ? null : name));
     }
+
+    const [selectedAnnotationCfi, setSelectedAnnotationCfi] = createSignal<EpubCFI>();
 
     let [sidePanelRight, setSidePanelRight] = createStorageSignal(
         "sidePanelRight",
@@ -122,10 +125,14 @@ export default function ReaderView(props: {
                             <Match when={currentSidePanel() === "annotations"}>
                                 <AnnotationList
                                     annotations={props.annotations}
+                                    selectedCfi={selectedAnnotationCfi()}
                                     onClick={(annotation) => {
-                                        displayController?.displayAnnotation(
-                                            annotation
-                                        );
+                                        if (displayController) {
+                                            displayController.displayAnnotation(
+                                                annotation
+                                            );
+                                            setSelectedAnnotationCfi(annotation.cfi);
+                                        }
                                     }}
                                 />
                             </Match>
@@ -164,6 +171,13 @@ export default function ReaderView(props: {
                         <EpubDisplay
                             bookEntry={props.bookEntry}
                             annotations={props.annotations}
+                            selectedAnnotationCfi={selectedAnnotationCfi()}
+                            onClickAnnotation={(annotation) => {
+                                setSelectedAnnotationCfi(annotation?.cfi);
+                                if (annotation) {
+                                    setCurrentSidePanel("annotations");
+                                }
+                            }}
                             epub={props.epub}
                             pointerEvents={iframePointerEvents()}
                             controllerRef={(c) => (displayController = c)}

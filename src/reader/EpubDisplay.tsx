@@ -45,9 +45,11 @@ export default function EpubDisplay(propsRaw: {
     bookEntry: BookDatabaseEntry;
     epub: Book;
     annotations: AnnotationsResource,
+    selectedAnnotationCfi: EpubCFI;
     pointerEvents?: boolean;
     controllerRef?: (controller: EpubDisplayController) => void;
     getExternalTarget?: Accessor<Target>;
+    onClickAnnotation?: (annotation: AnnotationEntry) => void;
 }) {
     const props = mergeProps({ pointerEvents: true }, propsRaw);
 
@@ -274,7 +276,7 @@ export default function EpubDisplay(propsRaw: {
             if (selectionRange()?.collapsed) {
                 setSelectionRange(null);
             }
-            setSelectedAnnotationCfi(null);
+            props.onClickAnnotation?.(null);
         });
 
         setContents(
@@ -365,7 +367,6 @@ export default function EpubDisplay(propsRaw: {
         if (section) {
             setSection(section);
             setScrollTarget({type: "range", cfi: cfiString});
-            setSelectedAnnotationCfi(annotation.cfi);
         }
     }
 
@@ -413,12 +414,6 @@ export default function EpubDisplay(propsRaw: {
         }
     }
 
-    const [selectedAnnotationCfi, setSelectedAnnotationCfi] =
-        createSignal<EpubCFI>();
-    function onClickAnnotation(annotation: AnnotationEntry) {
-        setSelectedAnnotationCfi(annotation.cfi);
-    }
-
     onMount(() => {
         window.addEventListener("keydown", onKeyDown);
         onCleanup(() => {
@@ -463,21 +458,21 @@ export default function EpubDisplay(propsRaw: {
                         props.annotations.add(newAnnotation);
                         iframe.contentDocument.getSelection().removeAllRanges();
                         setSelectionRange(null);
-                        setSelectedAnnotationCfi(newAnnotation.cfi);
+                        props.onClickAnnotation?.(newAnnotation);
                     }}
                 />
             </Show>
             <HighlightsOverlay
                 highlights={annotationRanges.highlights()}
-                onClick={onClickAnnotation}
-                selectedAnnotationCfi={selectedAnnotationCfi()}
+                onClick={props.onClickAnnotation}
+                selectedAnnotationCfi={props.selectedAnnotationCfi}
             />
             <For each={annotationRanges.notes()}>
                 {(flag) => (
                     <StickyNote
                         note={flag}
-                        onClick={[onClickAnnotation, flag.annotation.entry]}
-                        selected={flag.annotation.entry.cfi === selectedAnnotationCfi()}
+                        onClick={[props.onClickAnnotation, flag.annotation.entry]}
+                        selected={flag.annotation.entry.cfi === props.selectedAnnotationCfi}
                     />
                 )}
             </For>
