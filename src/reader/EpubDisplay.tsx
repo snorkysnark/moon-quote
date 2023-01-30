@@ -35,6 +35,7 @@ const MAPPING = new Mapping(new Layout({}));
 
 export interface EpubDisplayController {
     display: (target: string) => void;
+    displayAnnotation: (annotation: AnnotationEntry) => void;
     pageUpOrPrev: () => void;
     pageDownOrNext: () => void;
     tryGetLocation: () => string;
@@ -357,9 +358,20 @@ export default function EpubDisplay(propsRaw: {
             setScrollTarget({ type: "link", link: anchor });
         }
     }
+    function displayAnnotation(annotation: AnnotationEntry) {
+        const cfiString = annotation.cfi.toString();
+
+        const section = props.epub.spine.get(cfiString);
+        if (section) {
+            setSection(section);
+            setScrollTarget({type: "range", cfi: cfiString});
+            setSelectedAnnotationCfi(annotation.cfi);
+        }
+    }
 
     props.controllerRef?.({
         display,
+        displayAnnotation,
         pageUpOrPrev,
         pageDownOrNext,
         tryGetLocation,

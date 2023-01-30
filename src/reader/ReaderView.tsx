@@ -2,8 +2,16 @@ import { Book } from "epubjs";
 import EpubDisplay, { EpubDisplayController } from "./EpubDisplay";
 import { makeFoldableToc, ToC } from "./ToC";
 import { createStore } from "solid-js/store";
-import { Accessor, createComputed, createSignal, Show } from "solid-js";
+import {
+    Accessor,
+    createComputed,
+    createSignal,
+    Match,
+    Show,
+    Switch,
+} from "solid-js";
 import { ImList2 } from "solid-icons/im";
+import { HiSolidAnnotation } from "solid-icons/hi";
 import { BookDatabaseEntry } from "src/backend/library";
 import { Target } from "src/deeplink";
 
@@ -12,6 +20,7 @@ import { resizableWidth } from "src/resizableWidth";
 import { contextMenu } from "src/contextMenu";
 import { createStorageSignal } from "src/localstorage";
 import { AnnotationsResource } from "./annotations";
+import AnnotationList from "./AnnotationList";
 false && resizableWidth && contextMenu;
 
 const navButtonClass = "flex-auto text-4xl";
@@ -29,8 +38,12 @@ export default function ReaderView(props: {
         setToc("items", makeFoldableToc(props.epub.navigation.toc, true))
     );
 
-    let [sidePanel, setSidePanel] = createSignal(false);
+    let [currentSidePanel, setCurrentSidePanel] = createSignal<string>(null);
     let [iframePointerEvents, setIframePointerEvents] = createSignal(true);
+
+    function toggleSidePanel(name: string) {
+        setCurrentSidePanel((current) => (current === name ? null : name));
+    }
 
     let [sidePanelRight, setSidePanelRight] = createStorageSignal(
         "sidePanelRight",
@@ -64,13 +77,27 @@ export default function ReaderView(props: {
             >
                 <button
                     class="w-full p-2"
-                    classList={{ "bg-orange-200": sidePanel() }}
-                    onClick={() => setSidePanel(!sidePanel())}
+                    classList={{
+                        "bg-orange-200": currentSidePanel() === "toc",
+                    }}
+                    onClick={() => toggleSidePanel("toc")}
                 >
                     <ImList2 class="w-full h-full" title="Table of Contents" />
                 </button>
+                <button
+                    class="w-full p-2"
+                    classList={{
+                        "bg-orange-200": currentSidePanel() === "annotations",
+                    }}
+                    onClick={() => toggleSidePanel("annotations")}
+                >
+                    <HiSolidAnnotation
+                        class="w-full h-full"
+                        title="Annotations"
+                    />
+                </button>
             </div>
-            <Show when={sidePanel()}>
+            <Show when={currentSidePanel()}>
                 <div
                     class="relative"
                     use:resizableWidth={{
@@ -81,12 +108,28 @@ export default function ReaderView(props: {
                     }}
                 >
                     <div class="bg-blue-200 h-full overflow-y-scroll">
-                        <ToC
-                            bookId={props.bookEntry.bookId}
-                            items={toc.items}
-                            setToc={setToc}
-                            onHref={(href) => displayController?.display(href)}
-                        />
+                        <Switch>
+                            <Match when={currentSidePanel() === "toc"}>
+                                <ToC
+                                    bookId={props.bookEntry.bookId}
+                                    items={toc.items}
+                                    setToc={setToc}
+                                    onHref={(href) =>
+                                        displayController?.display(href)
+                                    }
+                                />
+                            </Match>
+                            <Match when={currentSidePanel() === "annotations"}>
+                                <AnnotationList
+                                    annotations={props.annotations}
+                                    onClick={(annotation) => {
+                                        displayController?.displayAnnotation(
+                                            annotation
+                                        );
+                                    }}
+                                />
+                            </Match>
+                        </Switch>
                     </div>
                 </div>
                 <div class="h-full w-2 bg-gray-400"></div>
