@@ -38,8 +38,8 @@ export default function ReaderView(props: {
         setToc("items", makeFoldableToc(props.epub.navigation.toc, true))
     );
 
-    let [currentSidePanel, setCurrentSidePanel] = createSignal<string>(null);
-    let [iframePointerEvents, setIframePointerEvents] = createSignal(true);
+    const [currentSidePanel, setCurrentSidePanel] = createSignal<string>(null);
+    const [iframePointerEvents, setIframePointerEvents] = createSignal(true);
 
     function toggleSidePanel(name: string) {
         setCurrentSidePanel((current) => (current === name ? null : name));
