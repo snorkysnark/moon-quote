@@ -26,6 +26,7 @@ import { createAnnotationRanges } from "./annotations/annotationRanges";
 import HighlightsOverlay from "./annotations/HighlightsOverlay";
 import StickyNote from "./annotations/StickyNote";
 import { AnnotationsResource } from "./annotations";
+import { useContextMenuSetter } from "src/ContextMenuProvider";
 
 const SCROLL_STEP = 20;
 const PAGE_MARGIN = 20;
@@ -253,6 +254,8 @@ export default function EpubDisplay(propsRaw: {
         }
     });
 
+    const setContextMenu = useContextMenuSetter();
+
     let scroller: HTMLDivElement;
     let iframe: HTMLIFrameElement;
     function onLoadIframe() {
@@ -280,6 +283,7 @@ export default function EpubDisplay(propsRaw: {
                 setSelectionRange(null);
             }
             props.onClickAnnotation?.(null);
+            setContextMenu(null);
         });
 
         setContents(
