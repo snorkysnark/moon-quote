@@ -24,8 +24,6 @@ import { EpubCFI } from "epubjs";
 import { contextMenu } from "src/contextMenu";
 false && contextMenu;
 
-const navButtonClass = "flex-auto text-4xl";
-
 type SidePanelNames = "toc" | "annotations";
 
 export default function ReaderView(props: {
@@ -163,7 +161,7 @@ export default function ReaderView(props: {
             </Show>
             <div class="flex-auto bg-gray-300 flex overflow-hidden">
                 <button
-                    class={navButtonClass}
+                    class="navButton"
                     onClick={() => displayController?.pageUpOrPrev()}
                 >
                     ←
@@ -205,7 +203,7 @@ export default function ReaderView(props: {
                     />
                 </div>
                 <button
-                    class={navButtonClass}
+                    class="navButton"
                     onClick={() => displayController?.pageDownOrNext()}
                 >
                     →

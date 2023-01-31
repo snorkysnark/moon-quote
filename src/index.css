@@ -13,6 +13,10 @@
     right: -5px;
 }
 
+.navButton {
+    @apply flex-auto text-4xl;
+}
+
 :root {
     --highlight1: #ffd400;
     --highlight2: #ff6666;
