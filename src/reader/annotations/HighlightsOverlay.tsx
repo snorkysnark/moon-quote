@@ -3,9 +3,14 @@ import { For, Show } from "solid-js";
 import { AnnotationEntry } from "src/backend/library";
 import { AnnotationHighlight } from "./annotationRanges";
 
+// use:__ directives
+import { contextMenu } from "src/contextMenu";
+false && contextMenu;
+
 export default function HighlightsOverlay(props: {
     highlights: AnnotationHighlight[];
     onClick: (annotation: AnnotationEntry) => void;
+    onDelete: (annotation: AnnotationEntry) => void;
     selectedAnnotationCfi: EpubCFI;
 }) {
     return (
@@ -16,6 +21,13 @@ export default function HighlightsOverlay(props: {
                         class="cursor-pointer"
                         style={{ fill: highlight.annotation.entry.color }}
                         onClick={[props.onClick, highlight.annotation.entry]}
+                        use:contextMenu={[
+                            {
+                                label: "Delete",
+                                action: () =>
+                                    props.onDelete(highlight.annotation.entry),
+                            },
+                        ]}
                     >
                         <For each={highlight.clientRects}>
                             {(clientRect) => (

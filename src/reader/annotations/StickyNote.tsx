@@ -2,9 +2,14 @@ import { JSX } from "solid-js";
 import { AnnotationNote } from "./annotationRanges";
 import NoteIcon from "src/decor/stickyNote.svg?component-solid";
 
+// use:__ directives
+import { contextMenu } from "src/contextMenu";
+false && contextMenu;
+
 export default function StickyNote(props: {
     note: AnnotationNote;
     onClick: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>;
+    onDelete: () => void;
     selected: boolean;
 }) {
     return (
@@ -19,6 +24,9 @@ export default function StickyNote(props: {
                 top: `${props.note.rect.y}px`,
             }}
             onClick={props.onClick}
+            use:contextMenu={[
+                { label: "Delete", action: props.onDelete }
+            ]}
         >
             <NoteIcon
                 class="hover:opacity-100"

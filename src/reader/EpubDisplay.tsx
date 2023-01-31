@@ -44,7 +44,7 @@ export interface EpubDisplayController {
 export default function EpubDisplay(propsRaw: {
     bookEntry: BookDatabaseEntry;
     epub: Book;
-    annotations: AnnotationsResource,
+    annotations: AnnotationsResource;
     selectedAnnotationCfi: EpubCFI;
     pointerEvents?: boolean;
     controllerRef?: (controller: EpubDisplayController) => void;
@@ -246,7 +246,10 @@ export default function EpubDisplay(propsRaw: {
     const annotationRanges = createAnnotationRanges(props.annotations.value);
     createEffect(() => {
         if (loaded()) {
-            annotationRanges.loadRanges(section().index, iframe.contentDocument);
+            annotationRanges.loadRanges(
+                section().index,
+                iframe.contentDocument
+            );
         }
     });
 
@@ -366,7 +369,7 @@ export default function EpubDisplay(propsRaw: {
         const section = props.epub.spine.get(cfiString);
         if (section) {
             setSection(section);
-            setScrollTarget({type: "range", cfi: cfiString});
+            setScrollTarget({ type: "range", cfi: cfiString });
         }
     }
 
@@ -465,14 +468,29 @@ export default function EpubDisplay(propsRaw: {
             <HighlightsOverlay
                 highlights={annotationRanges.highlights()}
                 onClick={props.onClickAnnotation}
+                onDelete={(annotation) =>
+                    props.annotations.remove(annotation.bookId, annotation.cfi)
+                }
                 selectedAnnotationCfi={props.selectedAnnotationCfi}
             />
             <For each={annotationRanges.notes()}>
                 {(flag) => (
                     <StickyNote
                         note={flag}
-                        onClick={[props.onClickAnnotation, flag.annotation.entry]}
-                        selected={flag.annotation.entry.cfi === props.selectedAnnotationCfi}
+                        onClick={[
+                            props.onClickAnnotation,
+                            flag.annotation.entry,
+                        ]}
+                        onDelete={() =>
+                            props.annotations.remove(
+                                flag.annotation.entry.bookId,
+                                flag.annotation.entry.cfi
+                            )
+                        }
+                        selected={
+                            flag.annotation.entry.cfi ===
+                            props.selectedAnnotationCfi
+                        }
                     />
                 )}
             </For>
