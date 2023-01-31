@@ -6,9 +6,11 @@ import {
     Accessor,
     createComputed,
     createSignal,
+    For,
     Match,
     Show,
     Switch,
+    ValidComponent,
 } from "solid-js";
 import { ImList2 } from "solid-icons/im";
 import { HiSolidAnnotation } from "solid-icons/hi";
@@ -19,12 +21,23 @@ import { AnnotationsResource } from "./annotations";
 import AnnotationList from "./AnnotationList";
 import ResizeHandle from "src/ResizeHandle";
 import { EpubCFI } from "epubjs";
+import { Dynamic } from "solid-js/web";
 
 // use:__ directives
 import { contextMenu } from "src/contextMenu";
 false && contextMenu;
 
 type SidePanelNames = "toc" | "annotations";
+interface SidePanelButton {
+    panel: SidePanelNames;
+    icon: ValidComponent;
+    alt: string;
+}
+
+const sidePanelButtons: SidePanelButton[] = [
+    { panel: "toc", icon: ImList2, alt: "Table of Contents" },
+    { panel: "annotations", icon: HiSolidAnnotation, alt: "Annotations" },
+];
 
 export default function ReaderView(props: {
     bookEntry: BookDatabaseEntry;
@@ -95,27 +108,24 @@ export default function ReaderView(props: {
                     },
                 ]}
             >
-                <button
-                    class="w-full p-2"
-                    classList={{
-                        "bg-orange-200": currentSidePanel() === "toc",
-                    }}
-                    onClick={() => toggleSidePanel("toc")}
-                >
-                    <ImList2 class="w-full h-full" title="Table of Contents" />
-                </button>
-                <button
-                    class="w-full p-2"
-                    classList={{
-                        "bg-orange-200": currentSidePanel() === "annotations",
-                    }}
-                    onClick={() => toggleSidePanel("annotations")}
-                >
-                    <HiSolidAnnotation
-                        class="w-full h-full"
-                        title="Annotations"
-                    />
-                </button>
+                <For each={sidePanelButtons}>
+                    {(button) => (
+                        <button
+                            class="w-full p-2"
+                            classList={{
+                                "bg-orange-200":
+                                    currentSidePanel() === button.panel,
+                            }}
+                            onClick={() => toggleSidePanel(button.panel)}
+                        >
+                            <Dynamic
+                                component={button.icon}
+                                class="w-full h-full"
+                                title={button.alt}
+                            />
+                        </button>
+                    )}
+                </For>
             </div>
             <Show when={currentSidePanel()}>
                 <div style={{ width: `${sidePanelWidth()}px` }}>
