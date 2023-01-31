@@ -1,4 +1,4 @@
-import Epub, { Book } from "epubjs";
+import { Book } from "epubjs";
 import EpubDisplay, { EpubDisplayController } from "./EpubDisplay";
 import { makeFoldableToc, ToC } from "./ToC";
 import { createStore } from "solid-js/store";
@@ -17,14 +17,16 @@ import { Target } from "src/deeplink";
 import { createStorageSignal } from "src/localstorage";
 import { AnnotationsResource } from "./annotations";
 import AnnotationList from "./AnnotationList";
+import ResizeHandle from "src/ResizeHandle";
 import { EpubCFI } from "epubjs";
 
 // use:__ directives
-import { resizableWidth } from "src/resizableWidth";
 import { contextMenu } from "src/contextMenu";
-false && resizableWidth && contextMenu;
+false && contextMenu;
 
 const navButtonClass = "flex-auto text-4xl";
+
+type SidePanelNames = "toc" | "annotations";
 
 export default function ReaderView(props: {
     bookEntry: BookDatabaseEntry;
@@ -39,22 +41,39 @@ export default function ReaderView(props: {
         setToc("items", makeFoldableToc(props.epub.navigation.toc, true))
     );
 
-    const [currentSidePanel, setCurrentSidePanel] = createSignal<string>(null);
-    const [iframePointerEvents, setIframePointerEvents] = createSignal(true);
-
-    function toggleSidePanel(name: string) {
+    const [currentSidePanel, setCurrentSidePanel] =
+        createSignal<SidePanelNames>(null);
+    function toggleSidePanel(name: SidePanelNames) {
         setCurrentSidePanel((current) => (current === name ? null : name));
     }
-
-    const [selectedAnnotationCfi, setSelectedAnnotationCfi] = createSignal<EpubCFI>();
-
+    const [sidePanelWidth, setSidePanelWidth] = createSignal(500);
     let [sidePanelRight, setSidePanelRight] = createStorageSignal(
         "sidePanelRight",
         false
     );
 
+    const [pageWidth, setPageWidth] = createSignal(800);
+    const pageResizeEvents = {
+        onResizeStart: () => {
+            setIframePointerEvents(false);
+            locationLock = displayController?.tryGetLocation();
+        },
+        onResize: () => {
+            if (locationLock) {
+                displayController?.display(locationLock);
+            }
+        },
+        onResizeEnd: () => {
+            setIframePointerEvents(true);
+            locationLock = null;
+        },
+    };
+    const [iframePointerEvents, setIframePointerEvents] = createSignal(true);
     // Location will be restored after resizing
     let locationLock: string = null;
+
+    const [selectedAnnotationCfi, setSelectedAnnotationCfi] =
+        createSignal<EpubCFI>();
 
     let displayController: EpubDisplayController;
 
@@ -101,15 +120,7 @@ export default function ReaderView(props: {
                 </button>
             </div>
             <Show when={currentSidePanel()}>
-                <div
-                    class="relative"
-                    use:resizableWidth={{
-                        initial: 500,
-                        side: sidePanelRight() ? "left" : "right",
-                        onResizeStart: () => setIframePointerEvents(false),
-                        onResizeEnd: () => setIframePointerEvents(true),
-                    }}
-                >
+                <div style={{ width: `${sidePanelWidth()}px` }}>
                     <div class="bg-blue-200 h-full overflow-y-scroll">
                         <Switch>
                             <Match when={currentSidePanel() === "toc"}>
@@ -131,7 +142,9 @@ export default function ReaderView(props: {
                                             displayController.displayAnnotation(
                                                 annotation
                                             );
-                                            setSelectedAnnotationCfi(annotation.cfi);
+                                            setSelectedAnnotationCfi(
+                                                annotation.cfi
+                                            );
                                         }
                                     }}
                                 />
@@ -139,7 +152,14 @@ export default function ReaderView(props: {
                         </Switch>
                     </div>
                 </div>
-                <div class="h-full w-2 bg-gray-400"></div>
+                <ResizeHandle
+                    width={sidePanelWidth()}
+                    setWidth={setSidePanelWidth}
+                    deltaX={sidePanelRight() ? -1 : 1}
+                    class="h-full w-2 bg-gray-400 cursor-col-resize"
+                    onResizeStart={() => setIframePointerEvents(false)}
+                    onResizeEnd={() => setIframePointerEvents(true)}
+                />
             </Show>
             <div class="flex-auto bg-gray-300 flex overflow-hidden">
                 <button
@@ -150,23 +170,15 @@ export default function ReaderView(props: {
                 </button>
                 <div
                     class="h-full py-3 relative"
-                    use:resizableWidth={{
-                        initial: 800,
-                        onResizeStart: () => {
-                            setIframePointerEvents(false);
-                            locationLock = displayController?.tryGetLocation();
-                        },
-                        onResize: () => {
-                            if (locationLock) {
-                                displayController?.display(locationLock);
-                            }
-                        },
-                        onResizeEnd: () => {
-                            setIframePointerEvents(true);
-                            locationLock = null;
-                        },
-                    }}
+                    style={{ width: `${pageWidth()}px` }}
                 >
+                    <ResizeHandle
+                        width={pageWidth()}
+                        setWidth={setPageWidth}
+                        deltaX={-2}
+                        class="resizeHandle resizeHandleLeft"
+                        {...pageResizeEvents}
+                    />
                     <div class="bg-white h-full shadow-lg shadow-neutral-500">
                         <EpubDisplay
                             bookEntry={props.bookEntry}
@@ -184,6 +196,13 @@ export default function ReaderView(props: {
                             getExternalTarget={props.getExternalTarget}
                         />
                     </div>
+                    <ResizeHandle
+                        width={pageWidth()}
+                        setWidth={setPageWidth}
+                        deltaX={2}
+                        class="resizeHandle resizeHandleRight"
+                        {...pageResizeEvents}
+                    />
                 </div>
                 <button
                     class={navButtonClass}
