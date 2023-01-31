@@ -12,33 +12,40 @@ export default function HighlightsOverlay(props: {
         <svg class="absolute overflow-visible mix-blend-multiply">
             <For each={props.highlights}>
                 {(highlight) => (
-                    <>
-                        <g
-                            class="cursor-pointer"
-                            style={{ fill: highlight.annotation.entry.color }}
-                            onClick={[props.onClick, highlight.annotation.entry]}
-                        >
-                            <For each={highlight.clientRects}>
-                                {(clientRect) => (
-                                    <rect
-                                        x={clientRect.x}
-                                        y={clientRect.y}
-                                        width={clientRect.width}
-                                        height={clientRect.height}
-                                    />
-                                )}
-                            </For>
-                        </g>
-                        <Show when={highlight.annotation.entry.cfi === props.selectedAnnotationCfi}>
-                            <rect
-                                class="fill-none stroke-blue-500 stroke-2"
-                                x={highlight.bounds.x}
-                                y={highlight.bounds.y}
-                                width={highlight.bounds.width}
-                                height={highlight.bounds.height}
-                            />
-                        </Show>
-                    </>
+                    <g
+                        class="cursor-pointer"
+                        style={{ fill: highlight.annotation.entry.color }}
+                        onClick={[props.onClick, highlight.annotation.entry]}
+                    >
+                        <For each={highlight.clientRects}>
+                            {(clientRect) => (
+                                <rect
+                                    x={clientRect.x}
+                                    y={clientRect.y}
+                                    width={clientRect.width}
+                                    height={clientRect.height}
+                                />
+                            )}
+                        </For>
+                    </g>
+                )}
+            </For>
+            <For each={props.highlights}>
+                {(highlight) => (
+                    <Show
+                        when={
+                            highlight.annotation.entry.cfi ===
+                            props.selectedAnnotationCfi
+                        }
+                    >
+                        <rect
+                            class="fill-none stroke-blue-500 stroke-2"
+                            x={highlight.bounds.x}
+                            y={highlight.bounds.y}
+                            width={highlight.bounds.width}
+                            height={highlight.bounds.height}
+                        />
+                    </Show>
                 )}
             </For>
         </svg>
