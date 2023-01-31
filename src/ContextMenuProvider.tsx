@@ -1,6 +1,8 @@
+import { createElementBounds } from "@solid-primitives/bounds";
 import {
     createContext,
     createEffect,
+    createMemo,
     createSignal,
     For,
     JSX,
@@ -29,9 +31,28 @@ const MenuContext = createContext<Setter<MenuState>>();
 export default function ContextMenuProvider(props: { children?: JSX.Element }) {
     const [menu, setMenu] = createSignal<MenuState>(null);
 
-    let menuContainer: HTMLDivElement;
+    const [menuContainer, setMenuContainer] = createSignal<HTMLElement>(null);
     createEffect(() => {
-        if (menu() === null) menuContainer = null;
+        if (menu() === null) setMenuContainer(null);
+    });
+    const bodyBounds = createElementBounds(document.body);
+    const containerBounds = createElementBounds(menuContainer);
+
+    const position = createMemo(() => {
+        if (!menu()) return null;
+
+        let x = menu().x;
+        let y = menu().y;
+
+        const width = containerBounds.width || 0;
+        const height = containerBounds.height || 0;
+        if (x + width > bodyBounds.width) {
+            x = bodyBounds.width - width;
+        }
+        if (y + height > bodyBounds.height) {
+            y = bodyBounds.height - height;
+        }
+        return { x, y };
     });
 
     function onClickItem(item: MenuItem) {
@@ -42,11 +63,11 @@ export default function ContextMenuProvider(props: { children?: JSX.Element }) {
     }
 
     function onClickBody(event: MouseEvent, rightClick: boolean) {
-        if (menuContainer) {
+        if (menuContainer()) {
             if (
                 !rightClick &&
-                (event.target === menuContainer ||
-                    menuContainer.contains(event.target as Node))
+                (event.target === menuContainer() ||
+                    menuContainer().contains(event.target as Node))
             ) {
                 return;
             }
@@ -70,14 +91,14 @@ export default function ContextMenuProvider(props: { children?: JSX.Element }) {
 
     return (
         <>
-            <Show when={menu()}>
+            <Show when={menu() && position()}>
                 <Portal>
                     <div
-                        class="absolute z-10 bg-white flex flex-col shadow-lg shadow-neutral-400"
-                        ref={menuContainer}
+                        class="absolute z-10 bg-white flex flex-col shadow-lg shadow-neutral-400 min-w-max"
+                        ref={setMenuContainer}
                         style={{
-                            left: `${menu().x}px`,
-                            top: `${menu().y}px`,
+                            left: `${position().x}px`,
+                            top: `${position().y}px`,
                         }}
                     >
                         <For each={menu().items}>
