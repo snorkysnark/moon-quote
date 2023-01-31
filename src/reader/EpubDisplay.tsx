@@ -450,8 +450,8 @@ export default function EpubDisplay(propsRaw: {
                             ),
                             textContent: selectionRange().toString(),
                             color: selectionRange().collapsed
-                                ? "orange"
-                                : "yellow",
+                                ? "var(--highlight2)"
+                                : "var(--highlight1)",
                             comment: null,
                             collapsed: selectionRange().collapsed,
                         };
