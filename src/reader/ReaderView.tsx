@@ -16,7 +16,7 @@ import { ImList2 } from "solid-icons/im";
 import { HiSolidAnnotation } from "solid-icons/hi";
 import { BookDatabaseEntry } from "src/backend/library";
 import { Target } from "src/deeplink";
-import { createStorageSignal } from "src/localstorage";
+import { createStorageSignal } from "src/signals/localstorage";
 import { AnnotationsResource } from "./annotations";
 import AnnotationList from "./AnnotationList";
 import ResizeHandle from "src/ResizeHandle";
