@@ -7,18 +7,14 @@ mod commands;
 mod db;
 mod deeplink;
 mod error;
-mod exporters;
 mod library;
 
 use std::{fs, path::PathBuf};
 
 use deeplink::{DeeplinkClient, DeeplinkPlugin, Message, TargetUrl};
 
-use crate::exporters::ExportersPlugin;
-
 pub struct Constants {
     library_path: PathBuf,
-    exporters_path: PathBuf,
 }
 
 fn main() {
@@ -46,17 +42,12 @@ fn main() {
                 .join(&context.config().tauri.bundle.identifier);
 
             let library_path = data_dir.join("library");
-            let exporters_path = data_dir.join("exporters");
             fs::create_dir_all(&library_path).expect("creating library folder");
-            exporters::create_exporters_dir(&exporters_path).expect("creating exporters folder");
 
             let db_pool = db::init_db(&library_path.join("metadata.db"));
 
             tauri::Builder::default()
-                .manage(Constants {
-                    library_path,
-                    exporters_path,
-                })
+                .manage(Constants { library_path })
                 .manage(db_pool)
                 .invoke_handler(tauri::generate_handler![
                     library::upload_book,
@@ -68,10 +59,8 @@ fn main() {
                     library::get_annotation,
                     library::delete_annotation,
                     commands::open_folder,
-                    commands::open_exporters_folder,
                 ])
                 .plugin(DeeplinkPlugin::new(goto_annotation))
-                .plugin(ExportersPlugin::new())
                 .run(context)
                 .expect("error while running tauri application");
         }

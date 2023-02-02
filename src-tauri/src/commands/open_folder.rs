@@ -1,11 +1,6 @@
 use std::{path::Path, process::Command};
 
-use tauri::State;
-
-use crate::{
-    error::{sanyhow, SerializableResult},
-    Constants,
-};
+use crate::error::{sanyhow, SerializableResult};
 
 #[tauri::command]
 pub fn open_folder(path: &Path) -> SerializableResult<()> {
@@ -26,9 +21,4 @@ pub fn open_folder(path: &Path) -> SerializableResult<()> {
 
     Command::new(command).arg(folder).spawn()?;
     Ok(())
-}
-
-#[tauri::command]
-pub fn open_exporters_folder(constants: State<Constants>) -> SerializableResult<()> {
-    open_folder(&constants.exporters_path)
 }

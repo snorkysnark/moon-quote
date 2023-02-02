@@ -29,10 +29,6 @@ url = "2.3.1"
 interprocess = { version = "1.1.1", features = [] }
 percent-encoding = "2.2.0"
 sha256 = "1.0.3"
-include_dir = "0.7.2"
-notify = "5.0.0"
-notify-debouncer-mini = "0.2.1"
-base64 = "0.13.0"
 
 # Bundle openssl for Ubuntu support
 [target.'cfg(unix)'.dependencies]
