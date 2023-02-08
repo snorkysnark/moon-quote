@@ -76,6 +76,9 @@
                 "title": "Moon Quote",
                 "width": 1300
             }
-        ]
+        ],
+        "systemTray": {
+            "iconPath": "icons/StoreLogo.png"
+        }
     }
 }
