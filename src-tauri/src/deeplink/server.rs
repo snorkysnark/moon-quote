@@ -70,6 +70,7 @@ impl<R: Runtime> AppHandleExt for AppHandle<R> {
     fn set_window_focused(&self, name: &str) -> Result<()> {
         match self.get_window(name) {
             Some(window) => {
+                window.show()?;
                 window.set_focus()?;
                 Ok(())
             }
