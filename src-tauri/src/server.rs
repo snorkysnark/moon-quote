@@ -5,18 +5,29 @@ use axum::{
     routing::get,
     Router,
 };
+use futures::{
+    prelude::*,
+    stream::{SplitSink, SplitStream},
+};
 use tauri::{
+    async_runtime::{Mutex, Sender},
     plugin::{Builder, TauriPlugin},
-    AppHandle, Manager, Runtime, WindowBuilder, WindowUrl,
+    AppHandle, Manager, Runtime, State, WindowBuilder, WindowEvent, WindowUrl,
 };
 use tower_http::cors::{Any, CorsLayer};
+
+use crate::{error::SerializableResult, library::AnnotationFull};
+
+pub struct SearchState {
+    sender: Mutex<Option<Sender<AnnotationFull>>>,
+}
 
 fn open_search<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
     if let Some(window) = app.get_window("search") {
         window.close()?;
     }
 
-    WindowBuilder::new(app, "search", WindowUrl::App("search.html".parse()?))
+    let window = WindowBuilder::new(app, "search", WindowUrl::App("search.html".parse()?))
         .always_on_top(true)
         .decorations(false)
         .center()
@@ -24,19 +35,80 @@ fn open_search<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
         .title("Search")
         .build()?;
 
+    let app = app.app_handle();
+    window.on_window_event(move |event| {
+        if matches!(event, WindowEvent::Destroyed) {
+            let search_state: State<'_, SearchState> = app.state();
+            // Clear search_state when window has been closed
+            futures::executor::block_on(async {
+                search_state.sender.lock().await.take();
+            });
+        }
+    });
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn finish_search(
+    state: State<'_, SearchState>,
+    value: Option<AnnotationFull>,
+) -> SerializableResult<()> {
+    println!("{:?}", value);
+
+    let mut sender = state.sender.lock().await;
+    if let Some(sender) = sender.take() {
+        if let Some(value) = value {
+            if let Err(err) = sender.send(value).await {
+                eprintln!("{err}");
+            }
+        }
+    }
+
     Ok(())
 }
 
 pub fn plugin<R: Runtime>() -> TauriPlugin<R> {
-    async fn handle_socket<R: Runtime>(mut socket: WebSocket, app: AppHandle<R>) {
-        while let Some(msg) = socket.recv().await {
-            match msg {
-                Ok(Message::Text(text)) => match text.as_str() {
-                    "choose_quote" => {
-                        if let Err(err) = open_search(&app) {
-                            eprintln!("Error opening search: {err}");
+    async fn handle_socket<R: Runtime>(socket: WebSocket, app: AppHandle<R>) {
+        let (mut ws_sender, ws_receiver) = socket.split();
+        let (tx, mut rx) = tauri::async_runtime::channel::<AnnotationFull>(100);
+
+        let read_task = async move { read_socket(ws_receiver, app, tx).await };
+        let write_task = async move {
+            while let Some(value) = rx.recv().await {
+                match serde_json::to_string(&value) {
+                    Ok(json) => {
+                        if let Err(err) = ws_sender.send(Message::Text(json)).await {
+                            eprintln!("{err}");
                         }
                     }
+                    Err(err) => eprintln!("{err}"),
+                }
+            }
+        };
+
+        tokio::join!(read_task, write_task);
+    }
+
+    async fn read_socket<R: Runtime>(
+        mut receiver: SplitStream<WebSocket>,
+        app: AppHandle<R>,
+        answer_sender: Sender<AnnotationFull>,
+    ) {
+        while let Some(msg) = receiver.next().await {
+            match msg {
+                Ok(Message::Text(text)) => match text.as_str() {
+                    "choose_quote" => match open_search(&app) {
+                        Ok(_) => {
+                            let search_state: State<'_, SearchState> = app.state();
+                            search_state
+                                .sender
+                                .lock()
+                                .await
+                                .replace(answer_sender.clone());
+                        }
+                        Err(err) => eprintln!("{err}"),
+                    },
                     _ => {}
                 },
                 Err(_) => {
@@ -51,6 +123,9 @@ pub fn plugin<R: Runtime>() -> TauriPlugin<R> {
     Builder::new("server")
         .setup(|app| {
             let app = app.app_handle();
+            app.manage(SearchState {
+                sender: Mutex::new(None),
+            });
 
             tauri::async_runtime::spawn(async {
                 let router = Router::new()
@@ -58,11 +133,11 @@ pub fn plugin<R: Runtime>() -> TauriPlugin<R> {
                         "/",
                         get(move |ws: WebSocketUpgrade| {
                             let app = app.app_handle();
-                            async {
-                                ws.on_upgrade(move |socket| {
+                            return async {
+                                return ws.on_upgrade(move |socket| {
                                     handle_socket(socket, app.app_handle())
-                                })
-                            }
+                                });
+                            };
                         }),
                     )
                     .layer(

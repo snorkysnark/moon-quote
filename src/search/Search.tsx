@@ -1,3 +1,4 @@
+import { invoke } from "@tauri-apps/api";
 import { appWindow } from "@tauri-apps/api/window";
 import {
     createResource,
@@ -70,6 +71,11 @@ export default function Search() {
                 if (event.ctrlKey) decSelectedItem();
                 break;
             case "Enter":
+                if (filteredItems().length > 0) {
+                    invoke("finish_search", {
+                        value: filteredItems()[selectedItem()].annotation,
+                    });
+                }
                 appWindow.close();
                 break;
         }

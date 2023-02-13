@@ -72,6 +72,7 @@ fn main() {
                     library::delete_annotation,
                     library::get_annotations_all,
                     commands::open_folder,
+                    server::finish_search,
                 ])
                 .plugin(DeeplinkPlugin::new(goto_annotation))
                 .plugin(server::plugin())

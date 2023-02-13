@@ -36,7 +36,7 @@ pub fn get_annotations_for_book(
     Ok(rows)
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AnnotationFull {
     pub book_id: String,
