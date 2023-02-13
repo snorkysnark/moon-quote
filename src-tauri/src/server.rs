@@ -54,8 +54,6 @@ pub async fn finish_search(
     state: State<'_, SearchState>,
     value: Option<AnnotationFull>,
 ) -> SerializableResult<()> {
-    println!("{:?}", value);
-
     let mut sender = state.sender.lock().await;
     if let Some(sender) = sender.take() {
         if let Some(value) = value {
