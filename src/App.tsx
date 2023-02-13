@@ -18,6 +18,7 @@ export default function App() {
             setTargetLocation(link.target);
         });
     });
+
     onCleanup(async () => {
         (await unsubscribe)();
     });

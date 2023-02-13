@@ -148,3 +148,18 @@ export async function deleteAnnotationRaw(bookId: string, cfi: string) {
 export async function deleteAnnotation(bookId: string, cfi: EpubCFI) {
     return invoke("delete_annotation", { bookId, cfi: cfi.toString() });
 }
+
+export interface AnnotationFull {
+    bookId: string;
+    metaTitle: string;
+    metaCreator: string;
+    cfi: string;
+    textContent: string;
+    color: string;
+    comment: string;
+    collapsed: boolean;
+}
+
+export async function getAnnotationsAll(): Promise<AnnotationFull[]> {
+    return invoke("get_annotations_all");
+}

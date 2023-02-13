@@ -1,3 +1,4 @@
+import { resolve } from "path";
 import { defineConfig } from "vite";
 import solid from "vite-plugin-solid";
 import solidSvg from "vite-plugin-solid-svg";
@@ -23,6 +24,13 @@ export default defineConfig({
         minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
         // produce sourcemaps for debug builds
         sourcemap: !!process.env.TAURI_DEBUG,
+
+        rollupOptions: {
+            input: {
+                main: resolve(__dirname, "index.html"),
+                search: resolve(__dirname, "search.html"),
+            },
+        },
     },
 
     resolve: {

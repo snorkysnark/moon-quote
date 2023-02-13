@@ -70,6 +70,7 @@ fn main() {
                     library::get_annotations_for_book,
                     library::get_annotation,
                     library::delete_annotation,
+                    library::get_annotations_all,
                     commands::open_folder,
                 ])
                 .plugin(DeeplinkPlugin::new(goto_annotation))

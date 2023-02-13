@@ -31,9 +31,10 @@ percent-encoding = "2.2.0"
 sha256 = "1.0.3"
 axum = { version = "0.6.4", features = ["ws"] }
 tower-http = { version = "0.3.5", features = ["cors"] }
+futures = "0.3.26"
 
+[target.'cfg(target_os = "linux")'.dependencies]
 # Bundle openssl for Ubuntu support
-[target.'cfg(unix)'.dependencies]
 openssl = { version = "0.10.41", features = ["vendored"] }
 
 [features]
