@@ -1,7 +1,8 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    annotations (book_id, cfi) {
+    annotations (annotation_id) {
+        annotation_id -> Integer,
         book_id -> Text,
         cfi -> Text,
         text_content -> Text,
