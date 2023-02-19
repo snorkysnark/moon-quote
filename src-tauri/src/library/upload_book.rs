@@ -1,16 +1,11 @@
-use std::{fs, path::PathBuf};
+use std::{path::PathBuf, fs};
 
 use diesel::prelude::*;
 use serde::Deserialize;
-use tauri::State;
+use tauri::{AppHandle, Manager, State};
 
-use crate::{
-    db::{schema, SqlitePool},
-    error::{sanyhow, SerializableError, SerializableResult},
-    Constants,
-};
-
-use super::data::{Book, BookRow, EpubMetadata};
+use super::{db::SqlitePool, schema, LibraryPath};
+use crate::error::{SerializableResult, SerializableError, sanyhow};
 
 #[derive(Deserialize)]
 pub struct EpubCover {
@@ -37,14 +32,59 @@ impl EpubCover {
     }
 }
 
+#[derive(Deserialize, Insertable)]
+#[diesel(table_name = schema::books)]
+pub(super) struct EpubMetadata {
+    #[diesel(column_name = "meta_title")]
+    pub title: Option<String>,
+    #[diesel(column_name = "meta_creator")]
+    pub creator: Option<String>,
+    #[diesel(column_name = "meta_description")]
+    pub description: Option<String>,
+    #[diesel(column_name = "meta_pubdate")]
+    pub pubdate: Option<String>,
+    #[diesel(column_name = "meta_publisher")]
+    pub publisher: Option<String>,
+    #[diesel(column_name = "meta_identifier")]
+    pub identifier: Option<String>,
+    #[diesel(column_name = "meta_language")]
+    pub language: Option<String>,
+    #[diesel(column_name = "meta_rights")]
+    pub rights: Option<String>,
+    #[diesel(column_name = "meta_modified_date")]
+    pub modified_date: Option<String>,
+    #[diesel(column_name = "meta_layout")]
+    pub layout: Option<String>,
+    #[diesel(column_name = "meta_orientation")]
+    pub orientation: Option<String>,
+    #[diesel(column_name = "meta_flow")]
+    pub flow: Option<String>,
+    #[diesel(column_name = "meta_viewport")]
+    pub viewport: Option<String>,
+    #[diesel(column_name = "meta_spread")]
+    pub spread: Option<String>,
+}
+
+#[derive(Insertable)]
+#[diesel(table_name = schema::books)]
+pub struct BookRow {
+    pub book_id: String,
+    pub epub_file: String,
+    pub cover_file: Option<String>,
+    #[diesel(embed)]
+    pub metadata: EpubMetadata,
+}
+
 #[tauri::command]
-pub fn upload_book<'a>(
-    db: State<SqlitePool>,
-    constants: State<Constants>,
+pub fn upload_book(
+    app: AppHandle,
     book_path: PathBuf,
     metadata: EpubMetadata,
     cover: Option<EpubCover>,
 ) -> SerializableResult<Book> {
+    let db: State<SqlitePool> = app.state();
+    let library_path: State<LibraryPath> = app.state();
+
     use schema::books::dsl;
 
     let mut conn = db.get()?;
@@ -58,17 +98,23 @@ pub fn upload_book<'a>(
             .to_string();
 
         let book_id = sha256::digest_file(&book_path)?;
-        let book_row = BookRow::from_parts(
-            book_id.clone(),
-            book_filename.clone(),
-            cover_file_desc.as_ref().map(|cover| cover.filename.clone()),
-            metadata,
-        );
+        let book_row = BookRow {
+            book_id: book_id.clone(),
+            epub_file: book_filename.clone(),
+            cover_file: cover_file_desc.map(|cover| cover.filename.clone()),
+            metadata
+        };
+        // let book_row = BookRow::from_parts(
+        //     book_id.clone(),
+        //     book_filename.clone(),
+        //     cover_file_desc.as_ref().map(|cover| cover.filename.clone()),
+        //     metadata,
+        // );
         diesel::insert_into(dsl::books)
             .values(&book_row)
             .execute(conn)?;
 
-        let container_path = constants.library_path.join(book_id);
+        let container_path = library_path.0.join(book_id);
         let new_book_path = container_path.join(book_filename);
 
         fs::create_dir(&container_path)?;
