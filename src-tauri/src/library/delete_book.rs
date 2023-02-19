@@ -1,25 +1,21 @@
 use std::fs;
 
 use diesel::prelude::*;
-use tauri::State;
+use tauri::{AppHandle, Manager, State};
 
-use crate::{
-    db::{schema, SqlitePool},
-    error::{SerializableError, SerializableResult},
-    Constants,
-};
+use super::{db::SqlitePool, schema, LibraryPath};
+use crate::error::{SerializableError, SerializableResult};
 
 #[tauri::command]
-pub fn delete_book(
-    db: State<SqlitePool>,
-    constants: State<Constants>,
-    book_id: &str,
-) -> SerializableResult<()> {
+pub fn delete_book(app: AppHandle, book_id: &str) -> SerializableResult<()> {
+    let db: State<SqlitePool> = app.state();
+    let library_path: State<LibraryPath> = app.state();
+
     use schema::books::dsl;
 
     db.get()?.transaction::<(), SerializableError, _>(|conn| {
         diesel::delete(dsl::books.filter(dsl::book_id.eq(&book_id))).execute(conn)?;
-        fs::remove_dir_all(constants.library_path.join(book_id.to_string()))?;
+        fs::remove_dir_all(library_path.0.join(book_id.to_string()))?;
 
         Ok(())
     })

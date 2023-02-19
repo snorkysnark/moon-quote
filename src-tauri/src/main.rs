@@ -3,9 +3,6 @@
     windows_subsystem = "windows"
 )]
 
-mod commands;
-mod db;
-mod deeplink;
 mod error;
 mod library;
 mod server;

@@ -2,7 +2,7 @@
 # see https://diesel.rs/guides/configuring-diesel-cli
 
 [print_schema]
-file = "src-tauri/src/db/schema.rs"
+file = "src-tauri/src/library/schema.rs"
 
 [migrations_directory]
 dir = "migrations"
