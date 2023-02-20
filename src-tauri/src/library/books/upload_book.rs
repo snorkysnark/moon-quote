@@ -58,12 +58,12 @@ pub fn upload_book(
             .to_string();
 
         let book_id = sha256::digest_file(&book_path)?;
-        let book_row = BookRaw::from_metadata(
-            book_id.clone(),
-            book_filename.clone(),
-            cover_file_desc.as_ref().map(|cover| cover.filename.clone()),
+        let book_row = BookRaw {
+            book_id: book_id.clone(),
+            epub_file: book_filename.clone(),
+            cover_file: cover_file_desc.as_ref().map(|cover| cover.filename.clone()),
             metadata,
-        );
+        };
         diesel::insert_into(dsl::books)
             .values(&book_row)
             .execute(conn)?;
