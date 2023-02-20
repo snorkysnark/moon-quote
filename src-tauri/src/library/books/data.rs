@@ -7,6 +7,7 @@ use crate::library::schema;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
 #[diesel(table_name = schema::books)]
+#[serde(rename_all = "camelCase")]
 pub struct EpubMetadata {
     #[diesel(column_name = "meta_title")]
     pub title: Option<String>,
