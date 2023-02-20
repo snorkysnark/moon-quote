@@ -33,6 +33,7 @@ pub fn plugin() -> TauriPlugin<Wry> {
             annotations::get_annotations_for_book,
             annotations::get_annotation,
             annotations::delete_annotation,
+            annotations::add_annotation,
         ])
         .build()
 }
