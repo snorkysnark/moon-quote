@@ -3,6 +3,7 @@ use std::error::Error as StdError;
 use anyhow::Result;
 use serde::{Serialize, Serializer};
 
+// A serializable wrapper around anyhow::Error
 pub struct SerializableError {
     error: anyhow::Error,
 }
@@ -33,6 +34,7 @@ impl Serialize for SerializableError {
     }
 }
 
+// Serializable version of anyhow::Result
 pub type SerializableResult<T, E = SerializableError> = Result<T, E>;
 
 impl From<SerializableError> for anyhow::Error {
@@ -41,6 +43,7 @@ impl From<SerializableError> for anyhow::Error {
     }
 }
 
+// Serializable version of anyhow::anyhow!
 macro_rules! sanyhow {
     ($($args:tt),+) => {
         crate::error::SerializableError::new(::anyhow::anyhow!($($args),+))
