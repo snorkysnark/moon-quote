@@ -3,22 +3,19 @@
     windows_subsystem = "windows"
 )]
 
+mod commands;
+mod deeplink;
 mod error;
 mod library;
 mod server;
 mod utils;
 
-use std::{fs, path::PathBuf};
 use tauri::{
     CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem,
     WindowEvent,
 };
 
 use deeplink::{DeeplinkClient, DeeplinkPlugin, Message, TargetUrl};
-
-pub struct Constants {
-    library_path: PathBuf,
-}
 
 fn main() {
     let goto_annotation: Option<TargetUrl> = std::env::args()
@@ -46,34 +43,11 @@ fn main() {
                     .add_item(CustomMenuItem::new("quit".to_owned(), "Quit")),
             );
 
-            let context = tauri::generate_context!();
-            let data_dir = tauri::api::path::data_dir()
-                .expect("Cannot find data directory")
-                .join(&context.config().tauri.bundle.identifier);
-
-            let library_path = data_dir.join("library");
-            fs::create_dir_all(&library_path).expect("creating library folder");
-
-            let db_pool = db::init_db(&library_path.join("metadata.db"));
-
             tauri::Builder::default()
-                .manage(Constants { library_path })
-                .manage(db_pool)
-                .invoke_handler(tauri::generate_handler![
-                    library::upload_book,
-                    library::get_books,
-                    library::get_book,
-                    library::delete_book,
-                    library::add_annotation,
-                    library::get_annotations_for_book,
-                    library::get_annotation,
-                    library::delete_annotation,
-                    library::get_annotations_all,
-                    commands::open_folder,
-                    server::finish_search,
-                ])
+                .plugin(library::plugin())
                 .plugin(DeeplinkPlugin::new(goto_annotation))
                 .plugin(server::plugin())
+                .invoke_handler(tauri::generate_handler![commands::open_folder,])
                 .system_tray(tray)
                 .on_system_tray_event(|app, event| match event {
                     SystemTrayEvent::LeftClick { .. } => {
@@ -100,7 +74,7 @@ fn main() {
                     }
                     _ => {}
                 })
-                .run(context)
+                .run(tauri::generate_context!())
                 .expect("error while running tauri application");
         }
     }
