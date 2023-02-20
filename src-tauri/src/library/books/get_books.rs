@@ -5,48 +5,32 @@ use super::data::{BookAbsolutePath, BookRaw};
 use crate::{
     error::SerializableResult,
     library::{db::SqlitePool, schema::books::dsl, LibraryPath},
+    utils::const_columns,
 };
 
-const ALL_COLUMNS: (
-    dsl::book_id,
-    dsl::epub_file,
-    dsl::cover_file,
+const_columns!(
+    ALL_COLUMNS,
     (
-        dsl::meta_title,
-        dsl::meta_creator,
-        dsl::meta_description,
-        dsl::meta_pubdate,
-        dsl::meta_publisher,
-        dsl::meta_identifier,
-        dsl::meta_language,
-        dsl::meta_rights,
-        dsl::meta_modified_date,
-        dsl::meta_layout,
-        dsl::meta_orientation,
-        dsl::meta_flow,
-        dsl::meta_viewport,
-        dsl::meta_spread,
-    ),
-) = (
-    dsl::book_id,
-    dsl::epub_file,
-    dsl::cover_file,
-    (
-        dsl::meta_title,
-        dsl::meta_creator,
-        dsl::meta_description,
-        dsl::meta_pubdate,
-        dsl::meta_publisher,
-        dsl::meta_identifier,
-        dsl::meta_language,
-        dsl::meta_rights,
-        dsl::meta_modified_date,
-        dsl::meta_layout,
-        dsl::meta_orientation,
-        dsl::meta_flow,
-        dsl::meta_viewport,
-        dsl::meta_spread,
-    ),
+        dsl::book_id,
+        dsl::epub_file,
+        dsl::cover_file,
+        (
+            dsl::meta_title,
+            dsl::meta_creator,
+            dsl::meta_description,
+            dsl::meta_pubdate,
+            dsl::meta_publisher,
+            dsl::meta_identifier,
+            dsl::meta_language,
+            dsl::meta_rights,
+            dsl::meta_modified_date,
+            dsl::meta_layout,
+            dsl::meta_orientation,
+            dsl::meta_flow,
+            dsl::meta_viewport,
+            dsl::meta_spread,
+        ),
+    )
 );
 
 #[tauri::command]

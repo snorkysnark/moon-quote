@@ -7,4 +7,12 @@ macro_rules! pub_use_commands {
     };
 }
 
-pub(crate) use pub_use_commands;
+// When creating constants that are tuples of diesel columns,
+// their type is the same as the value
+macro_rules! const_columns {
+    ($name:ident, $columns:tt) => {
+        const $name: $columns = $columns;
+    };
+}
+
+pub(crate) use {const_columns, pub_use_commands};
