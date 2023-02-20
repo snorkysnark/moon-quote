@@ -3,8 +3,10 @@ use std::fs;
 use diesel::prelude::*;
 use tauri::{AppHandle, Manager, State};
 
-use super::{db::SqlitePool, schema, LibraryPath};
-use crate::error::{SerializableError, SerializableResult};
+use crate::{
+    error::{SerializableError, SerializableResult},
+    library::{db::SqlitePool, schema, LibraryPath},
+};
 
 #[tauri::command]
 pub fn delete_book(app: AppHandle, book_id: &str) -> SerializableResult<()> {

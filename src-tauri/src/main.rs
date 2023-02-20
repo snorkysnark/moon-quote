@@ -6,6 +6,7 @@
 mod error;
 mod library;
 mod server;
+mod utils;
 
 use std::{fs, path::PathBuf};
 use tauri::{

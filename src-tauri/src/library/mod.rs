@@ -1,8 +1,6 @@
+mod books;
 mod db;
-mod delete_book;
-mod get_books;
 mod schema;
-mod upload_book;
 
 use std::{fs, path::PathBuf};
 
@@ -28,8 +26,9 @@ pub fn plugin() -> TauriPlugin<Wry> {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            get_books::get_books,
-            delete_book::delete_book
+            books::get_books,
+            books::delete_book,
+            books::upload_book,
         ])
         .build()
 }
