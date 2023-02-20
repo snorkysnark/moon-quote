@@ -1,3 +1,4 @@
+mod annotations;
 mod books;
 mod db;
 mod schema;
@@ -29,6 +30,8 @@ pub fn plugin() -> TauriPlugin<Wry> {
             books::get_books,
             books::delete_book,
             books::upload_book,
+            annotations::get_annotations_for_book,
+            annotations::get_annotation,
         ])
         .build()
 }
