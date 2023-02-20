@@ -18,6 +18,7 @@ pub fn get_annotations_for_book(
 
     let mut conn = db.get()?;
     let rows = dsl::annotations
+        .select(Annotation::COLUMNS)
         .filter(dsl::book_id.eq(book_id))
         .load::<Annotation>(&mut conn)?;
 
@@ -32,6 +33,7 @@ pub fn get_annotation(app: AppHandle, annotation_id: i32) -> SerializableResult<
 
     let mut conn = db.get()?;
     let annotation = dsl::annotations
+        .select(Annotation::COLUMNS)
         .filter(dsl::annotation_id.eq(annotation_id))
         .first(&mut conn)?;
 

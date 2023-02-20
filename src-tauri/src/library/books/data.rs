@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use diesel::{Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 
-use crate::library::schema;
+use crate::{library::schema, utils::const_columns};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
 #[diesel(table_name = schema::books)]
@@ -61,6 +61,31 @@ pub struct BookAbsolutePath {
 }
 
 impl BookRaw {
+    const_columns!(
+        pub const COLUMNS = (
+            schema::books::book_id,
+            schema::books::epub_file,
+            schema::books::cover_file,
+            (
+                schema::books::meta_title,
+                schema::books::meta_creator,
+                schema::books::meta_description,
+                schema::books::meta_pubdate,
+                schema::books::meta_publisher,
+                schema::books::meta_identifier,
+                schema::books::meta_language,
+                schema::books::meta_rights,
+                schema::books::meta_modified_date,
+                schema::books::meta_layout,
+                schema::books::meta_orientation,
+                schema::books::meta_flow,
+                schema::books::meta_viewport,
+                schema::books::meta_spread,
+            ),
+        )
+    );
+
+
     pub fn with_absolute_paths(
         self,
         epub_path: PathBuf,

@@ -10,8 +10,11 @@ macro_rules! pub_use_commands {
 // When creating constants that are tuples of diesel columns,
 // their type is the same as the value
 macro_rules! const_columns {
-    ($name:ident, $columns:tt) => {
+    (const $name:ident = $columns:tt) => {
         const $name: $columns = $columns;
+    };
+    (pub const $name:ident = $columns:tt) => {
+        pub const $name: $columns = $columns;
     };
 }
 
