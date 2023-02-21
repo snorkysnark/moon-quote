@@ -2,17 +2,16 @@ use std::io::{prelude::*, BufReader};
 
 use anyhow::{anyhow, Context, Result};
 use interprocess::local_socket::{LocalSocketListener, LocalSocketStream};
-use tauri::{AppHandle, Manager, Runtime};
+use tauri::{AppHandle, Manager};
 
-use super::message::Message;
+use super::Message;
 
 // Runs on the main window, listens to incoming messages, such as GoToAnnotation
-pub struct DeeplinkServer<R: Runtime> {
-    app: AppHandle<R>,
+pub struct DeeplinkServer {
+    app: AppHandle,
 }
-
-impl<R: Runtime> DeeplinkServer<R> {
-    pub fn new(app: AppHandle<R>) -> Result<Self> {
+impl DeeplinkServer {
+    pub fn new(app: AppHandle) -> Result<Self> {
         Ok(Self { app })
     }
 
@@ -66,7 +65,7 @@ trait AppHandleExt {
     fn set_window_focused(&self, name: &str) -> Result<()>;
 }
 
-impl<R: Runtime> AppHandleExt for AppHandle<R> {
+impl AppHandleExt for AppHandle {
     fn set_window_focused(&self, name: &str) -> Result<()> {
         match self.get_window(name) {
             Some(window) => {

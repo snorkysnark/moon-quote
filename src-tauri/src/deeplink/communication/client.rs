@@ -2,7 +2,7 @@ use anyhow::Result;
 use interprocess::local_socket::LocalSocketStream;
 use std::io::{BufReader, Write};
 
-use super::message::Message;
+use super::Message;
 
 pub struct DeeplinkClient {
     conn: BufReader<LocalSocketStream>,

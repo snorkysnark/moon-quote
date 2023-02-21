@@ -9,4 +9,4 @@ pub_use_commands!(get_books => { get_books, get_book });
 pub_use_commands!(delete_book => { delete_book });
 pub_use_commands!(upload_book => { upload_book });
 
-pub use data::BookAbsolutePath;
+pub use data::BookAbsolutePath as Book;

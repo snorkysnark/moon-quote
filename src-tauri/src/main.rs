@@ -15,18 +15,18 @@ use tauri::{
     WindowEvent,
 };
 
-use deeplink::{DeeplinkClient, DeeplinkPlugin, Message, TargetUrl};
+use deeplink::{DeeplinkClient, Message, TargetUrl};
 
 fn main() {
-    let goto_annotation: Option<TargetUrl> = std::env::args()
+    let target_url: Option<TargetUrl> = std::env::args()
         .nth(1)
         .map(|url_string| url_string.parse().expect("Invalid URL"));
 
     match DeeplinkClient::new() {
         Ok(mut client) => {
             eprintln!("Sending message to existing server");
-            let message = match goto_annotation {
-                Some(goto_annotation) => Message::GoToTarget(goto_annotation),
+            let message = match target_url {
+                Some(target) => Message::GoToTarget(target),
                 None => Message::Focus,
             };
             client
@@ -45,9 +45,9 @@ fn main() {
 
             tauri::Builder::default()
                 .plugin(library::plugin())
-                .plugin(DeeplinkPlugin::new(goto_annotation))
+                .plugin(deeplink::plugin(target_url))
                 .plugin(server::plugin())
-                .invoke_handler(tauri::generate_handler![commands::open_folder,])
+                .invoke_handler(tauri::generate_handler![commands::open_folder])
                 .system_tray(tray)
                 .on_system_tray_event(|app, event| match event {
                     SystemTrayEvent::LeftClick { .. } => {
