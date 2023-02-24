@@ -115,7 +115,7 @@ pub fn plugin<R: Runtime>() -> TauriPlugin<R> {
         }
     }
 
-    Builder::new("server")
+    Builder::new("local_server")
         .setup(|app| {
             let app = app.app_handle();
             app.manage(SearchState {

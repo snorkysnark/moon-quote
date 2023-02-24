@@ -7,7 +7,7 @@ mod commands;
 mod deeplink;
 mod error;
 mod library;
-mod server;
+mod local_server;
 mod utils;
 
 use tauri::{
@@ -46,7 +46,7 @@ fn main() {
             tauri::Builder::default()
                 .plugin(library::plugin())
                 .plugin(deeplink::plugin(target_url))
-                .plugin(server::plugin())
+                .plugin(local_server::plugin())
                 .invoke_handler(tauri::generate_handler![commands::open_folder])
                 .system_tray(tray)
                 .on_system_tray_event(|app, event| match event {
