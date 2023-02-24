@@ -4,7 +4,7 @@ use diesel::prelude::*;
 use serde::Deserialize;
 use tauri::{AppHandle, Manager, State};
 
-use super::data::{BookAbsolutePath, BookRaw, EpubMetadata};
+use super::data::{Book, BookRaw, EpubMetadata};
 use crate::{
     error::{sanyhow, SerializableError, SerializableResult},
     library::{db::SqlitePool, schema, LibraryPath},
@@ -41,7 +41,7 @@ pub fn upload_book(
     book_path: PathBuf,
     metadata: EpubMetadata,
     cover: Option<EpubCover>,
-) -> SerializableResult<BookAbsolutePath> {
+) -> SerializableResult<Book> {
     let db: State<SqlitePool> = app.state();
     let library_path: State<LibraryPath> = app.state();
 

@@ -1,14 +1,14 @@
 use diesel::prelude::*;
 use tauri::{AppHandle, Manager, State};
 
-use super::data::{BookAbsolutePath, BookRaw};
+use super::data::{Book, BookRaw};
 use crate::{
     error::SerializableResult,
     library::{db::SqlitePool, schema::books::dsl, LibraryPath},
 };
 
 #[tauri::command]
-pub fn get_books(app: AppHandle) -> SerializableResult<Vec<BookAbsolutePath>> {
+pub fn get_books(app: AppHandle) -> SerializableResult<Vec<Book>> {
     let db: State<SqlitePool> = app.state();
     let library_path: State<LibraryPath> = app.state();
 
@@ -25,7 +25,7 @@ pub fn get_books(app: AppHandle) -> SerializableResult<Vec<BookAbsolutePath>> {
 }
 
 #[tauri::command]
-pub fn get_book(app: AppHandle, book_id: &str) -> SerializableResult<BookAbsolutePath> {
+pub fn get_book(app: AppHandle, book_id: &str) -> SerializableResult<Book> {
     let db: State<SqlitePool> = app.state();
     let library_path: State<LibraryPath> = app.state();
 

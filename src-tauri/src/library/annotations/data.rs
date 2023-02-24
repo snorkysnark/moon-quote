@@ -1,7 +1,13 @@
 use diesel::{Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 
-use crate::{library::schema, utils::const_columns};
+use crate::{
+    library::{
+        books::{Book, BookRaw},
+        schema,
+    },
+    utils::const_columns,
+};
 
 #[derive(Debug, Clone, Queryable, Serialize, Deserialize, Insertable)]
 #[diesel(table_name = schema::annotations)]
@@ -21,6 +27,18 @@ pub struct Annotation {
     pub annotation_id: i32,
     #[serde(flatten)]
     pub data: AnnotationData,
+}
+
+#[derive(Debug, Queryable)]
+pub struct AnnotationFullRaw {
+    pub book: BookRaw,
+    pub annotation: Annotation,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct AnnotationFull {
+    pub book: Book,
+    pub annotation: Annotation,
 }
 
 impl Annotation {

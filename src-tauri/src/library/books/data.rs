@@ -53,7 +53,7 @@ pub struct BookRaw {
 // Same as BookRaw, but with the relative paths replaced with absolute ones
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct BookAbsolutePath {
+pub struct Book {
     pub book_id: String,
     pub epub_path: PathBuf,
     pub cover_path: Option<PathBuf>,
@@ -90,15 +90,15 @@ impl BookRaw {
         self,
         epub_path: PathBuf,
         cover_path: Option<PathBuf>,
-    ) -> BookAbsolutePath {
-        BookAbsolutePath {
+    ) -> Book {
+        Book {
             book_id: self.book_id,
             epub_path,
             cover_path,
             metadata: self.metadata,
         }
     }
-    pub fn with_absolute_paths_auto(self, library_path: &Path) -> BookAbsolutePath {
+    pub fn with_absolute_paths_auto(self, library_path: &Path) -> Book {
         let container_path = library_path.join(&self.book_id);
         let epub_path = container_path.join(&self.epub_file);
         let cover_path = self
