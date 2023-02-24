@@ -38,7 +38,7 @@ impl TargetLoaded {
             }),
             TargetUrl::Chapter { book_id, href } => Ok(TargetLoaded {
                 book: library::get_book(app.app_handle(), &book_id)?,
-                data: TargetLoadedData::Range(href),
+                data: TargetLoadedData::Chapter(href),
             }),
         }
     }
