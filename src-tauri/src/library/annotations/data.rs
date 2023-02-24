@@ -21,7 +21,7 @@ pub struct AnnotationData {
     pub collapsed: bool,
 }
 
-#[derive(Debug, Clone, Queryable, Serialize)]
+#[derive(Debug, Clone, Queryable, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Annotation {
     pub annotation_id: i32,
@@ -35,7 +35,7 @@ pub struct AnnotationFullRaw {
     pub annotation: Annotation,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AnnotationFull {
     pub book: Book,
     pub annotation: Annotation,

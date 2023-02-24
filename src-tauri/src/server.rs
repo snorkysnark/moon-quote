@@ -5,10 +5,7 @@ use axum::{
     routing::get,
     Router,
 };
-use futures::{
-    prelude::*,
-    stream::{SplitSink, SplitStream},
-};
+use futures::{prelude::*, stream::SplitStream};
 use tauri::{
     async_runtime::{Mutex, Sender},
     plugin::{Builder, TauriPlugin},
@@ -152,5 +149,6 @@ pub fn plugin<R: Runtime>() -> TauriPlugin<R> {
             });
             Ok(())
         })
+        .invoke_handler(tauri::generate_handler![finish_search])
         .build()
 }

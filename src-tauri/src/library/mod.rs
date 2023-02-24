@@ -11,8 +11,8 @@ use tauri::{
     Manager, Wry,
 };
 
-pub use books::{Book, get_book};
-pub use annotations::{Annotation, get_annotation};
+pub use annotations::{get_annotation, get_annotations_all, Annotation, AnnotationFull};
+pub use books::{get_book, Book};
 
 struct LibraryPath(PathBuf);
 
@@ -37,6 +37,7 @@ pub fn plugin() -> TauriPlugin<Wry> {
             annotations::get_annotation,
             annotations::delete_annotation,
             annotations::add_annotation,
+            annotations::get_annotations_all,
         ])
         .build()
 }

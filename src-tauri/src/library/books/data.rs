@@ -51,7 +51,7 @@ pub struct BookRaw {
 }
 
 // Same as BookRaw, but with the relative paths replaced with absolute ones
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Book {
     pub book_id: String,
