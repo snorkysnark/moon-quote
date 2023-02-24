@@ -21,7 +21,6 @@ pub fn plugin(initial_url: Option<TargetUrl>) -> TauriPlugin<Wry> {
         .setup(move |app_handle| {
             // If there was a URL argument, load that annotation from the database
             let initial_target = initial_url
-                .take()
                 .and_then(|url| match url.load(app_handle) {
                     Ok(target) => Some(target),
                     Err(err) => {

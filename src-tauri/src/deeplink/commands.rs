@@ -22,7 +22,7 @@ impl From<Option<TargetLoaded>> for InitialTarget {
 pub(super) fn initial_target(
     state: State<InitialTarget>,
 ) -> SerializableResult<Option<TargetLoaded>> {
-    let target = state
+    let mut target = state
         .initial_target
         .lock()
         .map_err(|err| sanyhow!("{err}"))?;
