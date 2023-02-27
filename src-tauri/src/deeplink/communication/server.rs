@@ -52,7 +52,7 @@ impl DeeplinkServer {
             Message::Focus => self.app.set_window_focused("main")?,
             Message::GoToTarget(link) => {
                 let link_data = link.load(&self.app)?;
-                self.app.emit_all("goto_url", link_data)?;
+                self.app.emit_all("goto_target", link_data)?;
                 self.app.set_window_focused("main")?;
             }
         }
