@@ -34,7 +34,6 @@ pub fn plugin() -> TauriPlugin<Wry> {
             books::delete_book,
             books::upload_book,
             annotations::get_annotations_for_book,
-            annotations::get_annotation,
             annotations::delete_annotation,
             annotations::add_annotation,
             annotations::get_annotations_all,

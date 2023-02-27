@@ -1,16 +1,6 @@
 import { invoke } from "@tauri-apps/api";
 import { BookEntry } from "./books";
 
-export interface AnnotationEntry {
-    annotationId: number;
-    bookId: string;
-    cfi: string;
-    textContent: string;
-    color: string;
-    comment: string;
-    collapsed: boolean;
-}
-
 export interface AnnotationData {
     bookId: string;
     cfi: string;
@@ -19,6 +9,11 @@ export interface AnnotationData {
     comment: string;
     collapsed: boolean;
 }
+
+export interface AnnotationEntry extends AnnotationData {
+    annotationId: number;
+}
+
 
 export interface AnnotationFull {
     book: BookEntry;
