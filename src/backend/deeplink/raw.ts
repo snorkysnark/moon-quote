@@ -9,10 +9,10 @@ export const GOTO_TARGET = "goto_target";
 // (if existed before the webrenderer was initialised) through getInitialTarget() command
 export interface DeeplinkTarget {
     book: BookEntry;
-    data: DeeplinkTargetData;
+    location: DeeplinkTargetLocation;
 }
 
-export type DeeplinkTargetData =
+export type DeeplinkTargetLocation =
     | {
           type: "Annotation";
           value: AnnotationEntry;
@@ -27,5 +27,5 @@ export type DeeplinkTargetData =
       };
 
 export function getInitialTarget(): Promise<DeeplinkTarget> {
-    return invoke("plugin:library|initial_target");
+    return invoke("plugin:deeplink|initial_target");
 }

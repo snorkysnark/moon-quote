@@ -14,8 +14,8 @@ import {
 } from "solid-js";
 import { ImList2 } from "solid-icons/im";
 import { HiSolidAnnotation } from "solid-icons/hi";
-import { BookDatabaseEntry } from "src/backend/library";
-import { Target } from "src/deeplink";
+import { BookEntry } from "src/backend/library";
+import { DeeplinkTargetLocation } from "src/backend/deeplink";
 import { createStorageSignal } from "src/signals/localstorage";
 import { AnnotationsResource } from "./annotations";
 import AnnotationList from "./AnnotationList";
@@ -40,10 +40,10 @@ const sidePanelButtons: SidePanelButton[] = [
 ];
 
 export default function ReaderView(props: {
-    bookEntry: BookDatabaseEntry;
+    bookEntry: BookEntry;
     annotations: AnnotationsResource;
     epub: Book;
-    getExternalTarget?: Accessor<Target>;
+    getExternalTarget?: Accessor<DeeplinkTargetLocation>;
 }) {
     // Storing toc state outside of ToC component,
     // so that it persists when the panel is closed

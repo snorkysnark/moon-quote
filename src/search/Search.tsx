@@ -13,7 +13,7 @@ import * as backend from "src/backend/library";
 
 interface SearchItem {
     searchText: string;
-    annotation: backend.AnnotationFull;
+    annotationFull: backend.AnnotationFull;
 }
 
 export default function Search() {
@@ -22,10 +22,10 @@ export default function Search() {
     });
 
     const items = createMemo(() => {
-        return annotations().map((annotation) => {
+        return annotations().map((ann) => {
             return {
-                searchText: `${annotation.metaCreator}, ${annotation.metaTitle}: ${annotation.textContent}`,
-                annotation,
+                searchText: `${ann.book.metadata.creator}, ${ann.book.metadata.title}: ${ann.annotation.textContent}`,
+                annotationFull: ann,
             } as SearchItem;
         });
     });
@@ -73,7 +73,7 @@ export default function Search() {
             case "Enter":
                 if (filteredItems().length > 0) {
                     invoke("finish_search", {
-                        value: filteredItems()[selectedItem()].annotation,
+                        value: filteredItems()[selectedItem()].annotationFull,
                     });
                 }
                 appWindow.close();
@@ -128,7 +128,10 @@ export default function Search() {
                         >
                             <div
                                 class="w-2 shrink-0"
-                                style={{ background: item.annotation.color }}
+                                style={{
+                                    background:
+                                        item.annotationFull.annotation.color,
+                                }}
                             />
                             <p
                                 class="p-1 cursor-default w-full"

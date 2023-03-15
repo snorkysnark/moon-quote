@@ -3,7 +3,7 @@ import { createMemo, createSignal, Show } from "solid-js";
 import { BiRegularLinkAlt } from "solid-icons/bi";
 import { BiRegularHighlight } from "solid-icons/bi";
 import * as clipboard from "@tauri-apps/api/clipboard";
-import { makeAnnotationURL } from "src/deeplink";
+import { makeTargetURL } from "src/backend/deeplink";
 import { EpubCFI } from "epubjs";
 import { toast } from "src/toast";
 import CaretOverlay from "./CaretOverlay";
@@ -42,13 +42,13 @@ export default function SelectionOverlay(props: {
                     class="p-1 hover:bg-blue-100"
                     onClick={() => {
                         clipboard.writeText(
-                            makeAnnotationURL(
-                                props.bookId,
-                                new EpubCFI(
+                            makeTargetURL({
+                                bookId: props.bookId,
+                                range: new EpubCFI(
                                     props.selectionRange,
                                     props.baseCfi
-                                ).toString()
-                            )
+                                ).toString(),
+                            })
                         );
                         toast("Copied URL to clipboard");
                     }}

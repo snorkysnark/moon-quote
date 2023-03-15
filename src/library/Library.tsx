@@ -6,7 +6,7 @@ import {
     Show,
     Switch,
 } from "solid-js";
-import { type BookDatabaseEntry } from "src/backend/library";
+import { type BookEntry } from "src/backend/library";
 import * as backend from "src/backend/library";
 import * as path from "@tauri-apps/api/path";
 import * as dialog from "@tauri-apps/api/dialog";
@@ -16,7 +16,7 @@ import FileDropSplash from "src/decor/FileDropSplash";
 import LibraryBook from "./LibraryBook";
 
 export default function Library(props: {
-    onBookOpen: (book: BookDatabaseEntry) => void;
+    onBookOpen: (book: BookEntry) => void;
 }) {
     const [books, { mutate: setBooks }] = createResource(backend.getBooks);
 
@@ -40,7 +40,7 @@ export default function Library(props: {
         setUploadingBook(null);
     }
 
-    function deleteBook(target: BookDatabaseEntry) {
+    function deleteBook(target: BookEntry) {
         setBooks((books) =>
             books.filter((other) => other.bookId !== target.bookId)
         );

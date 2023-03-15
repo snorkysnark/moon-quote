@@ -5,7 +5,7 @@ import * as clipboard from "@tauri-apps/api/clipboard";
 import { toast } from "src/toast";
 
 import { contextMenu } from "src/contextMenu";
-import { makeChapterURL } from "src/deeplink";
+import { makeTargetURL } from "src/backend/deeplink";
 false && contextMenu;
 
 export interface NavItemFoldable {
@@ -58,7 +58,9 @@ export function ToC(props: {
         props.setToc(produce((store) => setAllItemsOpened(store.items, false)));
     }
     function copyUrl(href: string) {
-        clipboard.writeText(makeChapterURL(props.bookId, href));
+        clipboard.writeText(
+            makeTargetURL({ bookId: props.bookId, chapter: href })
+        );
         toast("Copied URL to clipboard");
     }
 

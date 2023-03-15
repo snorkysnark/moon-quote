@@ -18,8 +18,8 @@ import {
 } from "solid-js";
 import ScrollTarget from "./scrollTarget";
 import SelectionOverlay from "./SelectionOverlay";
-import { AnnotationEntry, BookDatabaseEntry } from "src/backend/library";
-import { Target } from "src/deeplink";
+import { AnnotationEntry, BookEntry } from "src/backend/library";
+import { DeeplinkTargetLocation } from "src/backend/deeplink";
 import * as clipboard from "@tauri-apps/api/clipboard";
 import { toast } from "src/toast";
 import { createAnnotationRanges } from "./annotations/annotationRanges";
@@ -43,13 +43,13 @@ export interface EpubDisplayController {
 }
 
 export default function EpubDisplay(propsRaw: {
-    bookEntry: BookDatabaseEntry;
+    bookEntry: BookEntry;
     epub: Book;
     annotations: AnnotationsResource;
     selectedAnnotationCfi: EpubCFI;
     pointerEvents?: boolean;
     controllerRef?: (controller: EpubDisplayController) => void;
-    getExternalTarget?: Accessor<Target>;
+    getExternalTarget?: Accessor<DeeplinkTargetLocation>;
     onClickAnnotation?: (annotation: AnnotationEntry) => void;
 }) {
     const props = mergeProps({ pointerEvents: true }, propsRaw);
@@ -72,7 +72,7 @@ export default function EpubDisplay(propsRaw: {
         const target = props.getExternalTarget?.();
         if (target) visitExternalTarget(target);
     });
-    function visitExternalTarget(target: Target) {
+    function visitExternalTarget(target: DeeplinkTargetLocation) {
         switch (target.type) {
             case "Range":
                 setSection(props.epub.spine.get(target.value));
@@ -454,7 +454,7 @@ export default function EpubDisplay(propsRaw: {
                             cfi: new EpubCFI(
                                 selectionRange(),
                                 contents().cfiBase
-                            ),
+                            ).toString(),
                             textContent: selectionRange().toString(),
                             color: selectionRange().collapsed
                                 ? "var(--highlight2)"
@@ -465,7 +465,7 @@ export default function EpubDisplay(propsRaw: {
                         props.annotations.add(newAnnotation);
                         iframe.contentDocument.getSelection().removeAllRanges();
                         setSelectionRange(null);
-                        props.onClickAnnotation?.(newAnnotation);
+                        // props.onClickAnnotation?.(newAnnotation);
                     }}
                 />
             </Show>
@@ -473,7 +473,7 @@ export default function EpubDisplay(propsRaw: {
                 highlights={annotationRanges.highlights()}
                 onClick={props.onClickAnnotation}
                 onDelete={(annotation) =>
-                    props.annotations.remove(annotation.bookId, annotation.cfi)
+                    props.annotations.remove(annotation.annotationId)
                 }
                 selectedAnnotationCfi={props.selectedAnnotationCfi}
             />
@@ -487,8 +487,7 @@ export default function EpubDisplay(propsRaw: {
                         ]}
                         onDelete={() =>
                             props.annotations.remove(
-                                flag.annotation.entry.bookId,
-                                flag.annotation.entry.cfi
+                                flag.annotation.entry.annotationId
                             )
                         }
                         selected={

@@ -1,7 +1,7 @@
 import { listen } from "@tauri-apps/api/event";
 import { DeeplinkTarget, GOTO_TARGET, getInitialTarget } from "./deeplink/raw";
 
-export type { DeeplinkTarget, DeeplinkTargetData } from "./deeplink/raw";
+export type { DeeplinkTarget, DeeplinkTargetLocation } from "./deeplink/raw";
 
 // Encodes a url of type 'moonquote:///annotation/<id>',
 // 'moonquote:///book/<id>/range/<cfi>' or 'moonquote:///book/<id>/nav/<href>'
@@ -25,7 +25,11 @@ export function makeTargetURL(
 }
 
 export function onAnnotationLink(callback: (target: DeeplinkTarget) => void) {
-    getInitialTarget().then((target) => callback?.(target));
+    getInitialTarget().then((target) => {
+        if (target) {
+            callback?.(target);
+        }
+    });
     const unlisten = listen<DeeplinkTarget>(GOTO_TARGET, (event) => {
         callback?.(event.payload);
     });

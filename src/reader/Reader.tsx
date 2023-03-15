@@ -1,13 +1,13 @@
 import { Accessor, createResource, Show } from "solid-js";
-import { BookDatabaseEntry, loadEpub } from "src/backend/library";
+import { BookEntry, loadEpub } from "src/backend/library";
 import Loading from "src/decor/Loading";
-import { Target } from "src/deeplink";
+import { DeeplinkTargetLocation } from "src/backend/deeplink";
 import { createAnnotations } from "./annotations";
 import ReaderView from "./ReaderView";
 
 export default function Reader(props: {
-    bookEntry: BookDatabaseEntry;
-    getExternalTarget?: Accessor<Target>;
+    bookEntry: BookEntry;
+    getExternalTarget?: Accessor<DeeplinkTargetLocation>;
     onExit?: () => void;
 }) {
     const [epub] = createResource(
@@ -31,7 +31,7 @@ export default function Reader(props: {
                     class="text-2xl font-bold self-center flex-auto \
                         cursor-default overflow-hidden overflow-ellipsis whitespace-nowrap"
                 >
-                    {props.bookEntry.metaTitle}
+                    {props.bookEntry.metadata.title}
                 </h1>
             </div>
             <Show

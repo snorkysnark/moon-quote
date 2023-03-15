@@ -3,8 +3,11 @@ import { sortAnnotations } from "src/util/cfi";
 import { BookEntry } from "./books";
 import * as raw from "./raw/annotations";
 
-export { addAnnotation, deleteAnnotation } from "./raw/annotations";
-export type { AnnotationData } from "./raw/annotations";
+export { deleteAnnotation } from "./raw/annotations";
+export type {
+    AnnotationData,
+    AnnotationEntry as AnnotationEntryRaw,
+} from "./raw/annotations";
 
 export interface AnnotationEntry {
     annotationId: number;
@@ -40,4 +43,14 @@ export async function getAnnotationsAll(): Promise<AnnotationFull[]> {
             cfi: new EpubCFI(annotation.cfi),
         },
     }));
+}
+
+export async function addAnnotation(
+    data: raw.AnnotationData
+): Promise<AnnotationEntry> {
+    const annotation = await raw.addAnnotation(data);
+    return {
+        ...annotation,
+        cfi: new EpubCFI(annotation.cfi),
+    };
 }

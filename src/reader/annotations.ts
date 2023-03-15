@@ -1,13 +1,16 @@
 import { createResource, Resource, ResourceSource } from "solid-js";
-import { AnnotationEntry, getAnnotationsForBook } from "src/backend/library";
+import {
+    AnnotationEntry,
+    AnnotationData,
+    getAnnotationsForBook,
+} from "src/backend/library";
 import { sortAnnotations } from "src/util/cfi";
 import * as backend from "src/backend/library";
-import { EpubCFI } from "epubjs";
 
 export interface AnnotationsResource {
     value: Resource<AnnotationEntry[]>;
-    add: (annotation: AnnotationEntry) => Promise<void>;
-    remove: (bookId: string, cfi: EpubCFI) => Promise<void>;
+    add: (annotation: AnnotationData) => Promise<void>;
+    remove: (annotationId: number) => Promise<void>;
 }
 
 export function createAnnotations(
@@ -20,19 +23,17 @@ export function createAnnotations(
         }
     );
 
-    async function add(annotation: AnnotationEntry) {
-        await backend.addAnnotation(annotation);
+    async function add(annotationData: AnnotationData) {
+        const annotation = await backend.addAnnotation(annotationData);
         setAnnotations((annotations) =>
             sortAnnotations([...annotations, annotation])
         );
     }
 
-    async function remove(bookId: string, cfi: EpubCFI) {
-        await backend.deleteAnnotation(bookId, cfi);
+    async function remove(annotationId: number) {
+        await backend.deleteAnnotation(annotationId);
         setAnnotations((annotations) =>
-            annotations.filter(
-                (ann) => ann.bookId !== bookId || ann.cfi !== cfi
-            )
+            annotations.filter((ann) => ann.annotationId != annotationId)
         );
     }
 

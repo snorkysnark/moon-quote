@@ -1,27 +1,24 @@
 import { batch, createSignal, onCleanup, Show } from "solid-js";
-import { type BookDatabaseEntry } from "./backend/library";
+import { type BookEntry } from "./backend/library";
+import { onAnnotationLink, DeeplinkTargetLocation } from "./backend/deeplink";
 import ContextMenuProvider from "./ContextMenuProvider";
-import { onAnnotationLink, Target } from "./deeplink";
 import Library from "./library/Library";
 import Reader from "./reader/Reader";
 
 export default function App() {
-    const [currentBook, setCurrentBook] = createSignal<BookDatabaseEntry>(
-        null,
-        { equals: (prev, next) => prev?.bookId === next?.bookId }
-    );
-    const [targetLocation, setTargetLocation] = createSignal<Target>(null);
+    const [currentBook, setCurrentBook] = createSignal<BookEntry>(null, {
+        equals: (prev, next) => prev?.bookId === next?.bookId,
+    });
+    const [targetLocation, setTargetLocation] =
+        createSignal<DeeplinkTargetLocation>(null);
 
     const unsubscribe = onAnnotationLink((link) => {
         batch(() => {
             setCurrentBook(link.book);
-            setTargetLocation(link.target);
+            setTargetLocation(link.location);
         });
     });
-
-    onCleanup(async () => {
-        (await unsubscribe)();
-    });
+    onCleanup(unsubscribe);
 
     return (
         <ContextMenuProvider>

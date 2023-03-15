@@ -1,6 +1,6 @@
 import { EpubCFI } from "epubjs";
 import { EpubCFIStep } from "epubjs/types/epubcfi";
-import type { AnnotationEntry } from "src/backend/annotations";
+import type { AnnotationEntry } from "src/backend/library";
 
 export function sortAnnotations(annotations: AnnotationEntry[]) {
     annotations.sort((a, b) => compareCfi(a.cfi, b.cfi));
