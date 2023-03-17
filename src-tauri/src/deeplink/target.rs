@@ -9,7 +9,7 @@ use super::url::TargetUrl;
 #[derive(Debug, Clone, Serialize)]
 pub struct TargetLoaded {
     book: Book,
-    data: TargetLoadedData,
+    location: TargetLoadedData,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -29,16 +29,16 @@ impl TargetLoaded {
 
                 Ok(TargetLoaded {
                     book,
-                    data: TargetLoadedData::Annotation(annotation),
+                    location: TargetLoadedData::Annotation(annotation),
                 })
             }
             TargetUrl::Range { book_id, cfi } => Ok(TargetLoaded {
                 book: library::get_book(app.app_handle(), &book_id)?,
-                data: TargetLoadedData::Range(cfi),
+                location: TargetLoadedData::Range(cfi),
             }),
             TargetUrl::Chapter { book_id, href } => Ok(TargetLoaded {
                 book: library::get_book(app.app_handle(), &book_id)?,
-                data: TargetLoadedData::Chapter(href),
+                location: TargetLoadedData::Chapter(href),
             }),
         }
     }
