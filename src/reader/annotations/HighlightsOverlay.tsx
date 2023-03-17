@@ -2,9 +2,12 @@ import { EpubCFI } from "epubjs";
 import { For, Show } from "solid-js";
 import { AnnotationEntry } from "src/backend/library";
 import { AnnotationHighlight } from "./annotationRanges";
+import * as clipboard from "@tauri-apps/api/clipboard";
+import { toast } from "src/toast";
 
 // use:__ directives
 import { contextMenu } from "src/contextMenu";
+import { makeTargetURL } from "src/backend/deeplink";
 false && contextMenu;
 
 export default function HighlightsOverlay(props: {
@@ -26,6 +29,19 @@ export default function HighlightsOverlay(props: {
                                 label: "Delete",
                                 action: () =>
                                     props.onDelete(highlight.annotation.entry),
+                            },
+                            {
+                                label: "URL",
+                                action: () => {
+                                    clipboard.writeText(
+                                        makeTargetURL({
+                                            annotation:
+                                                highlight.annotation.entry
+                                                    .annotationId,
+                                        })
+                                    );
+                                    toast("Copied URL to clipboard")
+                                },
                             },
                         ]}
                     >
