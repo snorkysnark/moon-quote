@@ -16,11 +16,11 @@ export function makeTargetURL(
     } else if ("range" in description) {
         return `moonquote:///book/${encodeURIComponent(
             description.bookId
-        )}/range/${description.range}`;
+        )}/range/${encodeURIComponent(description.range)}`;
     } else {
         return `moonquote:///book/${encodeURIComponent(
             description.bookId
-        )}/nav/${description.chapter}`;
+        )}/nav/${encodeURIComponent(description.chapter)}`;
     }
 }
 
