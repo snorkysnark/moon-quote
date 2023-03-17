@@ -16,7 +16,6 @@ import {
     onMount,
     Show,
 } from "solid-js";
-import ScrollTarget from "./scrollTarget";
 import SelectionOverlay from "./SelectionOverlay";
 import { AnnotationEntry, BookEntry } from "src/backend/library";
 import { DeeplinkTargetLocation } from "src/backend/deeplink";
@@ -41,6 +40,20 @@ export interface EpubDisplayController {
     pageDownOrNext: () => void;
     tryGetLocation: () => string;
 }
+
+type ScrollTarget =
+    | {
+          type: "side";
+          side: "top" | "bottom";
+      }
+    | {
+          type: "link";
+          link: string;
+      }
+    | {
+          type: "range";
+          cfi: string;
+      };
 
 export default function EpubDisplay(propsRaw: {
     bookEntry: BookEntry;
