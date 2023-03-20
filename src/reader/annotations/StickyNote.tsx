@@ -1,6 +1,9 @@
 import { JSX } from "solid-js";
 import { AnnotationNote } from "./annotationRanges";
 import NoteIcon from "src/decor/stickyNote.svg?component-solid";
+import { makeTargetURL } from "src/backend/deeplink";
+import * as clipboard from "@tauri-apps/api/clipboard";
+import { toast } from "src/toast";
 
 // use:__ directives
 import { contextMenu } from "src/contextMenu";
@@ -25,7 +28,19 @@ export default function StickyNote(props: {
             }}
             onClick={props.onClick}
             use:contextMenu={[
-                { label: "Delete", action: props.onDelete }
+                { label: "Delete", action: props.onDelete },
+                {
+                    label: "URL",
+                    action: () => {
+                        clipboard.writeText(
+                            makeTargetURL({
+                                annotation:
+                                    props.note.annotation.entry.annotationId,
+                            })
+                        );
+                        toast("Copied URL to clipboard");
+                    },
+                },
             ]}
         >
             <NoteIcon
