@@ -1,13 +1,12 @@
-import { EpubCFI } from "epubjs";
 import { For, Show } from "solid-js";
 import { AnnotationEntry } from "src/backend/library";
 import { AnnotationHighlight } from "./annotationRanges";
+import { makeTargetURL } from "src/backend/deeplink";
 import * as clipboard from "@tauri-apps/api/clipboard";
 import { toast } from "src/toast";
 
 // use:__ directives
 import { contextMenu } from "src/contextMenu";
-import { makeTargetURL } from "src/backend/deeplink";
 false && contextMenu;
 
 export default function HighlightsOverlay(props: {
@@ -17,7 +16,7 @@ export default function HighlightsOverlay(props: {
     selectedAnnotationId: number;
 }) {
     return (
-        <svg class="absolute overflow-visible mix-blend-multiply">
+        <svg class="absolute overflow-visible mix-blend-multiply w-0 h-0">
             <For each={props.highlights}>
                 {(highlight) => (
                     <g
