@@ -101,6 +101,9 @@ export default function EpubDisplay(propsRaw: {
                     setScrollTarget({ type: "link", link: target.value });
                 });
                 break;
+            case "Annotation":
+                displayAnnotation(target.value);
+                break;
         }
     }
 
@@ -386,7 +389,9 @@ export default function EpubDisplay(propsRaw: {
         const section = props.epub.spine.get(cfiString);
         if (section) {
             setSection(section);
-            setScrollTarget({ type: "range", cfi: cfiString });
+            queueMicrotask(() => {
+                setScrollTarget({ type: "range", cfi: cfiString });
+            });
         }
     }
 

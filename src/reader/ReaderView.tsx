@@ -5,6 +5,7 @@ import { createStore } from "solid-js/store";
 import {
     Accessor,
     createComputed,
+    createEffect,
     createSignal,
     For,
     Match,
@@ -86,6 +87,18 @@ export default function ReaderView(props: {
         createSignal<number>();
 
     let displayController: EpubDisplayController;
+
+    const [passedTarget, setPassedTarget] = createSignal<DeeplinkTargetLocation>(null);
+    createEffect(() => {
+        const target = props.getExternalTarget?.();
+        if (target) {
+            if (target.type === "Annotation") {
+                setCurrentSidePanel("annotations");
+                setSelectedAnnotationId(target.value.annotationId);
+            }
+            setPassedTarget(target);
+        }
+    });
 
     return (
         <div
@@ -202,7 +215,11 @@ export default function ReaderView(props: {
                             epub={props.epub}
                             pointerEvents={iframePointerEvents()}
                             controllerRef={(c) => (displayController = c)}
-                            getExternalTarget={props.getExternalTarget}
+                            getExternalTarget={() => {
+                                const target = passedTarget();
+                                setPassedTarget(null);
+                                return target;
+                            }}
                         />
                     </div>
                     <ResizeHandle
