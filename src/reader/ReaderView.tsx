@@ -20,7 +20,6 @@ import { createStorageSignal } from "src/signals/localstorage";
 import { AnnotationsResource } from "./annotations";
 import AnnotationList from "./AnnotationList";
 import ResizeHandle from "src/ResizeHandle";
-import { EpubCFI } from "epubjs";
 import { Dynamic } from "solid-js/web";
 
 // use:__ directives
@@ -83,8 +82,8 @@ export default function ReaderView(props: {
     // Location will be restored after resizing
     let locationLock: string = null;
 
-    const [selectedAnnotationCfi, setSelectedAnnotationCfi] =
-        createSignal<EpubCFI>();
+    const [selectedAnnotationId, setSelectedAnnotationId] =
+        createSignal<number>();
 
     let displayController: EpubDisplayController;
 
@@ -144,14 +143,14 @@ export default function ReaderView(props: {
                             <Match when={currentSidePanel() === "annotations"}>
                                 <AnnotationList
                                     annotations={props.annotations}
-                                    selectedCfi={selectedAnnotationCfi()}
+                                    selectedId={selectedAnnotationId()}
                                     onClick={(annotation) => {
                                         if (displayController) {
                                             displayController.displayAnnotation(
                                                 annotation
                                             );
-                                            setSelectedAnnotationCfi(
-                                                annotation.cfi
+                                            setSelectedAnnotationId(
+                                                annotation.annotationId
                                             );
                                         }
                                     }}
@@ -191,9 +190,11 @@ export default function ReaderView(props: {
                         <EpubDisplay
                             bookEntry={props.bookEntry}
                             annotations={props.annotations}
-                            selectedAnnotationCfi={selectedAnnotationCfi()}
+                            selectedAnnotationId={selectedAnnotationId()}
                             onClickAnnotation={(annotation) => {
-                                setSelectedAnnotationCfi(annotation?.cfi);
+                                setSelectedAnnotationId(
+                                    annotation?.annotationId
+                                );
                                 if (annotation) {
                                     setCurrentSidePanel("annotations");
                                 }

@@ -59,7 +59,7 @@ export default function EpubDisplay(propsRaw: {
     bookEntry: BookEntry;
     epub: Book;
     annotations: AnnotationsResource;
-    selectedAnnotationCfi: EpubCFI;
+    selectedAnnotationId: number;
     pointerEvents?: boolean;
     controllerRef?: (controller: EpubDisplayController) => void;
     getExternalTarget?: Accessor<DeeplinkTargetLocation>;
@@ -488,7 +488,7 @@ export default function EpubDisplay(propsRaw: {
                 onDelete={(annotation) =>
                     props.annotations.remove(annotation.annotationId)
                 }
-                selectedAnnotationCfi={props.selectedAnnotationCfi}
+                selectedAnnotationId={props.selectedAnnotationId}
             />
             <For each={annotationRanges.notes()}>
                 {(flag) => (
@@ -504,8 +504,8 @@ export default function EpubDisplay(propsRaw: {
                             )
                         }
                         selected={
-                            flag.annotation.entry.cfi ===
-                            props.selectedAnnotationCfi
+                            flag.annotation.entry.annotationId ===
+                            props.selectedAnnotationId
                         }
                     />
                 )}

@@ -14,7 +14,7 @@ export default function HighlightsOverlay(props: {
     highlights: AnnotationHighlight[];
     onClick: (annotation: AnnotationEntry) => void;
     onDelete: (annotation: AnnotationEntry) => void;
-    selectedAnnotationCfi: EpubCFI;
+    selectedAnnotationId: number;
 }) {
     return (
         <svg class="absolute overflow-visible mix-blend-multiply">
@@ -40,7 +40,7 @@ export default function HighlightsOverlay(props: {
                                                     .annotationId,
                                         })
                                     );
-                                    toast("Copied URL to clipboard")
+                                    toast("Copied URL to clipboard");
                                 },
                             },
                         ]}
@@ -62,8 +62,8 @@ export default function HighlightsOverlay(props: {
                 {(highlight) => (
                     <Show
                         when={
-                            highlight.annotation.entry.cfi ===
-                            props.selectedAnnotationCfi
+                            highlight.annotation.entry.annotationId ===
+                            props.selectedAnnotationId
                         }
                     >
                         <rect

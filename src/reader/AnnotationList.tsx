@@ -2,11 +2,10 @@ import { For, Show } from "solid-js";
 import { AnnotationsResource } from "./annotations";
 import NoteIcon from "src/decor/stickyNote.svg?component-solid";
 import { AnnotationEntry } from "src/backend/library";
-import { EpubCFI } from "epubjs";
 
 export default function AnnotationList(props: {
     annotations: AnnotationsResource;
-    selectedCfi: EpubCFI;
+    selectedId: number;
     onClick: (annotation: AnnotationEntry) => void;
 }) {
     return (
@@ -16,8 +15,10 @@ export default function AnnotationList(props: {
                     <button
                         class="bg-white p-1"
                         classList={{
-                            "bg-white": annotation.cfi !== props.selectedCfi,
-                            "bg-blue-300": annotation.cfi === props.selectedCfi,
+                            "bg-white":
+                                annotation.annotationId !== props.selectedId,
+                            "bg-blue-300":
+                                annotation.annotationId === props.selectedId,
                         }}
                         onClick={[props.onClick, annotation]}
                     >
@@ -30,7 +31,9 @@ export default function AnnotationList(props: {
                                     class="w-2 shrink-0 mr-1"
                                     style={{ background: annotation.color }}
                                 />
-                                <p class="text-left">{annotation.textContent}</p>
+                                <p class="text-left">
+                                    {annotation.textContent}
+                                </p>
                             </div>
                         </Show>
                     </button>
