@@ -37,6 +37,7 @@ pub fn plugin() -> TauriPlugin<Wry> {
             annotations::delete_annotation,
             annotations::add_annotation,
             annotations::get_annotations_all,
+            annotations::set_annotation_comment,
         ])
         .build()
 }

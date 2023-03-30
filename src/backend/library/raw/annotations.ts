@@ -14,13 +14,14 @@ export interface AnnotationEntry extends AnnotationData {
     annotationId: number;
 }
 
-
 export interface AnnotationFull {
     book: BookEntry;
     annotation: AnnotationEntry;
 }
 
-export function getAnnotationsForBook(bookId: string): Promise<AnnotationEntry[]> {
+export function getAnnotationsForBook(
+    bookId: string
+): Promise<AnnotationEntry[]> {
     return invoke("plugin:library|get_annotations_for_book", { bookId });
 }
 
@@ -34,4 +35,14 @@ export function addAnnotation(data: AnnotationData): Promise<AnnotationEntry> {
 
 export function deleteAnnotation(annotationId: number): Promise<void> {
     return invoke("plugin:library|delete_annotation", { annotationId });
+}
+
+export async function setAnnotationComment(
+    annotationId: number,
+    value: string
+): Promise<void> {
+    return invoke("plugin:library|set_annotation_comment", {
+        annotationId,
+        value,
+    });
 }

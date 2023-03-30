@@ -1,9 +1,10 @@
 import { EpubCFI } from "epubjs";
+import { Accessor, createSignal, Setter } from "solid-js";
 import { sortAnnotations } from "src/util/cfi";
 import { BookEntry } from "./books";
 import * as raw from "./raw/annotations";
 
-export { deleteAnnotation } from "./raw/annotations";
+export { deleteAnnotation, setAnnotationComment } from "./raw/annotations";
 export type {
     AnnotationData,
     AnnotationEntry as AnnotationEntryRaw,
@@ -15,7 +16,8 @@ export interface AnnotationEntry {
     cfi: EpubCFI;
     textContent: string;
     color: string;
-    comment: string;
+    comment: Accessor<string>;
+    setComment: (value: string) => void;
     collapsed: boolean;
 }
 
@@ -24,33 +26,37 @@ export interface AnnotationFull {
     annotation: AnnotationEntry;
 }
 
+function annotationFromRaw(annotation: raw.AnnotationEntry): AnnotationEntry {
+    const [comment, setComment] = createSignal(annotation.comment);
+
+    return {
+        ...annotation,
+        cfi: new EpubCFI(annotation.cfi),
+        comment: comment,
+        setComment: (value: string) => {
+            setComment(value);
+            raw.setAnnotationComment(annotation.annotationId, value);
+        },
+    };
+}
+
 export async function getAnnotationsForBook(
     bookId: string
 ): Promise<AnnotationEntry[]> {
     return sortAnnotations(
-        (await raw.getAnnotationsForBook(bookId)).map((annotation) => ({
-            ...annotation,
-            cfi: new EpubCFI(annotation.cfi),
-        }))
+        (await raw.getAnnotationsForBook(bookId)).map(annotationFromRaw)
     );
 }
 
 export async function getAnnotationsAll(): Promise<AnnotationFull[]> {
     return (await raw.getAnnotationsAll()).map(({ book, annotation }) => ({
         book,
-        annotation: {
-            ...annotation,
-            cfi: new EpubCFI(annotation.cfi),
-        },
+        annotation: annotationFromRaw(annotation),
     }));
 }
 
 export async function addAnnotation(
     data: raw.AnnotationData
 ): Promise<AnnotationEntry> {
-    const annotation = await raw.addAnnotation(data);
-    return {
-        ...annotation,
-        cfi: new EpubCFI(annotation.cfi),
-    };
+    return annotationFromRaw(await raw.addAnnotation(data));
 }
