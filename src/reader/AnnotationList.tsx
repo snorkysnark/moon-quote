@@ -1,4 +1,4 @@
-import { For, Show } from "solid-js";
+import { For, Show, untrack } from "solid-js";
 import { AnnotationsResource } from "./annotations";
 import { AnnotationEntry } from "src/backend/library";
 
@@ -33,23 +33,23 @@ export default function AnnotationList(props: {
                                     annotation.comment() || selected(annotation)
                                 }
                             >
-                                <textarea
-                                    rows="1"
-                                    class="bg-yellow-100 resize-none border-orange-500 border-2 rounded border-dashed"
+                                <div
+                                    class="border-2 rounded border-blue-500"
                                     classList={{
-                                        "pointer-events-none":
+                                        "border-dashed bg-blue-100":
                                             !selected(annotation),
+                                        "bg-yellow-100": selected(annotation),
                                     }}
-                                    disabled={!selected(annotation)}
-                                    value={annotation.comment()}
+                                    contentEditable={selected(annotation)}
                                     onInput={(event) => {
                                         annotation.setComment(
-                                            (
-                                                event.target as HTMLTextAreaElement
-                                            ).value
+                                            (event.target as HTMLElement)
+                                                .innerText
                                         );
                                     }}
-                                />
+                                >
+                                    {untrack(annotation.comment)}
+                                </div>
                             </Show>
                         </div>
                     </button>

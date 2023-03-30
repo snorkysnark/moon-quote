@@ -1,5 +1,5 @@
 import { EpubCFI } from "epubjs";
-import { Accessor, createSignal, Setter } from "solid-js";
+import { Accessor, createSignal } from "solid-js";
 import { sortAnnotations } from "src/util/cfi";
 import { BookEntry } from "./books";
 import * as raw from "./raw/annotations";
@@ -34,6 +34,9 @@ function annotationFromRaw(annotation: raw.AnnotationEntry): AnnotationEntry {
         cfi: new EpubCFI(annotation.cfi),
         comment: comment,
         setComment: (value: string) => {
+            value = value.trim()
+            if (value === "") value = null;
+
             setComment(value);
             raw.setAnnotationComment(annotation.annotationId, value);
         },

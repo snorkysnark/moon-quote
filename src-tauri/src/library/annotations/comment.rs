@@ -10,7 +10,7 @@ use crate::{
 pub fn set_annotation_comment(
     app: AppHandle,
     annotation_id: i32,
-    value: String,
+    value: Option<String>,
 ) -> SerializableResult<()> {
     let db: State<SqlitePool> = app.state();
 
