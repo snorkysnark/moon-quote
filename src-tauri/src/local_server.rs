@@ -13,10 +13,10 @@ use tauri::{
 };
 use tower_http::cors::{Any, CorsLayer};
 
-use crate::{error::SerializableResult, library::AnnotationFull};
+use crate::error::SerializableResult;
 
 pub struct SearchState {
-    sender: Mutex<Option<Sender<AnnotationFull>>>,
+    sender: Mutex<Option<Sender<serde_json::Value>>>,
 }
 
 fn open_search<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
@@ -36,6 +36,7 @@ fn open_search<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
     window.on_window_event(move |event| {
         if matches!(event, WindowEvent::Destroyed) {
             let search_state: State<'_, SearchState> = app.state();
+
             // Clear search_state when window has been closed
             futures::executor::block_on(async {
                 search_state.sender.lock().await.take();
@@ -49,14 +50,12 @@ fn open_search<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
 #[tauri::command]
 pub async fn finish_search(
     state: State<'_, SearchState>,
-    value: Option<AnnotationFull>,
+    value: serde_json::Value,
 ) -> SerializableResult<()> {
     let mut sender = state.sender.lock().await;
     if let Some(sender) = sender.take() {
-        if let Some(value) = value {
-            if let Err(err) = sender.send(value).await {
-                eprintln!("{err}");
-            }
+        if let Err(err) = sender.send(value).await {
+            eprintln!("{err}");
         }
     }
 
@@ -66,7 +65,7 @@ pub async fn finish_search(
 pub fn plugin<R: Runtime>() -> TauriPlugin<R> {
     async fn handle_socket<R: Runtime>(socket: WebSocket, app: AppHandle<R>) {
         let (mut ws_sender, ws_receiver) = socket.split();
-        let (tx, mut rx) = tauri::async_runtime::channel::<AnnotationFull>(100);
+        let (tx, mut rx) = tauri::async_runtime::channel::<serde_json::Value>(100);
 
         let read_task = async move { read_socket(ws_receiver, app, tx).await };
         let write_task = async move {
@@ -88,7 +87,7 @@ pub fn plugin<R: Runtime>() -> TauriPlugin<R> {
     async fn read_socket<R: Runtime>(
         mut receiver: SplitStream<WebSocket>,
         app: AppHandle<R>,
-        answer_sender: Sender<AnnotationFull>,
+        answer_sender: Sender<serde_json::Value>,
     ) {
         while let Some(msg) = receiver.next().await {
             match msg {

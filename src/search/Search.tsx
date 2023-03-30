@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api";
 import { appWindow } from "@tauri-apps/api/window";
 import {
     createResource,
@@ -10,6 +9,7 @@ import {
     on,
 } from "solid-js";
 import * as backend from "src/backend/library";
+import { finishSearch } from "src/backend/localServer";
 
 interface SearchItem {
     searchText: string;
@@ -72,9 +72,7 @@ export default function Search() {
                 break;
             case "Enter":
                 if (filteredItems().length > 0) {
-                    invoke("finish_search", {
-                        value: filteredItems()[selectedItem()].annotationFull,
-                    });
+                    finishSearch(filteredItems()[selectedItem()].annotationFull);
                 }
                 appWindow.close();
                 break;

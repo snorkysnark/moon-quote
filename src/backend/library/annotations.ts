@@ -1,12 +1,16 @@
 import { EpubCFI } from "epubjs";
 import { Accessor, createSignal } from "solid-js";
 import { sortAnnotations } from "src/util/cfi";
-import { BookEntry } from "./books";
 import * as raw from "./raw/annotations";
 
-export { deleteAnnotation, setAnnotationComment } from "./raw/annotations";
+export {
+    deleteAnnotation,
+    setAnnotationComment,
+    getAnnotationsAll,
+} from "./raw/annotations";
 export type {
     AnnotationData,
+    AnnotationFull,
     AnnotationEntry as AnnotationEntryRaw,
 } from "./raw/annotations";
 
@@ -21,11 +25,6 @@ export interface AnnotationEntry {
     collapsed: boolean;
 }
 
-export interface AnnotationFull {
-    book: BookEntry;
-    annotation: AnnotationEntry;
-}
-
 function annotationFromRaw(annotation: raw.AnnotationEntry): AnnotationEntry {
     const [comment, setComment] = createSignal(annotation.comment);
 
@@ -34,7 +33,7 @@ function annotationFromRaw(annotation: raw.AnnotationEntry): AnnotationEntry {
         cfi: new EpubCFI(annotation.cfi),
         comment: comment,
         setComment: (value: string) => {
-            value = value.trim()
+            value = value.trim();
             if (value === "") value = null;
 
             setComment(value);
@@ -49,13 +48,6 @@ export async function getAnnotationsForBook(
     return sortAnnotations(
         (await raw.getAnnotationsForBook(bookId)).map(annotationFromRaw)
     );
-}
-
-export async function getAnnotationsAll(): Promise<AnnotationFull[]> {
-    return (await raw.getAnnotationsAll()).map(({ book, annotation }) => ({
-        book,
-        annotation: annotationFromRaw(annotation),
-    }));
 }
 
 export async function addAnnotation(
