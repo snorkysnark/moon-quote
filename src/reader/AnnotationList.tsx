@@ -37,12 +37,8 @@ export default function AnnotationList(props: {
                                 }
                             >
                                 <div
-                                    class="border-2 rounded border-blue-500"
-                                    classList={{
-                                        "border-dashed bg-blue-100":
-                                            !selected(annotation),
-                                        "bg-yellow-100": selected(annotation),
-                                    }}
+                                    class="px-1 border-2 rounded border-dashed bg-blue-100 border-blue-500 focus:border-solid focus:bg-yellow-100"
+                                    data-placeholder="Add note"
                                     contentEditable={selected(annotation)}
                                     onInput={(event) => {
                                         annotation.setComment(
