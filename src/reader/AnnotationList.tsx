@@ -11,7 +11,10 @@ export default function AnnotationList(props: {
         annotation.annotationId === props.selectedId;
 
     return (
-        <div class="flex flex-col gap-1 select-none">
+        <div
+            class="flex flex-col gap-1 select-none"
+            onKeyDown={(e) => e.stopPropagation()}
+        >
             <For each={props.annotations.value()}>
                 {(annotation) => (
                     <button

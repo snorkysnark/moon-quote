@@ -439,19 +439,18 @@ export default function EpubDisplay(propsRaw: {
         }
     }
 
-    // onMount(() => {
-    //     window.addEventListener("keydown", onKeyDown);
-    //     onCleanup(() => {
-    //         window.removeEventListener("keydown", onKeyDown);
-    //     });
-    // });
+    onMount(() => {
+        window.addEventListener("keydown", onKeyDown);
+        onCleanup(() => {
+            window.removeEventListener("keydown", onKeyDown);
+        });
+    });
 
     return (
         <div
             class="w-full h-full overflow-scroll relative"
             style={{ "scroll-behavior": "smooth" }}
             ref={scroller}
-            onKeyDown={onKeyDown}
             onWheel={(event) => {
                 if (event.ctrlKey) {
                     event.preventDefault();
