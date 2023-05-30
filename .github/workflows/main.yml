@@ -30,7 +30,7 @@ jobs:
     - name: install app dependencies and build it
       run: yarn && yarn build
     - name: install tauri-cli from git
-      run: cargo install tauri-cli --git https://github.com/snorkysnark/tauri --branch desktop-file-template
+      run: cargo install tauri-cli --git https://github.com/snorkysnark/tauri --rev 587d9de7
     - uses: tauri-apps/tauri-action@v0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -3177,7 +3177,7 @@ dependencies = [
 [[package]]
 name = "tauri"
 version = "1.0.5"
-source = "git+https://github.com/snorkysnark/tauri?branch=desktop-file-template#9a43d0207d41fd5e2082eb47f41d01e16b488a00"
+source = "git+https://github.com/snorkysnark/tauri?rev=587d9de7#587d9de797df84d160dfbdab281d5eb1fe5c06a4"
 dependencies = [
  "anyhow",
  "attohttpc",
@@ -3229,7 +3229,7 @@ dependencies = [
 [[package]]
 name = "tauri-build"
 version = "1.0.4"
-source = "git+https://github.com/snorkysnark/tauri?branch=desktop-file-template#9a43d0207d41fd5e2082eb47f41d01e16b488a00"
+source = "git+https://github.com/snorkysnark/tauri?rev=587d9de7#587d9de797df84d160dfbdab281d5eb1fe5c06a4"
 dependencies = [
  "anyhow",
  "cargo_toml",
@@ -3244,7 +3244,7 @@ dependencies = [
 [[package]]
 name = "tauri-codegen"
 version = "1.0.4"
-source = "git+https://github.com/snorkysnark/tauri?branch=desktop-file-template#9a43d0207d41fd5e2082eb47f41d01e16b488a00"
+source = "git+https://github.com/snorkysnark/tauri?rev=587d9de7#587d9de797df84d160dfbdab281d5eb1fe5c06a4"
 dependencies = [
  "base64 0.13.0",
  "brotli",
@@ -3269,7 +3269,7 @@ dependencies = [
 [[package]]
 name = "tauri-macros"
 version = "1.0.4"
-source = "git+https://github.com/snorkysnark/tauri?branch=desktop-file-template#9a43d0207d41fd5e2082eb47f41d01e16b488a00"
+source = "git+https://github.com/snorkysnark/tauri?rev=587d9de7#587d9de797df84d160dfbdab281d5eb1fe5c06a4"
 dependencies = [
  "heck 0.4.0",
  "proc-macro2",
@@ -3282,7 +3282,7 @@ dependencies = [
 [[package]]
 name = "tauri-runtime"
 version = "0.10.2"
-source = "git+https://github.com/snorkysnark/tauri?branch=desktop-file-template#9a43d0207d41fd5e2082eb47f41d01e16b488a00"
+source = "git+https://github.com/snorkysnark/tauri?rev=587d9de7#587d9de797df84d160dfbdab281d5eb1fe5c06a4"
 dependencies = [
  "gtk",
  "http",
@@ -3302,7 +3302,7 @@ dependencies = [
 [[package]]
 name = "tauri-runtime-wry"
 version = "0.10.2"
-source = "git+https://github.com/snorkysnark/tauri?branch=desktop-file-template#9a43d0207d41fd5e2082eb47f41d01e16b488a00"
+source = "git+https://github.com/snorkysnark/tauri?rev=587d9de7#587d9de797df84d160dfbdab281d5eb1fe5c06a4"
 dependencies = [
  "cocoa",
  "gtk",
@@ -3321,7 +3321,7 @@ dependencies = [
 [[package]]
 name = "tauri-utils"
 version = "1.0.3"
-source = "git+https://github.com/snorkysnark/tauri?branch=desktop-file-template#9a43d0207d41fd5e2082eb47f41d01e16b488a00"
+source = "git+https://github.com/snorkysnark/tauri?rev=587d9de7#587d9de797df84d160dfbdab281d5eb1fe5c06a4"
 dependencies = [
  "brotli",
  "ctor",
